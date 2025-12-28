@@ -1,20 +1,30 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Note } from '../types';
 
 interface NoteCardProps {
     note: Note;
-    onClick: (note: Note) => void;
+    onClick?: (note: Note) => void;
 }
 
 export function NoteCard({ note, onClick }: NoteCardProps) {
+    const navigate = useNavigate();
     const date = new Date(note.updated_at).toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',
     });
 
+    const handleOpen = () => {
+        if (onClick) {
+            onClick(note);
+        } else {
+            navigate(`/notes/${note.id}`);
+        }
+    };
+
     return (
         <div
-            onClick={() => onClick(note)}
+            onClick={handleOpen}
             className="glass group p-5 rounded-3xl border border-white/5 hover:border-vibe-purple/40 transition-all duration-300 cursor-pointer flex flex-col gap-3 relative overflow-hidden"
         >
             {/* Accent Glow */}

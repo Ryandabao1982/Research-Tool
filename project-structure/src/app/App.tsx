@@ -11,6 +11,7 @@ import { useTheme } from '../shared/theme/ThemeProvider';
 
 // Pages
 import { NotesPage } from '../features/notes/NotesPage';
+import { NoteEditorPage } from '../features/editor/NoteEditorPage';
 import { GraphPage } from '../features/graph/GraphPage';
 import { SearchPage } from '../features/search/SearchPage';
 import { TagsPage } from '../features/tags/TagsPage';
@@ -28,6 +29,7 @@ export function App() {
                 <Routes>
                     <Route path="/" element={<Navigate to="/notes" replace />} />
                     <Route path="/notes" element={<NotesPage />} />
+                    <Route path="/notes/:id" element={<NoteEditorPage />} />
                     <Route path="/graph" element={<GraphPage />} />
                     <Route path="/search" element={<SearchPage />} />
                     <Route path="/tags" element={<TagsPage />} />
