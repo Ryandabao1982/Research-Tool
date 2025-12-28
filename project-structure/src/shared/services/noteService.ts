@@ -59,6 +59,22 @@ export class TauriNoteService implements NoteService {
             throw error;
         }
     }
+
+    async listFolders(): Promise<Folder[]> {
+        return await invoke<Folder[]>('list_folders');
+    }
+
+    async createFolder(name: string, parent_id?: string): Promise<Folder> {
+        return await invoke<Folder>('create_folder', { name, parent_id });
+    }
+
+    async listTags(): Promise<Tag[]> {
+        return await invoke<Tag[]>('list_tags');
+    }
+
+    async listLinks(): Promise<Link[]> {
+        return await invoke<Link[]>('list_links');
+    }
 }
 
 /**

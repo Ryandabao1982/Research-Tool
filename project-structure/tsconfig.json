@@ -44,11 +44,10 @@
         "sourceMap": true
     },
     "include": [
-        "src",
-        "scripts",
-        "plugins",
-        "vite.config.ts",
-        "tauri.conf.json"
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.d.ts",
+        "scripts/**/*.ts"
     ],
     "exclude": [
         "node_modules",
