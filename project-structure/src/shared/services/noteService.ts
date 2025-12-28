@@ -5,6 +5,7 @@ import {
     CreateNoteRequest,
     UpdateNoteRequest,
     NoteFilters,
+    Link,
     Folder,
     Tag
 } from '../types';
@@ -212,6 +213,24 @@ export class LocalNoteService implements NoteService {
 
     async listTags(): Promise<Tag[]> {
         return this.getTags();
+    }
+
+    // --- Link Management ---
+
+    private getLinks(): Link[] {
+        const data = localStorage.getItem('kb_pro_links');
+        if (!data) {
+            const seed: Link[] = [
+                { id: 'l1', source_note_id: '1', target_note_id: '2', link_type: 'wikilink', created_at: new Date().toISOString() },
+            ];
+            localStorage.setItem('kb_pro_links', JSON.stringify(seed));
+            return seed;
+        }
+        return JSON.parse(data);
+    }
+
+    async listLinks(): Promise<Link[]> {
+        return this.getLinks();
     }
 }
 ```
