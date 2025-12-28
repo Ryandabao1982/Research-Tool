@@ -8,6 +8,7 @@ import { Button } from '../../shared/components/Button';
 import { Card } from '../../shared/components/Card';
 import { Input } from '../../shared/components/Input';
 import { toast } from 'react-hot-toast';
+import { Note } from '../../shared/types';
 
 export function NotesPage() {
     const { noteService } = useServices();
@@ -31,7 +32,7 @@ export function NotesPage() {
             content: 'Start capturing your insights...',
             tags: ['research'],
         }),
-        onSuccess: (newNote) => {
+        onSuccess: (newNote: Note) => {
             queryClient.invalidateQueries({ queryKey: ['notes'] });
             toast.success('Discovered new knowledge', {
                 icon: '✨',
@@ -119,7 +120,7 @@ export function NotesPage() {
                     </div>
                 ) : notes && notes.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                        {notes.map((note: any, index: number) => (
+                        {notes.map((note: Note, index: number) => (
                             <div
                                 key={note.id}
                                 className="animate-fade-in"

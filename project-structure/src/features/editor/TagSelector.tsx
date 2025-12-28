@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, X, Plus, Hash, Check } from 'lucide-react';
 import { useServices } from '../../shared/services/serviceContext';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../shared/components/Button';
 import { Input } from '../../shared/components/Input';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { Tag } from '../../shared/types';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -27,7 +28,7 @@ export function TagSelector({ selectedTags, onTagsChange, onClose }: TagSelector
         queryFn: () => noteService.listTags(),
     });
 
-    const filteredTags = allTags?.filter(tag =>
+    const filteredTags = allTags?.filter((tag: Tag) =>
         tag.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
@@ -72,7 +73,7 @@ export function TagSelector({ selectedTags, onTagsChange, onClose }: TagSelector
                             icon={Search}
                             className="bg-white/5 border-white/5 h-10 text-xs"
                         />
-                        {searchQuery && !filteredTags.some(t => t.name.toLowerCase() === searchQuery.toLowerCase()) && (
+                        {searchQuery && !filteredTags.some((t: Tag) => t.name.toLowerCase() === searchQuery.toLowerCase()) && (
                             <button
                                 onClick={addNewTag}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-vibe-blue hover:text-vibe-blue/80 transition-colors flex items-center gap-1 text-[10px] font-bold uppercase"
@@ -84,7 +85,7 @@ export function TagSelector({ selectedTags, onTagsChange, onClose }: TagSelector
 
                     <div className="max-h-48 overflow-y-auto scrollbar-hidden space-y-1">
                         {filteredTags.length > 0 ? (
-                            filteredTags.map(tag => {
+                            filteredTags.map((tag: Tag) => {
                                 const isSelected = selectedTags.includes(tag.name);
                                 return (
                                     <button
