@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Zap, Link2, X, Check, BrainCircuit } from 'lucide-react';
+import { Zap, Link2, X } from 'lucide-react';
 import { useServices } from '../../shared/services/serviceContext';
 import { NeuralLinker, LinkSuggestion } from '../../plugins/neural-linker';
 import { Button } from '../../shared/components/Button';
@@ -24,7 +24,7 @@ export function NeuralLinkerPanel({ noteId, content, title }: NeuralLinkerPanelP
     });
 
     const isEnabled = useMemo(() =>
-        plugins?.find(p => p.manifest.id === 'neural-linker')?.enabled ?? false,
+        plugins?.find((p: any) => p.manifest.id === 'neural-linker')?.enabled ?? false,
         [plugins]);
 
     // 2. Fetch all notes to compare
@@ -74,7 +74,7 @@ export function NeuralLinkerPanel({ noteId, content, title }: NeuralLinkerPanelP
                 <div className="h-8 w-[1px] bg-white/5" />
 
                 <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hidden py-1">
-                    {suggestions.map((s, i) => (
+                    {suggestions.map((s: LinkSuggestion, i: number) => (
                         <button
                             key={i}
                             onClick={() => applyLinkMutation.mutate(s)}

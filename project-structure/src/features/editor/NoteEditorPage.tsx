@@ -9,12 +9,11 @@ import { twMerge } from 'tailwind-merge';
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
+
 import { MarkdownPreview } from './MarkdownPreview';
 import { AIChatPanel } from '../ai/AIChatPanel';
 import { NeuralLinkerPanel } from './NeuralLinkerPanel';
 import { Button } from '../../shared/components/Button';
-import { Card } from '../../shared/components/Card';
-import { Input } from '../../shared/components/Input';
 import { toast } from 'react-hot-toast';
 
 export function NoteEditorPage() {
@@ -129,7 +128,10 @@ export function NoteEditorPage() {
             {/* Editor Workspace */}
             <main className="flex-1 flex overflow-hidden">
                 {/* Writing Area */}
-                <div className={`flex-1 transition-all duration-500 overflow-hidden ${isPreview ? 'hidden md:block opacity-30 pointer-events-none' : 'block opacity-100'}`}>
+                <div className={cn(
+                    "flex-1 transition-all duration-500 overflow-hidden",
+                    isPreview ? "hidden md:block opacity-30 pointer-events-none" : "block opacity-100"
+                )}>
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
@@ -140,10 +142,16 @@ export function NoteEditorPage() {
                 </div>
 
                 {/* Separator */}
-                <div className={`hidden md:block w-[1px] bg-white/5 h-full ${isPreview ? 'opacity-0' : 'opacity-100'}`} />
+                <div className={cn(
+                    "hidden md:block w-[1px] bg-white/5 h-full",
+                    isPreview ? "opacity-0" : "opacity-100"
+                )} />
 
                 {/* Preview Area */}
-                <div className={`flex-1 h-full bg-zinc-900/10 transition-all duration-500 overflow-y-auto ${isPreview ? 'block w-full opacity-100' : 'hidden md:block opacity-30 md:max-w-xl lg:max-w-2xl'}`}>
+                <div className={cn(
+                    "flex-1 h-full bg-zinc-900/10 transition-all duration-500 overflow-y-auto",
+                    isPreview ? "block w-full opacity-100" : "hidden md:block opacity-30 md:max-w-xl lg:max-w-2xl"
+                )}>
                     <MarkdownPreview content={content} />
                 </div>
 
