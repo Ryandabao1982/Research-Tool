@@ -65,7 +65,37 @@ export class TauriNoteService implements NoteService {
 export class LocalNoteService implements NoteService {
     private getStorage(): Note[] {
         const data = localStorage.getItem('kb_pro_notes');
-        return data ? JSON.parse(data) : [];
+        if (!data) {
+            const seedData: Note[] = [
+                {
+                    id: '1',
+                    title: 'Welcome to KnowledgeBase Pro',
+                    content: 'This is your first note. KB Pro is designed for high-performance research and long-term knowledge retention. Try creating a new note using the (+) button above!',
+                    tags: ['tutorial', 'welcome'],
+                    is_daily_note: false,
+                    properties: {},
+                    word_count: 25,
+                    reading_time: 1,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                },
+                {
+                    id: '2',
+                    title: 'Building a Second Brain',
+                    content: 'The core philosophy of this tool: Capture everything, organize by utility, distill the essence, and express your findings. Bidirectional linking is key.',
+                    tags: ['philosophy', 'productivity'],
+                    is_daily_note: false,
+                    properties: {},
+                    word_count: 32,
+                    reading_time: 1,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                }
+            ];
+            localStorage.setItem('kb_pro_notes', JSON.stringify(seedData));
+            return seedData;
+        }
+        return JSON.parse(data);
     }
 
     private setStorage(notes: Note[]) {
