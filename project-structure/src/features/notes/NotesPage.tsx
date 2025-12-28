@@ -1,100 +1,152 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, LayoutGrid, List } from 'lucide-react';
 import { useServices } from '../../shared/services/serviceContext';
 import { NoteCard } from '../../shared/components/NoteCard';
+import { Button } from '../../shared/components/Button';
+import { Card } from '../../shared/components/Card';
+import { Input } from '../../shared/components/Input';
 import { toast } from 'react-hot-toast';
 
 export function NotesPage() {
     const { noteService } = useServices();
     const queryClient = useQueryClient();
+    const [searchQuery, setSearchQuery] = useState('');
 
     // 1. Fetch Notes
     const { data: notes, isLoading } = useQuery({
-        queryKey: ['notes'],
-        queryFn: () => noteService.listNotes({ limit: 50 }),
+        queryKey: ['notes', searchQuery],
+        queryFn: () => noteService.listNotes({
+            limit: 50,
+            search: searchQuery
+        }),
     });
 
     // 2. Create Note Mutation
     const createMutation = useMutation({
         mutationFn: () => noteService.createNote({
-            title: 'New Research Note',
-            content: 'Start writing your thoughts here...',
-            tags: ['research', 'new'],
+            title: 'New Research Entry',
+            content: 'Start capturing your insights...',
+            tags: ['research'],
         }),
-        onSuccess: () => {
+        onSuccess: (newNote) => {
             queryClient.invalidateQueries({ queryKey: ['notes'] });
-            toast.success('Note created');
+            toast.success('Discovered new knowledge', {
+                icon: '✨',
+                style: {
+                    borderRadius: '16px',
+                    background: '#18181b',
+                    color: '#fff',
+                    border: '1px solid rgba(168,85,247,0.2)',
+                },
+            });
         },
     });
 
     return (
-        <div className="p-8 max-w-7xl mx-auto space-y-8 animate-fade-in h-full flex flex-col">
-            {/* Header Actions */}
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="space-y-1">
-                    <h2 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">
-                        Notes
+        <div className="p-10 max-w-[1600px] mx-auto space-y-12 animate-fade-in min-h-screen flex flex-col">
+            {/* Header Section */}
+            <section className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                <div className="space-y-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-vibe-purple/10 border border-vibe-purple/20 text-vibe-purple text-[10px] font-bold uppercase tracking-widest">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-vibe-purple opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-vibe-purple"></span>
+                        </span>
+                        Live Knowledge Base
+                    </div>
+                    <h2 className="text-6xl font-black tracking-tighter leading-none">
+                        Deep <span className="text-vibe-purple">Storage.</span>
                     </h2>
-                    <p className="text-muted-foreground text-sm font-medium">
-                        {notes?.length || 0} items found in your knowledge base
+                    <p className="text-muted-foreground text-lg max-w-xl font-medium leading-relaxed">
+                        Manage your digital garden of {notes?.length || 0} interconnected notes.
+                        Search through your second brain instantly.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative group flex-1 md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-vibe-purple transition-colors" />
-                        <input
-                            type="text"
-                            placeholder="Search items..."
-                            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-vibe-purple/50 transition-all text-sm"
-                        />
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+                        <Button variant="ghost" size="icon" className="rounded-xl bg-white/5 shadow-inner">
+                            <LayoutGrid className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="rounded-xl text-white/20">
+                            <List className="w-4 h-4" />
+                        </Button>
                     </div>
-                    <button className="p-2.5 glass rounded-xl hover:bg-white/10 transition-colors border border-white/5">
-                        <Filter className="w-4 h-4" />
-                    </button>
-                    <button
+
+                    <Button
+                        variant="glow"
+                        size="lg"
+                        icon={Plus}
                         onClick={() => createMutation.mutate()}
-                        disabled={createMutation.isPending}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-vibe-purple text-white rounded-xl hover:bg-vibe-purple/80 hover:scale-105 active:scale-95 transition-all font-bold shadow-lg shadow-vibe-purple/20 disabled:opacity-50"
+                        loading={createMutation.isPending}
                     >
-                        <Plus className="w-5 h-5" />
-                        <span>Create</span>
-                    </button>
+                        New Entry
+                    </Button>
                 </div>
-            </header>
+            </section>
+
+            {/* Filter & Search Bar */}
+            <Card variant="glass" className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-4">
+                <div className="flex-1 w-full">
+                    <Input
+                        placeholder="Search through titles and content..."
+                        icon={Search}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="border-none bg-transparent focus:bg-transparent"
+                    />
+                </div>
+                <div className="flex items-center gap-2 w-full md:w-auto border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-4">
+                    <Button variant="ghost" icon={Filter} size="sm">Filters</Button>
+                    <div className="h-4 w-[1px] bg-white/10 hidden md:block" />
+                    <span className="text-[10px] uppercase font-bold text-white/20 tracking-tighter hidden md:block">
+                        Sort: Recent
+                    </span>
+                </div>
+            </Card>
 
             {/* Grid Content */}
-            {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="h-48 glass rounded-3xl animate-pulse bg-white/5" />
-                    ))}
-                </div>
-            ) : notes && notes.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto pr-2 custom-scrollbar">
-                    {notes.map(note => (
-                        <NoteCard
-                            key={note.id}
-                            note={note}
-                            onClick={(n) => console.log('Open note:', n.id)}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="flex-1 flex flex-col items-center justify-center space-y-4 opacity-50">
-                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center">
-                        <Plus className="w-8 h-8 text-white/20" />
+            <div className="flex-1">
+                {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <Card key={i} className="h-64 animate-pulse-slow" />
+                        ))}
                     </div>
-                    <p className="text-lg font-medium">No notes discovered yet.</p>
-                    <button
-                        onClick={() => createMutation.mutate()}
-                        className="text-vibe-purple font-bold hover:underline"
-                    >
-                        Create your first entry
-                    </button>
-                </div>
-            )}
+                ) : notes && notes.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {notes.map((note, index) => (
+                            <div
+                                key={note.id}
+                                className="animate-fade-in"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                <NoteCard
+                                    note={note}
+                                    onClick={(n) => console.log('Opening:', n.title)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="h-[400px] flex flex-col items-center justify-center space-y-6 text-center">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-vibe-purple/20 blur-[100px] rounded-full animate-pulse" />
+                            <div className="relative w-24 h-24 rounded-[2.5rem] bg-white/5 border border-white/10 flex items-center justify-center rotate-12">
+                                <Search className="w-10 h-10 text-white/20 -rotate-12" />
+                            </div>
+                        </div>
+                        <div className="space-y-2 relative">
+                            <h3 className="text-2xl font-bold">No knowledge found</h3>
+                            <p className="text-muted-foreground max-w-xs mx-auto">
+                                No notes match your current search criteria. Try a different query or create a fresh entry.
+                            </p>
+                        </div>
+                        <Button variant="secondary" onClick={() => setSearchQuery('')}>Clear Search</Button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
