@@ -31,7 +31,7 @@ export function NotesPage() {
             content: 'Start capturing your insights...',
             tags: ['research'],
         }),
-        onSuccess: () => {
+        onSuccess: (newNote) => {
             queryClient.invalidateQueries({ queryKey: ['notes'] });
             toast.success('Discovered new knowledge', {
                 icon: '✨',
@@ -42,6 +42,7 @@ export function NotesPage() {
                     border: '1px solid rgba(168,85,247,0.2)',
                 },
             });
+            navigate(`/notes/${newNote.id}`);
         },
     });
 
