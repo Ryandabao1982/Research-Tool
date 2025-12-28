@@ -28,30 +28,34 @@ const queryClient = new QueryClient({
 // Configure React DevTools (only in development)
 const isDev = import.meta.env.DEV;
 
+import { ServiceProvider } from './shared/services/serviceContext';
+
 // Root render function
 function renderApp() {
     ReactDOM.createRoot(document.getElementById('root')!).render(
         <React.StrictMode>
             <QueryClientProvider client={queryClient}>
-                <ThemeProvider>
-                    <BrowserRouter>
-                        <App />
-                        <Toaster
-                            position="top-right"
-                            toastOptions={{
-                                className: 'toast',
-                                duration: 4000,
-                                style: {
-                                    background: 'var(--glass-bg)',
-                                    color: 'var(--text-primary)',
-                                    border: '1px solid var(--glass-border)',
-                                    borderRadius: '12px',
-                                    backdropFilter: 'blur(10px)',
-                                },
-                            }}
-                        />
-                    </BrowserRouter>
-                </ThemeProvider>
+                <ServiceProvider>
+                    <ThemeProvider>
+                        <BrowserRouter>
+                            <App />
+                            <Toaster
+                                position="top-right"
+                                toastOptions={{
+                                    className: 'toast',
+                                    duration: 4000,
+                                    style: {
+                                        background: 'var(--glass-bg)',
+                                        color: 'var(--text-primary)',
+                                        border: '1px solid var(--glass-border)',
+                                        borderRadius: '12px',
+                                        backdropFilter: 'blur(10px)',
+                                    },
+                                }}
+                            />
+                        </BrowserRouter>
+                    </ThemeProvider>
+                </ServiceProvider>
                 {isDev && <ReactQueryDevtools initialIsOpen={false} />}
             </QueryClientProvider>
         </React.StrictMode>,
