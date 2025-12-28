@@ -13,8 +13,10 @@ function cn(...inputs: ClassValue[]) {
 import { MarkdownPreview } from './MarkdownPreview';
 import { AIChatPanel } from '../ai/AIChatPanel';
 import { NeuralLinkerPanel } from './NeuralLinkerPanel';
+import { TagSelector } from './TagSelector';
 import { Button } from '../../shared/components/Button';
 import { toast } from 'react-hot-toast';
+import { AnimatePresence } from 'framer-motion';
 
 export function NoteEditorPage() {
     const { id } = useParams<{ id: string }>();
@@ -24,8 +26,10 @@ export function NoteEditorPage() {
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [tags, setTags] = useState<string[]>([]);
     const [isPreview, setIsPreview] = useState(false);
     const [isAIPanelOpen, setIsAIPanelOpen] = useState(false);
+    const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
 
     // 1. Fetch Note
     const { data: note, isLoading } = useQuery({
@@ -38,16 +42,25 @@ export function NoteEditorPage() {
         if (note) {
             setTitle(note.title);
             setContent(note.content);
+            setTags(note.tags || []);
         }
     }, [note]);
 
     // 2. Save Mutation
     const saveMutation = useMutation({
-        mutationFn: () => noteService.updateNote(id!, { title, content }),
+        mutationFn: () => noteService.updateNote(id!, { title, content, tags }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['note', id] });
             queryClient.invalidateQueries({ queryKey: ['notes'] });
-            toast.success('Knowledge synchronized', { icon: '💾' });
+            toast.success('Knowledge synchronized', {
+                icon: '💾',
+                style: {
+                    borderRadius: '16px',
+                    background: '#18181b',
+                    color: '#fff',
+                    border: '1px solid rgba(168,85,247,0.2)',
+                },
+            });
         },
     });
 
@@ -73,9 +86,28 @@ export function NoteEditorPage() {
                             className="bg-transparent border-none text-lg font-black tracking-tight focus:outline-none placeholder:text-white/20 w-64 md:w-96"
                             placeholder="Untitled Research..."
                         />
-                        <div className="flex items-center gap-3 text-[10px] uppercase font-bold text-white/30 tracking-widest leading-none">
-                            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> modified 2m ago</span>
-                            <span className="flex items-center gap-1 active:text-vibe-purple cursor-pointer transition-colors"><Hash className="w-3 h-3" /> Add Tags</span>
+                        <div className="flex items-center gap-3 text-[10px] uppercase font-bold text-white/30 tracking-widest leading-none relative">
+                            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> modified {note ? 'recently' : 'now'}</span>
+                            <div className="relative">
+                                <span
+                                    onClick={() => setIsTagSelectorOpen(!isTagSelectorOpen)}
+                                    className={cn(
+                                        "flex items-center gap-1 cursor-pointer transition-colors",
+                                        isTagSelectorOpen || tags.length > 0 ? "text-vibe-purple" : "hover:text-vibe-purple"
+                                    )}
+                                >
+                                    <Hash className="w-3 h-3" /> {tags.length > 0 ? `${tags.length} Tag${tags.length > 1 ? 's' : ''}` : 'Add Tags'}
+                                </span>
+                                <AnimatePresence>
+                                    {isTagSelectorOpen && (
+                                        <TagSelector
+                                            selectedTags={tags}
+                                            onTagsChange={setTags}
+                                            onClose={() => setIsTagSelectorOpen(false)}
+                                        />
+                                    )}
+                                </AnimatePresence>
+                            </div>
                         </div>
                     </div>
                 </div>
