@@ -79,17 +79,11 @@ export function ThemeProvider({
     isDark,
   };
 
-  if (!mounted) {
-    return (
-      <div className="theme-provider-loading opacity-0">
-        {children}
-      </div>
-    );
-  }
-
   return (
     <ThemeContext.Provider value={value}>
-      {children}
+      <div className={!mounted ? "theme-provider-loading opacity-0" : ""}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 }
