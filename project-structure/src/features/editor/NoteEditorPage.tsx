@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, ChevronLeft, Eye, Edit3, Share2, MoreHorizontal, Clock, Hash } from 'lucide-react';
+import { Save, ChevronLeft, Eye, Edit3, Share2, MoreHorizontal, Clock, Hash, BrainCircuit } from 'lucide-react';
 import { useServices } from '../../shared/services/serviceContext';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 import { MarkdownPreview } from './MarkdownPreview';
+import { AIChatPanel } from '../ai/AIChatPanel';
 import { Button } from '../../shared/components/Button';
 import { Card } from '../../shared/components/Card';
 import { Input } from '../../shared/components/Input';
@@ -18,6 +25,7 @@ export function NoteEditorPage() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [isPreview, setIsPreview] = useState(false);
+    const [isAIPanelOpen, setIsAIPanelOpen] = useState(false);
 
     // 1. Fetch Note
     const { data: note, isLoading } = useQuery({
@@ -93,6 +101,16 @@ export function NoteEditorPage() {
                             Preview
                         </Button>
                     </div>
+                    <Button
+                        variant={isAIPanelOpen ? 'primary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setIsAIPanelOpen(!isAIPanelOpen)}
+                        className={isAIPanelOpen ? 'text-vibe-blue bg-vibe-blue/10 border-vibe-blue/20' : 'text-white/40'}
+                        icon={BrainCircuit}
+                    >
+                        Ask AI
+                    </Button>
+                    <div className="h-6 w-[1px] bg-white/10" />
                     <Button variant="ghost" size="icon" className="text-white/40 hover:text-white"><Share2 className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="icon" className="text-white/40 hover:text-white"><MoreHorizontal className="w-4 h-4" /></Button>
                     <Button
@@ -126,6 +144,16 @@ export function NoteEditorPage() {
                 {/* Preview Area */}
                 <div className={`flex-1 h-full bg-zinc-900/10 transition-all duration-500 overflow-y-auto ${isPreview ? 'block w-full opacity-100' : 'hidden md:block opacity-30 md:max-w-xl lg:max-w-2xl'}`}>
                     <MarkdownPreview content={content} />
+                </div>
+
+                {/* AI Sidebar */}
+                <div className={cn(
+                    "transition-all duration-500 ease-in-out border-l border-white/5 bg-zinc-950",
+                    isAIPanelOpen ? "w-[400px] opacity-100" : "w-0 opacity-0 pointer-events-none overflow-hidden"
+                )}>
+                    <div className="w-[400px] h-full p-4">
+                        <AIChatPanel activeNoteId={id} />
+                    </div>
                 </div>
             </main>
 

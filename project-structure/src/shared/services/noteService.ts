@@ -233,4 +233,3 @@ export class LocalNoteService implements NoteService {
         return this.getLinks();
     }
 }
-```

@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { NoteService, SearchService } from '../types';
+import { NoteService, SearchService, AIService } from '../types';
 import { TauriNoteService, LocalNoteService } from './noteService';
 import { TauriSearchService, LocalSearchService } from './searchService';
+import { TauriAIService, LocalAIService } from './aiService';
 
 interface ServiceContextType {
     noteService: NoteService;
     searchService: SearchService;
+    aiService: AIService;
 }
 
 const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
@@ -30,6 +32,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
         return {
             noteService: isTauri ? new TauriNoteService() : new LocalNoteService(),
             searchService: isTauri ? new TauriSearchService() : new LocalSearchService(),
+            aiService: isTauri ? new TauriAIService() : new LocalAIService(),
         };
     }, []);
 
