@@ -47,6 +47,21 @@ export class LocalPluginService implements PluginService {
             const seed: Plugin[] = [
                 {
                     manifest: {
+                        id: 'neural-linker',
+                        name: 'Neural Linker',
+                        version: '1.2.0',
+                        author: 'Antigravity Internal',
+                        description: 'Automatically scans your research for mentions of other notes and suggests bidirectional links.',
+                        entry: 'neural-linker/index.ts'
+                    },
+                    enabled: true,
+                    settings: {
+                        autoSuggest: true,
+                        minConfidence: 0.7
+                    }
+                },
+                {
+                    manifest: {
                         id: 'p1',
                         name: 'Vibrant Graph',
                         version: '1.0.0',

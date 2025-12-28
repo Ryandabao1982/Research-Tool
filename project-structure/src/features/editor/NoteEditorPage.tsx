@@ -11,6 +11,7 @@ function cn(...inputs: ClassValue[]) {
 }
 import { MarkdownPreview } from './MarkdownPreview';
 import { AIChatPanel } from '../ai/AIChatPanel';
+import { NeuralLinkerPanel } from './NeuralLinkerPanel';
 import { Button } from '../../shared/components/Button';
 import { Card } from '../../shared/components/Card';
 import { Input } from '../../shared/components/Input';
@@ -156,6 +157,9 @@ export function NoteEditorPage() {
                     </div>
                 </div>
             </main>
+
+            {/* Plugin Layer: Neural Linker */}
+            <NeuralLinkerPanel noteId={id!} content={content} title={title} />
 
             {/* Visual Noise Layer */}
             <div className="fixed inset-0 pointer-events-none noise-overlay opacity-[0.02] z-50" />
