@@ -96,27 +96,29 @@ function NavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label
             className={({ isActive }) => cn(
                 "flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-500 group relative overflow-hidden",
                 isActive
-                    ? "bg-white/[0.07] text-white shadow- atmosphere border border-white/5"
+                    ? "bg-white/[0.07] text-white shadow-atmosphere border border-white/5 active"
                     : "text-white/30 hover:text-white/70 hover:bg-white/[0.03]"
             )}
         >
-            <span className={cn(
-                "transition-all duration-500 group-hover:scale-110",
-                "group-[.active]:text-vibe-purple group-[.active]:drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"
-            )}>
-                {icon}
-            </span>
-            <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
+            {({ isActive }) => (
+                <>
+                    <span className={cn(
+                        "transition-all duration-500 group-hover:scale-110",
+                        isActive && "text-vibe-purple drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"
+                    )}>
+                        {icon}
+                    </span>
+                    <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
 
-            {/* Active Indicator */}
-            <NavLink to={to}>
-                {({ isActive }) => isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-vibe-purple rounded-full shadow-[0_0_12px_rgba(168,85,247,0.8)]" />
-                )}
-            </NavLink>
+                    {/* Active Indicator */}
+                    {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-vibe-purple rounded-full shadow-[0_0_12px_rgba(168,85,247,0.8)]" />
+                    )}
 
-            {/* Hover Background Reflection */}
-            <div className="absolute inset-0 bg-gradient-to-r from-vibe-purple/0 via-vibe-purple/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    {/* Hover Background Reflection */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-vibe-purple/0 via-vibe-purple/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                </>
+            )}
         </NavLink>
     );
 }

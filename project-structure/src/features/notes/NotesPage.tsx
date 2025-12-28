@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, Filter, LayoutGrid, List } from 'lucide-react';
 import { useServices } from '../../shared/services/serviceContext';
@@ -11,6 +12,7 @@ import { toast } from 'react-hot-toast';
 export function NotesPage() {
     const { noteService } = useServices();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
     // 1. Fetch Notes
@@ -29,7 +31,7 @@ export function NotesPage() {
             content: 'Start capturing your insights...',
             tags: ['research'],
         }),
-        onSuccess: (newNote) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notes'] });
             toast.success('Discovered new knowledge', {
                 icon: '✨',
@@ -116,7 +118,7 @@ export function NotesPage() {
                     </div>
                 ) : notes && notes.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                        {notes.map((note, index) => (
+                        {notes.map((note: any, index: number) => (
                             <div
                                 key={note.id}
                                 className="animate-fade-in"
@@ -124,7 +126,7 @@ export function NotesPage() {
                             >
                                 <NoteCard
                                     note={note}
-                                    onClick={(n) => console.log('Opening:', n.title)}
+                                    onClick={(n) => navigate(`/notes/${n.id}`)}
                                 />
                             </div>
                         ))}

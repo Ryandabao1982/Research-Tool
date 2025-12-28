@@ -39,7 +39,7 @@ export const Card = ({
 
             {/* Corner Glow for Interactive */}
             {interactive && (
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-vibe-purple/5 blur-[80px] group-hover:bg-vibe-purple/10 transition-all duration-500" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-vibe-purple/5 blur-[80px] group-hover:bg-vibe-purple/10 transition-all duration-500 pointer-events-none" />
             )}
 
             <div className="relative z-10">
