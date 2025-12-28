@@ -222,3 +222,62 @@ export interface PluginManifest {
 }
 
 export type PluginSettings = Record<string, any>;
+
+// ============================================================================
+// File System and Portability Types
+// ============================================================================
+
+export interface FileSystemService {
+    importFiles(paths: string[], options?: ImportOptions): Promise<ImportResult>;
+    exportNotes(noteIds: string[], format: ExportFormat, options?: ExportOptions): Promise<string>;
+    createBackup(path: string, options?: BackupOptions): Promise<BackupResult>;
+    restoreBackup(path: string, options?: RestoreOptions): Promise<RestoreResult>;
+}
+
+export interface ImportOptions {
+    create_folders?: boolean;
+    preserve_structure?: boolean;
+    tag_imported?: boolean;
+}
+
+export interface ImportResult {
+    imported_count: number;
+    skipped_count: number;
+    errors: string[];
+    notes: Note[];
+}
+
+export type ExportFormat = 'markdown' | 'json' | 'pdf' | 'html';
+
+export interface ExportOptions {
+    include_metadata?: boolean;
+    include_backlinks?: boolean;
+    template?: string;
+}
+
+export interface BackupOptions {
+    include_attachments?: boolean;
+    compress?: boolean;
+    encrypt?: boolean;
+    password?: string;
+}
+
+export interface BackupResult {
+    backup_path: string;
+    size: number;
+    note_count: number;
+    created_at: string;
+}
+
+export interface RestoreOptions {
+    merge_mode?: 'replace' | 'merge' | 'skip_duplicates';
+    password?: string;
+}
+
+export interface RestoreResult {
+    success: boolean;
+    restored_notes: number;
+    skipped_notes: number;
+    errors: string[];
+    restored_at: string;
+}

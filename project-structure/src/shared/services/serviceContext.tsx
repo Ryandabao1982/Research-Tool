@@ -1,15 +1,17 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { NoteService, SearchService, AIService, PluginService } from '../types';
+import { NoteService, SearchService, AIService, PluginService, FileSystemService } from '../types';
 import { TauriNoteService, LocalNoteService } from './noteService';
 import { TauriSearchService, LocalSearchService } from './searchService';
 import { TauriAIService, LocalAIService } from './aiService';
 import { TauriPluginService, LocalPluginService } from './pluginService';
+import { TauriFileSystemService, LocalFileSystemService } from './fileSystemService';
 
 interface ServiceContextType {
     noteService: NoteService;
     searchService: SearchService;
     aiService: AIService;
     pluginService: PluginService;
+    fsService: FileSystemService;
 }
 
 const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
@@ -36,6 +38,7 @@ export function ServiceProvider({ children }: ServiceProviderProps) {
             searchService: isTauri ? new TauriSearchService() : new LocalSearchService(),
             aiService: isTauri ? new TauriAIService() : new LocalAIService(),
             pluginService: isTauri ? new TauriPluginService() : new LocalPluginService(),
+            fsService: isTauri ? new TauriFileSystemService() : new LocalFileSystemService(),
         };
     }, []);
 
