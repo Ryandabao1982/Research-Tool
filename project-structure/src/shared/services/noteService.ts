@@ -4,7 +4,9 @@ import {
     NoteService,
     CreateNoteRequest,
     UpdateNoteRequest,
-    NoteFilters
+    NoteFilters,
+    Folder,
+    Tag
 } from '../types';
 
 /**
@@ -25,7 +27,7 @@ export class TauriNoteService implements NoteService {
         try {
             return await invoke<Note>('update_note', { id, ...updates });
         } catch (error) {
-            console.error(`Failed to update note ${id}:`, error);
+            console.error(`Failed to update note ${id}: `, error);
             throw error;
         }
     }
@@ -34,7 +36,7 @@ export class TauriNoteService implements NoteService {
         try {
             await invoke('delete_note', { id });
         } catch (error) {
-            console.error(`Failed to delete note ${id}:`, error);
+            console.error(`Failed to delete note ${id}: `, error);
             throw error;
         }
     }
@@ -43,7 +45,7 @@ export class TauriNoteService implements NoteService {
         try {
             return await invoke<Note | null>('get_note', { id });
         } catch (error) {
-            console.error(`Failed to get note ${id}:`, error);
+            console.error(`Failed to get note ${id}: `, error);
             throw error;
         }
     }
@@ -158,4 +160,58 @@ export class LocalNoteService implements NoteService {
         }
         return notes.slice(filters?.offset || 0, (filters?.offset || 0) + (filters?.limit || 100));
     }
+
+    // --- Folder Management ---
+
+    private getFolders(): Folder[] {
+        const data = localStorage.getItem('kb_pro_folders');
+        if (!data) {
+            const seed: Folder[] = [
+                { id: 'f1', name: 'Research', created_at: new Date().toISOString() },
+                { id: 'f2', name: 'Personal', created_at: new Date().toISOString() },
+                { id: 'f3', name: 'Drafts', parent_id: 'f1', created_at: new Date().toISOString() },
+            ];
+            localStorage.setItem('kb_pro_folders', JSON.stringify(seed));
+            return seed;
+        }
+        return JSON.parse(data);
+    }
+
+    async listFolders(): Promise<Folder[]> {
+        return this.getFolders();
+    }
+
+    async createFolder(name: string, parent_id?: string): Promise<Folder> {
+        const folders = this.getFolders();
+        const newFolder: Folder = {
+            id: crypto.randomUUID(),
+            name,
+            parent_id,
+            created_at: new Date().toISOString(),
+        };
+        folders.push(newFolder);
+        localStorage.setItem('kb_pro_folders', JSON.stringify(folders));
+        return newFolder;
+    }
+
+    // --- Tag Management ---
+
+    private getTags(): Tag[] {
+        const data = localStorage.getItem('kb_pro_tags');
+        if (!data) {
+            const seed: Tag[] = [
+                { id: 't1', name: 'research', color: '#a855f7', created_at: new Date().toISOString() },
+                { id: 't2', name: 'productivity', color: '#3b82f6', created_at: new Date().toISOString() },
+                { id: 't3', name: 'tutorial', color: '#10b981', created_at: new Date().toISOString() },
+            ];
+            localStorage.setItem('kb_pro_tags', JSON.stringify(seed));
+            return seed;
+        }
+        return JSON.parse(data);
+    }
+
+    async listTags(): Promise<Tag[]> {
+        return this.getTags();
+    }
 }
+```
