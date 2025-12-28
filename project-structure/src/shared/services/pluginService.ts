@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import {
     Plugin,
-    PluginManifest,
     PluginService,
     PluginSettings
 } from '../types';

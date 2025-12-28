@@ -3,7 +3,7 @@
  * Handles theme switching, system preferences, and CSS variables
  */
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useThemeStore } from './useThemeStore';
 
 type Theme = 'light' | 'dark' | 'system';
@@ -27,12 +27,10 @@ export function useTheme() {
 
 interface ThemeProviderProps {
   children: React.ReactNode;
-  defaultTheme?: Theme;
 }
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'system'
 }: ThemeProviderProps) {
   const { theme, setTheme } = useThemeStore();
   const [mounted, setMounted] = useState(false);
