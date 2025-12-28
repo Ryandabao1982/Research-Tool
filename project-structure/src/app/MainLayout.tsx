@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
     FileText,
     Search,
@@ -9,7 +9,8 @@ import {
     LayoutGrid,
     Moon,
     Sun,
-    Monitor
+    Monitor,
+    Zap
 } from 'lucide-react';
 import { useTheme } from '../shared/theme/ThemeProvider';
 import { clsx, type ClassValue } from 'clsx';
@@ -26,45 +27,61 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
     const { theme, toggleTheme } = useTheme();
+    const location = useLocation();
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-background">
+        <div className="flex h-screen w-full overflow-hidden bg-background font-sans selection:bg-vibe-purple/20 selection:text-vibe-purple">
             {/* Sidebar */}
-            <aside className="w-64 glass-dark border-r border-white/5 flex flex-col z-10 transition-all duration-300">
-                <div className="p-6">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-vibe-purple to-vibe-blue bg-clip-text text-transparent">
-                        KnowledgeBase
-                    </h1>
-                    <p className="text-xs text-muted-foreground mt-1 font-medium tracking-widest uppercase">
-                        Pro Edition
-                    </p>
+            <aside className="w-72 glass-dark border-r border-white/5 flex flex-col z-20 transition-all duration-500 ease-in-out">
+                <div className="p-8">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-vibe-purple to-vibe-blue flex items-center justify-center shadow-lg shadow-vibe-purple/20">
+                            <Zap size={20} className="text-white fill-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-black tracking-tighter leading-none">
+                                KVB <span className="text-vibe-purple">PRO.</span>
+                            </h1>
+                            <div className="text-[10px] font-bold text-white/20 tracking-[0.2em] uppercase mt-1">
+                                Neural Interface
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <nav className="flex-1 px-4 py-2 space-y-2">
-                    <NavItem to="/notes" icon={<FileText size={20} />} label="Notes" />
-                    <NavItem to="/search" icon={<Search size={20} />} label="Search" />
-                    <NavItem to="/tags" icon={<Tag size={20} />} label="Tags" />
-                    <NavItem to="/graph" icon={<LayoutGrid size={20} />} label="Graph View" />
-                    <NavItem to="/import-export" icon={<Share2 size={20} />} label="Sync & Export" />
+                <nav className="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto scrollbar-hidden">
+                    <NavItem to="/notes" icon={<FileText size={18} />} label="Research Library" />
+                    <NavItem to="/search" icon={<Search size={18} />} label="Neural Search" />
+                    <NavItem to="/tags" icon={<Tag size={18} />} label="Taxonomy" />
+                    <NavItem to="/graph" icon={<LayoutGrid size={18} />} label="Visualization" />
+                    <NavItem to="/import-export" icon={<Share2 size={18} />} label="Sync & Export" />
                 </nav>
 
-                <div className="p-4 border-t border-white/5 space-y-2">
+                <div className="p-6 border-t border-white/5 space-y-2">
                     <button
                         onClick={toggleTheme}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl transition-all"
+                        className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold uppercase tracking-widest text-white/20 hover:text-white/60 hover:bg-white/5 rounded-2xl transition-all duration-300"
                     >
-                        {theme === 'dark' ? <Moon size={20} /> : theme === 'light' ? <Sun size={20} /> : <Monitor size={20} />}
-                        <span className="capitalize">{theme} Mode</span>
+                        {theme === 'dark' ? <Moon size={16} /> : theme === 'light' ? <Sun size={16} /> : <Monitor size={16} />}
+                        <span>{theme} Environment</span>
                     </button>
 
-                    <NavItem to="/settings" icon={<Settings size={20} />} label="Settings" />
+                    <NavItem to="/settings" icon={<Settings size={18} />} label="System Nucleus" />
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 relative overflow-auto bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-vibe-purple/5 via-transparent to-transparent">
-                <div className="noise-overlay" />
-                <div className="relative z-0 min-h-full">
+            {/* Main Content Area */}
+            <main className="flex-1 relative overflow-hidden bg-[#020202]">
+                {/* Global Atmosphere Layers */}
+                <div className="absolute inset-0 noise-overlay opacity-[0.02] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-vibe-purple/5 blur-[160px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2 opacity-50" />
+                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-vibe-blue/5 blur-[140px] rounded-full pointer-events-none translate-y-1/2 -translate-x-1/2 opacity-30" />
+
+                {/* Scroll Container with Fade Transitions */}
+                <div
+                    key={location.pathname}
+                    className="relative z-10 w-full h-full overflow-y-auto overflow-x-hidden page-transition"
+                >
                     {children}
                 </div>
             </main>
@@ -77,19 +94,29 @@ function NavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label
         <NavLink
             to={to}
             className={({ isActive }) => cn(
-                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative",
+                "flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-500 group relative overflow-hidden",
                 isActive
-                    ? "bg-white/10 text-foreground shadow-atmosphere"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    ? "bg-white/[0.07] text-white shadow- atmosphere border border-white/5"
+                    : "text-white/30 hover:text-white/70 hover:bg-white/[0.03]"
             )}
         >
-            <span className="group-hover:scale-110 transition-transform duration-200">
+            <span className={cn(
+                "transition-all duration-500 group-hover:scale-110",
+                "group-[.active]:text-vibe-purple group-[.active]:drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"
+            )}>
                 {icon}
             </span>
-            <span className="text-sm font-medium">{label}</span>
+            <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
 
-            {/* Hover background glow */}
-            <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 hover:opacity-100 transition-opacity" />
+            {/* Active Indicator */}
+            <NavLink to={to}>
+                {({ isActive }) => isActive && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-vibe-purple rounded-full shadow-[0_0_12px_rgba(168,85,247,0.8)]" />
+                )}
+            </NavLink>
+
+            {/* Hover Background Reflection */}
+            <div className="absolute inset-0 bg-gradient-to-r from-vibe-purple/0 via-vibe-purple/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
         </NavLink>
     );
 }
