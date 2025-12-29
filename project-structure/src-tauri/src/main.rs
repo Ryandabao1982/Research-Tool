@@ -43,6 +43,9 @@ async fn main() -> anyhow::Result<()> {
     let search_service = SearchService::new(db.clone());
     let link_service = LinkService::new(db.clone(), note_service.clone());
     let ai_service = AIService::new(db.clone());
+    
+    // Initialize AI providers
+    ai_service.initialize_providers().await?;
 
     let state = Arc::new(AppState {
         db: db.clone(),
@@ -94,10 +97,16 @@ async fn main() -> anyhow::Result<()> {
             get_link_count,
             // AI commands
             generate_ai_response,
+            generate_ai_response_stream,
             create_ai_conversation,
             add_ai_message,
             get_ai_conversation_history,
             list_ai_conversations,
+            get_available_ai_models,
+            search_related_documents,
+            generate_document_summary,
+            generate_study_guide,
+            initialize_ai_providers,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -9,10 +9,13 @@ CREATE TABLE IF NOT EXISTS ai_conversations (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    message_count INTEGER DEFAULT 0
+    message_count INTEGER DEFAULT 0,
+    last_activity DATETIME DEFAULT CURRENT_TIMESTAMP,
+    model_preference TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_ai_conversations_created_at ON ai_conversations(created_at);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_last_activity ON ai_conversations(last_activity DESC);
 
 -- 9. AI Messages Table
 -- Stores individual messages within conversations.
@@ -22,12 +25,15 @@ CREATE TABLE IF NOT EXISTS ai_messages (
     role TEXT NOT NULL, -- 'user' or 'assistant'
     content TEXT NOT NULL,
     citations TEXT, -- JSON array of citations
+    token_usage TEXT, -- JSON object with prompt_tokens, completion_tokens, total_tokens
+    model_used TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (conversation_id) REFERENCES ai_conversations(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_ai_messages_conversation_id ON ai_messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_ai_messages_created_at ON ai_messages(created_at);
+CREATE INDEX IF NOT EXISTS idx_ai_messages_model ON ai_messages(model_used);
 
 -- 10. Generated Content Table
 -- Stores AI-generated content like study guides, audio overviews, FAQs.

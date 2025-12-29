@@ -75,32 +75,36 @@ export interface AIRequest {
     context_documents: string[];
     include_citations?: boolean;
     model_preference?: string;
-    options?: AIRequestOptions;
-    stream?: boolean;
+    conversation_id?: string;
+    temperature?: number;
+    max_tokens?: number;
 }
 
 export interface AIResponse {
     answer: string;
-    citations: Citation[];
+    citations: AICitation[];
     confidence_score: number;
     model_used: string;
     processing_time: number;
+    token_usage: TokenUsage;
 }
 
-export interface Citation {
+export interface TokenUsage {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+}
+
+export interface AICitation {
     document_id: string;
     document_title: string;
-    page_number?: number;
     relevant_excerpt: string;
     confidence_score: number;
+    page_number?: number;
+    relevance_type: CitationType;
 }
 
-export interface AIRequestOptions {
-    temperature?: number;
-    max_tokens?: number;
-    stream?: boolean;
-    stop_sequences?: string[];
-}
+export type CitationType = 'DirectQuote' | 'Paraphrase' | 'Concept' | 'Background';
 
 // ============================================================================
 // Service Interface Types
@@ -126,9 +130,23 @@ export interface SearchService {
 
 export interface AIService {
     generate(request: AIRequest): Promise<AIResponse>;
+    generateStream(request: AIRequest): AsyncIterable<string> | Promise<AsyncIterable<string>>;
     registerProvider(id: string, config: AIProviderConfig): Promise<void>;
     unregisterProvider(id: string): Promise<void>;
     getAvailableModels(): Promise<AIModel[]>;
+    createConversation(title: string): Promise<AIConversation>;
+    addMessage(conversationId: string, role: string, content: string, citations?: string): Promise<AIMessage>;
+    getConversationHistory(conversationId: string): Promise<AIMessage[]>;
+    listConversations(): Promise<AIConversation[]>;
+    searchRelatedDocuments(query: string, limit?: number): Promise<string[]>;
+    generateSummary(documentIds: string[]): Promise<string>;
+    generateStudyGuide(topic: string, documentIds: string[]): Promise<string>;
+    // Enhanced AI methods
+    initializeProviders?(): Promise<void>;
+    selectOptimalModel?(query: string, availableModels: AIModel[]): string;
+    formatContextDocuments?(documents: string[]): string;
+    estimateTokens?(text: string): number;
+    calculateCosts?(tokenUsage: TokenUsage, model: AIModel): number;
 }
 
 export interface PluginService {
@@ -200,7 +218,47 @@ export interface AIModel {
     name: string;
     description: string;
     context_length: number;
+    model_type: ModelType;
+    capabilities: ModelCapability[];
+    size_mb: number;
+    requires_gpu: boolean;
 }
+
+export type ModelType = 'TextGeneration' | 'CodeGeneration' | 'Embedding' | 'Multimodal' | 'AudioTranscription';
+
+export type ModelCapability = 'ChatCompletion' | 'TextCompletion' | 'FunctionCalling' | 'Streaming' | 'Embedding' | 'Reranking';
+
+export interface AIConversation {
+    id: string;
+    title: string;
+    created_at: string;
+    message_count: number;
+    last_activity: string;
+    model_preference?: string;
+}
+
+export interface AIMessage {
+    id: string;
+    conversation_id: string;
+    role: string;
+    content: string;
+    citations?: string;
+    created_at: string;
+    token_usage?: TokenUsage;
+    model_used: string;
+}
+
+export interface AIProviderConfig {
+    provider_type: ProviderType;
+    api_endpoint?: string;
+    api_key?: string;
+    model: string;
+    model_id?: string;
+    enabled: boolean;
+    priority: number;
+}
+
+export type ProviderType = 'Ollama' | 'OpenAI' | 'Anthropic' | 'HuggingFace' | 'LocalLLM';
 
 // ============================================================================
 // Plugin Types

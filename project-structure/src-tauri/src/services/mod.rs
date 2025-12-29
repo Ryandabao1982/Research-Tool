@@ -12,4 +12,8 @@ pub use note_service::NoteService;
 pub use search_service::SearchService;
 pub use link_service::LinkService;
 pub use link_parser::LinkParser;
-pub use ai_service::{AIService, AIRequest, AIResponse, AICitation, AIConversation, AIMessage};
+pub use ai_service::{
+    AIService, AIRequest, AIResponse, AICitation, AIConversation, AIMessage, AIModel,
+    TokenUsage, CitationType, ModelType, ModelCapability, AIProviderConfig, ProviderType,
+    LLMProvider
+};

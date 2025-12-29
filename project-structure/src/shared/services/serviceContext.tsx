@@ -5,11 +5,13 @@ import { TauriSearchService, LocalSearchService } from './searchService';
 import { TauriAIService, LocalAIService } from './aiService';
 import { TauriPluginService, LocalPluginService } from './pluginService';
 import { TauriFileSystemService, LocalFileSystemService } from './fileSystemService';
+import { AIEnhancedNoteProcessor } from './aiNoteProcessor';
 
 interface ServiceContextType {
     noteService: NoteService;
     searchService: SearchService;
     aiService: AIService;
+    aiNoteProcessor: AIEnhancedNoteProcessor;
     pluginService: PluginService;
     fsService: FileSystemService;
 }
@@ -32,11 +34,15 @@ export function ServiceProvider({ children }: ServiceProviderProps) {
     const services = useMemo(() => {
         // Determine if we're running in Tauri or a browser
         const isTauri = typeof window !== 'undefined' && (window as any).__TAURI__ !== undefined;
-
+        
+        const aiService = isTauri ? new TauriAIService() : new LocalAIService();
+        const aiNoteProcessor = new AIEnhancedNoteProcessor(aiService as any);
+        
         return {
             noteService: isTauri ? new TauriNoteService() : new LocalNoteService(),
             searchService: isTauri ? new TauriSearchService() : new LocalSearchService(),
-            aiService: isTauri ? new TauriAIService() : new LocalAIService(),
+            aiService,
+            aiNoteProcessor,
             pluginService: isTauri ? new TauriPluginService() : new LocalPluginService(),
             fsService: isTauri ? new TauriFileSystemService() : new LocalFileSystemService(),
         };
