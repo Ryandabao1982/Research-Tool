@@ -15,7 +15,7 @@ import {
  * Orchestrates local-first LLM interactions with Ollama and other providers.
  */
 export class TauriAIService implements AIService {
-    
+
     /**
      * Initialize AI providers (Ollama, etc.)
      */
@@ -42,7 +42,7 @@ export class TauriAIService implements AIService {
             await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
         }
     }
-    }
+
 
     /**
      * Register a new AI provider
@@ -77,16 +77,16 @@ export class TauriAIService implements AIService {
      * Add a message to a conversation
      */
     async addMessage(
-        conversationId: string, 
-        role: string, 
-        content: string, 
+        conversationId: string,
+        role: string,
+        content: string,
         citations?: string
     ): Promise<AIMessage> {
-        return await invoke<AIMessage>('add_ai_message', { 
-            conversationId, 
-            role, 
-            content, 
-            citations 
+        return await invoke<AIMessage>('add_ai_message', {
+            conversationId,
+            role,
+            content,
+            citations
         });
     }
 
@@ -130,26 +130,26 @@ export class TauriAIService implements AIService {
      */
     selectOptimalModel(query: string, availableModels: AIModel[]): string {
         const queryLower = query.toLowerCase();
-        
+
         // Code-related queries get CodeLlama
-        if (queryLower.includes('code') || 
-            queryLower.includes('function') || 
+        if (queryLower.includes('code') ||
+            queryLower.includes('function') ||
             queryLower.includes('programming') ||
             queryLower.includes('```')) {
-            const codeModel = availableModels.find(m => 
+            const codeModel = availableModels.find(m =>
                 m.model_type === 'CodeGeneration' && m.capabilities.includes('ChatCompletion')
             );
             return codeModel?.id || 'phi3.1:mini';
         }
-        
+
         // Short queries get smaller model for speed
         if (queryLower.length < 50) {
-            const fastModel = availableModels.find(m => 
+            const fastModel = availableModels.find(m =>
                 m.size_mb < 3000 && m.capabilities.includes('ChatCompletion')
             );
             return fastModel?.id || 'phi3.1:mini';
         }
-        
+
         // Default to primary model
         return 'phi3.1:mini';
     }
@@ -159,7 +159,7 @@ export class TauriAIService implements AIService {
      */
     formatContextDocuments(documents: string[]): string {
         if (documents.length === 0) return '';
-        
+
         return documents
             .map((doc, index) => `Document ${index + 1}:\n${doc}`)
             .join('\n\n---\n\n');
@@ -180,17 +180,17 @@ export class TauriAIService implements AIService {
         // Example cost calculation (would vary by provider)
         const inputCostPer1K = 0.001; // $0.001 per 1K input tokens
         const outputCostPer1K = 0.002; // $0.002 per 1K output tokens
-        
-        return (tokenUsage.prompt_tokens * inputCostPer1K / 1000) + 
-               (tokenUsage.completion_tokens * outputCostPer1K / 1000);
+
+        return (tokenUsage.prompt_tokens * inputCostPer1K / 1000) +
+            (tokenUsage.completion_tokens * outputCostPer1K / 1000);
     }
 
     /**
      * Check if response needs citations
      */
     needsCitations(request: AIRequest): boolean {
-        return request.include_citations && 
-               request.context_documents.length > 0;
+        return request.include_citations &&
+            request.context_documents.length > 0;
     }
 
     /**
@@ -200,7 +200,7 @@ export class TauriAIService implements AIService {
         if (!response.answer) {
             throw new Error('Invalid AI response: missing answer');
         }
-        
+
         return {
             answer: response.answer,
             citations: response.citations || [],
@@ -231,8 +231,8 @@ export class LocalAIService implements AIService {
         await new Promise(resolve => setTimeout(resolve, 1500));
 
         const notes = this.getNotes();
-        const contextNotes = notes.filter(n => 
-            request.context_documents.some(doc => 
+        const contextNotes = notes.filter(n =>
+            request.context_documents.some(doc =>
                 doc.includes(n.title) || doc.includes(n.content.substring(0, 100))
             )
         );
@@ -279,30 +279,30 @@ export class LocalAIService implements AIService {
 
     async getAvailableModels(): Promise<AIModel[]> {
         return [
-            { 
-                id: 'phi-3.1-mini', 
-                name: 'Phi-3.1 Mini', 
-                description: 'Small, powerful local model for general reasoning', 
+            {
+                id: 'phi-3.1-mini',
+                name: 'Phi-3.1 Mini',
+                description: 'Small, powerful local model for general reasoning',
                 context_length: 128000,
                 model_type: 'TextGeneration',
                 capabilities: ['ChatCompletion', 'TextCompletion'],
                 size_mb: 2000,
                 requires_gpu: false
             },
-            { 
-                id: 'codellama-7b', 
-                name: 'CodeLlama 7B', 
-                description: 'Optimized for local coding assistance', 
+            {
+                id: 'codellama-7b',
+                name: 'CodeLlama 7B',
+                description: 'Optimized for local coding assistance',
                 context_length: 16000,
                 model_type: 'CodeGeneration',
                 capabilities: ['ChatCompletion', 'TextCompletion'],
                 size_mb: 4000,
                 requires_gpu: true
             },
-            { 
-                id: 'whisper-small', 
-                name: 'Whisper Small', 
-                description: 'High-speed audio transcription', 
+            {
+                id: 'whisper-small',
+                name: 'Whisper Small',
+                description: 'High-speed audio transcription',
                 context_length: 0,
                 model_type: 'AudioTranscription',
                 capabilities: [],
@@ -325,9 +325,9 @@ export class LocalAIService implements AIService {
     }
 
     async addMessage(
-        conversationId: string, 
-        role: string, 
-        content: string, 
+        conversationId: string,
+        role: string,
+        content: string,
         citations?: string
     ): Promise<AIMessage> {
         const id = Date.now().toString();
@@ -361,7 +361,7 @@ export class LocalAIService implements AIService {
     async searchRelatedDocuments(query: string, limit?: number): Promise<string[]> {
         const notes = this.getNotes();
         return notes
-            .filter(n => 
+            .filter(n =>
                 n.title.toLowerCase().includes(query.toLowerCase()) ||
                 n.content.toLowerCase().includes(query.toLowerCase())
             )
@@ -372,9 +372,9 @@ export class LocalAIService implements AIService {
     async generateSummary(documentIds: string[]): Promise<string> {
         const notes = this.getNotes();
         const selectedNotes = notes.filter(n => documentIds.includes(n.id));
-        
+
         if (selectedNotes.length === 0) return 'No documents found for summarization.';
-        
+
         return `Summary of ${selectedNotes.length} documents:\n\n` +
             selectedNotes.map(n => `- ${n.title}: ${n.content.substring(0, 100)}...`).join('\n');
     }
@@ -382,7 +382,7 @@ export class LocalAIService implements AIService {
     async generateStudyGuide(topic: string, documentIds: string[]): Promise<string> {
         const notes = this.getNotes();
         const selectedNotes = notes.filter(n => documentIds.includes(n.id));
-        
+
         return `Study Guide: ${topic}\n\n` +
             `Based on ${selectedNotes.length} documents:\n\n` +
             `1. Key Concepts:\n   - Main topic understanding\n   - Important themes\n   - Critical analysis\n\n` +
@@ -390,7 +390,7 @@ export class LocalAIService implements AIService {
             `3. Further Reading:\n   ${selectedNotes.map(n => n.title).join('\n   ')}`;
     }
 
-    private estimateTokens(text: string): number {
+    estimateTokens(text: string): number {
         return Math.ceil(text.length / 4);
     }
 }
