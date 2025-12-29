@@ -1,0 +1,214 @@
+{
+  "name": "knowledge-base-pro",
+  "version": "2.0.0",
+  "description": "AI-powered desktop knowledge management application with modular plugin architecture",
+  "type": "module",
+  "main": "src/main.tsx",
+  "homepage": "https://github.com/knowledgebase-pro/knowledge-base-pro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/knowledgebase-pro/knowledge-base-pro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/knowledgebase-pro/knowledge-base-pro/issues"
+  },
+  "keywords": [
+    "knowledge-management",
+    "ai",
+    "notes",
+    "research",
+    "plugin-system",
+    "desktop-app",
+    "tauri",
+    "react",
+    "typescript"
+  ],
+  "author": {
+    "name": "KnowledgeBase Pro Team",
+    "email": "team@knowledgebase.pro",
+    "url": "https://github.com/knowledgebase-pro"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,md,mdx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,md,mdx}\"",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "plugin:create": "node scripts/create-plugin.js",
+    "plugin:dev": "node scripts/plugin-dev.js",
+    "plugin:build": "node scripts/build-plugin.js",
+    "feature:create": "node scripts/create-feature.js",
+    "docs:build": "typedoc",
+    "docs:dev": "typedoc --watch",
+    "clean": "rimraf dist coverage node_modules/.cache",
+    "postinstall": "husky install",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "@tanstack/react-query": "^5.56.2",
+    "@tanstack/react-query-devtools": "^5.56.2",
+    "@tauri-apps/api": "^1.6.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.0.0",
+    "d3": "^7.9.0",
+    "date-fns": "^3.6.0",
+    "framer-motion": "^11.5.5",
+    "lucide-react": "^0.451.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-hot-toast": "^2.4.1",
+    "react-markdown": "^9.0.3",
+    "react-resizable-panels": "^2.1.3",
+    "react-router-dom": "^6.26.2",
+    "react-syntax-highlighter": "^15.5.0",
+    "react-window": "^1.8.10",
+    "rehype-highlight": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "tailwind-merge": "^2.5.2",
+    "zod": "^3.23.8",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.6.0",
+    "@types/d3": "^7.4.3",
+    "@types/react": "^18.3.7",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/ui": "^2.1.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "eslint-plugin-simple-import-sort": "^12.1.0",
+    "husky": "^9.1.6",
+    "jsdom": "^25.0.1",
+    "lint-staged": "^15.2.10",
+    "postcss": "^8.4.47",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "^3.4.12",
+    "typedoc": "^0.26.8",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.7",
+    "vitest": "^2.1.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,md,mdx}": [
+      "prettier --write"
+    ],
+    "*.{json,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "dialog": {
+        "all": false,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
+      },
+      "fs": {
+        "all": false,
+        "copyFile": true,
+        "createDir": true,
+        "exists": true,
+        "metadata": true,
+        "readDir": true,
+        "removeDir": true,
+        "removeFile": true,
+        "renameFile": true,
+        "scope": [
+          "**"
+        ],
+        "writeFile": true
+      },
+      "path": {
+        "all": true
+      },
+      "protocol": {
+        "asset": true,
+        "assetScope": [
+          "**"
+        ]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Productivity",
+      "copyright": "© 2025 KnowledgeBase Pro Team",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "pro.knowledgebase.app",
+      "longDescription": "AI-powered desktop knowledge management application with modular plugin architecture",
+      "macos": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [
+        "models/*"
+      ],
+      "shortDescription": "AI-powered knowledge management",
+      "targets": "all"
+    },
+    "features": [
+      "custom-protocol"
+    ]
+  }
+}
