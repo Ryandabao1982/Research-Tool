@@ -12,9 +12,9 @@ import {
  * Implementation of the AIService for KnowledgeBase Pro.
  * Orchestrates local-first LLM interactions.
  */
-export class TauriAIService implements AIService {
+ export class TauriAIService implements AIService {
     async generate(request: AIRequest): Promise<AIResponse> {
-        return await invoke<AIResponse>('ai_generate', { request });
+        return await invoke<AIResponse>('generate_ai_response', { request });
     }
 
     async registerProvider(id: string, config: AIProviderConfig): Promise<void> {
@@ -27,6 +27,22 @@ export class TauriAIService implements AIService {
 
     async getAvailableModels(): Promise<AIModel[]> {
         return await invoke<AIModel[]>('ai_list_models');
+    }
+
+    async createConversation(title: string) {
+        return await invoke('create_ai_conversation', { title });
+    }
+
+    async addMessage(conversation_id: string, role: string, content: string, citations?: string) {
+        return await invoke('add_ai_message', { conversation_id, role, content, citations });
+    }
+
+    async getConversationHistory(conversation_id: string) {
+        return await invoke('get_ai_conversation_history', { conversation_id });
+    }
+
+    async listConversations() {
+        return await invoke('list_ai_conversations');
     }
 }
 
