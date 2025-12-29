@@ -1,0 +1,151 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "instructions": [
+        ".coderrules/Global.md",
+        ".coderrules/Agents.md",
+        ".coderrules/01_frontend_engineer.md",
+        ".coderrules/02_backend_engineer.md",
+        ".coderrules/03_ui_ux_designer.md",
+        ".coderrules/04_scaffolder.md",
+        ".coderrules/05_janitor.md",
+        ".coderrules/06_red_team.md",
+        ".coderrules/07_devops.md"
+    ],
+    "permission": {
+        "skill": {
+            "*": "allow"
+        }
+    },
+    "mcpServers": {
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp"
+            ],
+            "env": {
+                "DEFAULT_MINIMUM_TOKENS": ""
+            }
+        },
+        "sequentialthinking": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sequential-thinking"
+            ]
+        },
+        "puppeteer": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-puppeteer"
+            ]
+        },
+        "memory": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-memory"
+            ]
+        },
+        "youtube": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@anaisbetts/mcp-installer",
+                "@anaisbetts/mcp-youtube"
+            ]
+        },
+        "codegen": {
+            "command": "uvx",
+            "args": [
+                "--from",
+                "git+https://github.com/codegen-sh/codegen-sdk.git#egg=codegen-mcp-server&subdirectory=codegen-examples/examples/codegen-mcp-server",
+                "codegen-mcp-server"
+            ]
+        },
+        "exa": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "exa-mcp-server"
+            ],
+            "env": {
+                "EXA_API_KEY": "${EXA_API_KEY}"
+            }
+        },
+        "qdrant": {
+            "command": "uvx",
+            "args": [
+                "mcp-server-qdrant"
+            ],
+            "env": {
+                "QDRANT_URL": "${QDRANT_URL}",
+                "QDRANT_API_KEY": "${QDRANT_API_KEY}",
+                "COLLECTION_NAME": "Kilo",
+                "EMBEDDING_MODEL": ""
+            }
+        },
+        "figma-dev-mode": {
+            "type": "sse",
+            "url": "http://127.0.0.1:3845/sse"
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp@0.0.38"
+            ]
+        },
+        "firebase": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "firebase-tools@14.15.2",
+                "experimental:mcp"
+            ]
+        },
+        "github": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "-e",
+                "GITHUB_PERSONAL_ACCESS_TOKEN",
+                "-e",
+                "GITHUB_TOOLSETS",
+                "-e",
+                "GITHUB_READ_ONLY",
+                "ghcr.io/github/github-mcp-server"
+            ],
+            "env": {
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}",
+                "GITHUB_TOOLSETS": "",
+                "GITHUB_READ_ONLY": ""
+            }
+        },
+        "filesystem": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--mount",
+                "type=bind,src=f:,dst=/projects",
+                "mcp/filesystem",
+                "/projects"
+            ]
+        },
+        "notion": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@notionhq/notion-mcp-server"
+            ],
+            "env": {
+                "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ${NOTION_API_TOKEN}\", \"Notion-Version\": \"2022-06-28\"}"
+            }
+        }
+    }
+}
