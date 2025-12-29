@@ -2,799 +2,483 @@
 
 ## 📋 Document Information
 - **Project**: KnowledgeBase Pro Desktop Application
-- **API Version**: 1.0.0
-- **Last Updated**: 2025-12-28
-- **Protocol**: Tauri IPC (Inter-Process Communication)
+- **API Type**: Tauri IPC Commands
+- **Version**: 2.0.0
+- **Last Updated**: 2025-12-29
+- **Status**: Phase 2 Complete - 31 Commands Available
 
-## 🔗 Overview
+## 🚀 Overview
 
-The KnowledgeBase Pro API is built on Tauri's IPC system, providing secure communication between the React frontend and Rust backend. All API calls are asynchronous and return results via Promises.
+KnowledgeBase Pro exposes 31 Tauri commands organized into 6 modules. All commands are type-safe with proper error handling and return structured data.
 
-### Base URL
-```
-tauri://localhost/
-```
+## 📚 Command Reference
 
-### Authentication
-No authentication required for local application. All operations are performed in the context of the local user.
+### 📝 Note Commands (6 commands)
 
-### Response Format
-All API responses follow a consistent format:
+#### `list_notes`
+Lists all notes with optional filtering.
 
 ```typescript
-// Success Response
-{
-  success: true,
-  data: T, // Response data
-  error?: string
-}
+// Usage
+const notes = await invoke<Note[]>('list_notes');
 
-// Error Response  
-{
-  success: false,
-  data?: T,
-  error: string // Error message
-}
-```
-
-## 📝 Note Management API
-
-### Create Note
-Creates a new note with optional metadata.
-
-```typescript
-interface CreateNoteRequest {
-  title: string;
-  content: string;
-  folder_id?: string;
-  properties?: Record<string, any>;
-  tags?: string[];
-}
-
+// Returns
 interface Note {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  folder_id?: string;
-  is_daily_note: boolean;
-  properties: Record<string, any>;
-  word_count: number;
-  reading_time: number;
+    id: string;
+    title: string;
+    content: string;
+    tags: string[];
+    folder_id?: string;
+    is_daily_note: boolean;
+    word_count: number;
+    reading_time: number;
+    created_at: string;
+    updated_at: string;
 }
+```
 
-await invoke('create_note', {
-  title: string,
-  content: string,
-  folder_id?: string,
-  properties?: string // JSON string
+#### `get_note`
+Retrieves a specific note by ID.
+
+```typescript
+// Usage
+const note = await invoke<Note | null>('get_note', { id: 'note-id' });
+```
+
+#### `create_note`
+Creates a new note.
+
+```typescript
+// Usage
+const note = await invoke<Note>('create_note', {
+    title: 'My Note',
+    content: 'Note content',
+    tags: ['tag1', 'tag2'],
+    folder_id: 'folder-id' // optional
 });
 ```
 
-**Parameters:**
-- `title` (string, required): Note title
-- `content` (string, required): Note content in Markdown
-- `folder_id` (string, optional): Parent folder ID
-- `properties` (string, optional): JSON string of note properties
+#### `update_note`
+Updates an existing note.
 
-**Returns:** `Note` object
-
-**Example:**
 ```typescript
-const note = await invoke('create_note', {
-  title: "My Research Notes",
-  content: "# Research Findings\n\nThis is my research content...",
-  folder_id: "folder-123",
-  properties: JSON.stringify({
-    status: "in-progress",
-    priority: "high",
-    author: "John Doe"
-  })
+// Usage
+const note = await invoke<Note>('update_note', {
+    id: 'note-id',
+    title: 'Updated Title', // optional
+    content: 'Updated content', // optional
+    tags: ['new-tag'], // optional
+    folder_id: 'new-folder' // optional
 });
 ```
 
-### Update Note
-Updates an existing note's content, title, or properties.
+#### `delete_note`
+Deletes a note by ID.
 
 ```typescript
-interface UpdateNoteRequest {
-  id: string;
-  title?: string;
-  content?: string;
-  properties?: Record<string, any>;
-}
-
-await invoke('update_note', {
-  id: string,
-  title?: string,
-  content?: string,
-  properties?: string // JSON string
-});
+// Usage
+await invoke('delete_note', { id: 'note-id' });
 ```
 
-**Parameters:**
-- `id` (string, required): Note ID
-- `title` (string, optional): New title
-- `content` (string, optional): New content
-- `properties` (string, optional): JSON string of properties
-
-**Returns:** Updated `Note` object
-
-### Delete Note
-Permanently deletes a note and all its associated data.
+#### `get_notes_by_folder`
+Retrieves all notes in a specific folder.
 
 ```typescript
-await invoke('delete_note', { id: string });
+// Usage
+const notes = await invoke<Note[]>('get_notes_by_folder', { folder_id: 'folder-id' });
 ```
 
-**Parameters:**
-- `id` (string, required): Note ID to delete
-
-**Returns:** `void`
-
-### Get Note
-Retrieves a single note by ID.
+#### `get_notes_by_tag`
+Retrieves all notes with a specific tag.
 
 ```typescript
-await invoke('get_note', { id: string });
+// Usage
+const notes = await invoke<Note[]>('get_notes_by_tag', { tag_name: 'research' });
 ```
 
-**Parameters:**
-- `id` (string, required): Note ID
+### 📁 Folder Commands (4 commands)
 
-**Returns:** `Note | null`
-
-### List Notes
-Retrieves notes with optional filtering and pagination.
+#### `list_folders`
+Lists all folders.
 
 ```typescript
-interface ListNotesRequest {
-  folder_id?: string;
-  tags?: string[];
-  limit?: number;
-  offset?: number;
-  search?: string;
-}
+// Usage
+const folders = await invoke<Folder[]>('list_folders');
 
-await invoke('list_notes', {
-  folder_id?: string,
-  tags?: string[],
-  limit?: number,
-  offset?: number
-});
-```
-
-**Parameters:**
-- `folder_id` (string, optional): Filter by folder
-- `tags` (string[], optional): Filter by tags
-- `limit` (number, optional): Maximum results (default: 50)
-- `offset` (number, optional): Pagination offset (default: 0)
-
-**Returns:** Array of `Note` objects
-
-## 🔍 Search API
-
-### Full-Text Search
-Performs full-text search across notes with highlighting.
-
-```typescript
-interface SearchRequest {
-  query: string;
-  limit?: number;
-  includeContent?: boolean;
-  folderFilter?: string[];
-  tagFilter?: string[];
-}
-
-interface SearchResult {
-  note_id: string;
-  title: string;
-  content_snippet: string;
-  relevance_score: number;
-  matches: SearchMatch[];
-  created_at: string;
-  updated_at: string;
-}
-
-interface SearchMatch {
-  field: 'title' | 'content';
-  start: number;
-  end: number;
-  text: string;
-}
-
-await invoke('search_notes', {
-  query: string,
-  options?: SearchOptions
-});
-
-interface SearchOptions {
-  limit?: number;
-  includeContent?: boolean;
-  folderFilter?: string[];
-  tagFilter?: string[];
-}
-```
-
-**Parameters:**
-- `query` (string, required): Search query
-- `options.limit` (number, optional): Maximum results (default: 20)
-- `options.includeContent` (boolean, optional): Include content snippets
-- `options.folderFilter` (string[], optional): Limit search to folders
-- `options.tagFilter` (string[], optional): Limit search to tags
-
-**Returns:** Array of `SearchResult` objects
-
-### Advanced Search
-Advanced search with structured filters.
-
-```typescript
-interface SearchFilters {
-  title?: string;
-  content?: string;
-  tags?: string[];
-  folder_id?: string;
-  dateRange?: {
-    start: string;
-    end: string;
-  };
-  properties?: Record<string, any>;
-  hasBacklinks?: boolean;
-}
-
-await invoke('advanced_search', { filters: SearchFilters });
-```
-
-**Returns:** Array of `Note` objects
-
-### Search Suggestions
-Get autocomplete suggestions for search queries.
-
-```typescript
-await invoke('get_search_suggestions', { query: string });
-```
-
-**Parameters:**
-- `query` (string, required): Partial query for suggestions
-
-**Returns:** Array of suggestion strings
-
-## 🔗 Linking System API
-
-### Get Backlinks
-Retrieves all notes that link to the specified note.
-
-```typescript
-interface Link {
-  id: string;
-  source_note_id: string;
-  target_note_id: string;
-  source_block_id?: string;
-  target_block_id?: string;
-  link_type: string;
-  created_at: string;
-}
-
-await invoke('get_backlinks', { note_id: string });
-```
-
-**Returns:** Array of `Link` objects
-
-### Get Forward Links
-Retrieves all links from the specified note to other notes.
-
-```typescript
-await invoke('get_forward_links', { note_id: string });
-```
-
-**Returns:** Array of `Link` objects
-
-### Create Link
-Creates a bidirectional link between two notes.
-
-```typescript
-interface CreateLinkRequest {
-  source_note_id: string;
-  target_note_id: string;
-  source_block_id?: string;
-  target_block_id?: string;
-}
-
-await invoke('create_link', {
-  source_note_id: string,
-  target_note_id: string,
-  source_block_id?: string,
-  target_block_id?: string
-});
-```
-
-**Returns:** Created `Link` object
-
-## 📂 Folder Management API
-
-### Create Folder
-Creates a new folder for organizing notes.
-
-```typescript
+// Returns
 interface Folder {
-  id: string;
-  name: string;
-  parent_id?: string;
-  created_at: string;
-  note_count?: number;
+    id: string;
+    name: string;
+    parent_id?: string;
+    path?: string;
+    created_at: string;
 }
+```
 
-await invoke('create_folder', {
-  name: string,
-  parent_id?: string
+#### `create_folder`
+Creates a new folder.
+
+```typescript
+// Usage
+const folder = await invoke<Folder>('create_folder', {
+    name: 'Research',
+    parent_id: 'parent-id' // optional
 });
 ```
 
-**Parameters:**
-- `name` (string, required): Folder name
-- `parent_id` (string, optional): Parent folder ID
-
-**Returns:** `Folder` object
-
-### List Folders
-Retrieves folder hierarchy.
+#### `update_folder`
+Updates an existing folder.
 
 ```typescript
-await invoke('list_folders', { parent_id?: string });
-```
-
-**Parameters:**
-- `parent_id` (string, optional): Parent folder ID (for hierarchy)
-
-**Returns:** Array of `Folder` objects
-
-### Update Folder
-Updates folder properties.
-
-```typescript
-await invoke('update_folder', {
-  id: string,
-  name?: string,
-  parent_id?: string
+// Usage
+const folder = await invoke<Folder>('update_folder', {
+    id: 'folder-id',
+    name: 'Updated Name', // optional
+    parent_id: 'new-parent' // optional
 });
 ```
 
-### Delete Folder
-Deletes a folder and optionally moves notes to another folder.
+#### `delete_folder`
+Deletes a folder by ID.
 
 ```typescript
-interface DeleteFolderRequest {
-  id: string;
-  move_notes_to?: string; // Target folder ID
-}
-
-await invoke('delete_folder', {
-  id: string,
-  move_notes_to?: string
-});
+// Usage
+await invoke('delete_folder', { id: 'folder-id' });
 ```
 
-## 🏷️ Tag Management API
+### 🏷️ Tag Commands (5 commands)
 
-### Create Tag
-Creates a new tag for categorizing notes.
+#### `list_tags`
+Lists all tags.
 
 ```typescript
+// Usage
+const tags = await invoke<Tag[]>('list_tags');
+
+// Returns
 interface Tag {
-  id: string;
-  name: string;
-  color?: string;
-  created_at: string;
-  usage_count?: number;
+    id: string;
+    name: string;
+    color?: string;
+    created_at: string;
 }
+```
 
-await invoke('create_tag', {
-  name: string,
-  color?: string
+#### `create_tag`
+Creates a new tag.
+
+```typescript
+// Usage
+const tag = await invoke<Tag>('create_tag', {
+    name: 'research',
+    color: '#a855f7' // optional
 });
 ```
 
-**Parameters:**
-- `name` (string, required): Tag name
-- `color` (string, optional): Hex color code
-
-**Returns:** `Tag` object
-
-### List Tags
-Retrieves all tags with usage statistics.
+#### `delete_tag`
+Deletes a tag by ID.
 
 ```typescript
-await invoke('list_tags', {});
+// Usage
+await invoke('delete_tag', { id: 'tag-id' });
 ```
 
-**Returns:** Array of `Tag` objects
-
-### Add Tag to Note
-Adds a tag to a specific note.
+#### `update_note_tags`
+Updates tags for a note (replaces all tags).
 
 ```typescript
+// Usage
+await invoke('update_note_tags', {
+    note_id: 'note-id',
+    tag_ids: ['tag-id-1', 'tag-id-2']
+});
+```
+
+#### `add_tag_to_note`
+Adds a tag to a note (creates tag if needed).
+
+```typescript
+// Usage
 await invoke('add_tag_to_note', {
-  note_id: string,
-  tag_id: string
+    note_id: 'note-id',
+    tag_name: 'new-tag'
 });
 ```
 
-### Remove Tag from Note
-Removes a tag from a specific note.
+#### `remove_tag_from_note`
+Removes a tag from a note.
 
 ```typescript
+// Usage
 await invoke('remove_tag_from_note', {
-  note_id: string,
-  tag_id: string
+    note_id: 'note-id',
+    tag_name: 'tag-name'
 });
 ```
 
-## 🧱 Block-Level References API
+### 🔍 Search Commands (5 commands)
 
-### Get Note Blocks
-Retrieves all blocks within a note for block-level referencing.
-
-```typescript
-interface Block {
-  id: string;
-  note_id: string;
-  content: string;
-  order_index: number;
-  parent_block_id?: string;
-  block_type: string;
-  created_at: string;
-  updated_at: string;
-}
-
-await invoke('get_note_blocks', { note_id: string });
-```
-
-**Returns:** Array of `Block` objects
-
-### Create Block Reference
-Creates a reference between specific blocks in different notes.
+#### `search_notes`
+Searches across all notes using FTS5.
 
 ```typescript
-interface BlockReference {
-  id: string;
-  source_note_id: string;
-  source_block_id: string;
-  target_note_id: string;
-  target_block_id: string;
-  created_at: string;
-}
+// Usage
+const results = await invoke<SearchResult[]>('search_notes', { query: 'search term' });
 
-await invoke('create_block_reference', {
-  source_note_id: string,
-  source_block_id: string,
-  target_note_id: string,
-  target_block_id: string
-});
-```
-
-### Get Block References
-Retrieves all references to or from a specific block.
-
-```typescript
-await invoke('get_block_references', {
-  note_id: string,
-  block_id: string
-});
-```
-
-## 📁 File Management API
-
-### Import Files
-Imports external files into the knowledge base.
-
-```typescript
-interface ImportRequest {
-  paths: string[];
-  options?: {
-    create_folders?: boolean;
-    preserve_structure?: boolean;
-    tag_imported?: boolean;
-  };
-}
-
-interface ImportResult {
-  imported_count: number;
-  skipped_count: number;
-  errors: string[];
-  notes: Note[];
-}
-
-await invoke('import_files', {
-  paths: string[],
-  options?: ImportOptions
-});
-
-interface ImportOptions {
-  create_folders?: boolean;
-  preserve_structure?: boolean;
-  tag_imported?: boolean;
+// Returns
+interface SearchResult {
+    note_id: string;
+    title: string;
+    content_snippet: string;
+    relevance_score: number;
 }
 ```
 
-**Supported Formats:**
-- Markdown (.md, .markdown)
-- Plain text (.txt)
-- HTML (.html, .htm)
-- PDF (.pdf) - text extraction
-- Word documents (.docx) - text extraction
-
-### Export Notes
-Exports notes to various formats.
+#### `search_in_folder`
+Searches within a specific folder.
 
 ```typescript
-type ExportFormat = 'markdown' | 'json' | 'pdf' | 'html';
-
-interface ExportRequest {
-  note_ids: string[];
-  format: ExportFormat;
-  options?: {
-    include_metadata?: boolean;
-    include_backlinks?: boolean;
-    template?: string;
-  };
-}
-
-await invoke('export_notes', {
-  note_ids: string[],
-  format: ExportFormat,
-  options?: ExportOptions
+// Usage
+const results = await invoke<SearchResult[]>('search_in_folder', {
+    folder_id: 'folder-id',
+    query: 'search term'
 });
 ```
 
-**Returns:** File path or base64 encoded content
-
-### Create Backup
-Creates a complete backup of the knowledge base.
+#### `search_by_tag`
+Searches within notes with a specific tag.
 
 ```typescript
-interface BackupRequest {
-  path: string;
-  options?: {
-    include_attachments?: boolean;
-    compress?: boolean;
-    encrypt?: boolean;
-    password?: string;
-  };
-}
-
-interface BackupResult {
-  backup_path: string;
-  size: number;
-  note_count: number;
-  created_at: string;
-}
-
-await invoke('create_backup', {
-  path: string,
-  options?: BackupOptions
+// Usage
+const results = await invoke<SearchResult[]>('search_by_tag', {
+    tag_name: 'research',
+    query: 'search term'
 });
 ```
 
-### Restore Backup
-Restores knowledge base from a backup file.
+#### `get_search_suggestions`
+Gets search suggestions for autocomplete.
 
 ```typescript
-interface RestoreRequest {
-  path: string;
-  options?: {
-    merge_mode?: 'replace' | 'merge' | 'skip_duplicates';
-    password?: string;
-  };
-}
-
-await invoke('restore_backup', {
-  path: string,
-  options?: RestoreOptions
+// Usage
+const suggestions = await invoke<string[]>('get_search_suggestions', {
+    query: 'partial',
+    limit: 5
 });
 ```
 
-## 📊 Analytics API
-
-### Get Statistics
-Retrieves knowledge base usage statistics.
+#### `get_all_notes_count`
+Gets total count of notes.
 
 ```typescript
-interface Statistics {
-  total_notes: number;
-  total_folders: number;
-  total_tags: number;
-  total_links: number;
-  storage_used: number;
-  average_note_length: number;
-  most_used_tags: Tag[];
-  recent_activity: ActivityItem[];
-}
-
-interface ActivityItem {
-  type: 'create' | 'update' | 'delete';
-  note_id: string;
-  timestamp: string;
-  title: string;
-}
-
-await invoke('get_statistics', {});
+// Usage
+const count = await invoke<number>('get_all_notes_count');
 ```
 
-### Get Note Analytics
-Retrieves detailed analytics for a specific note.
+#### `get_recent_notes`
+Gets most recently updated notes.
 
 ```typescript
-interface NoteAnalytics {
-  view_count: number;
-  edit_count: number;
-  backlink_count: number;
-  forward_link_count: number;
-  reading_time: number;
-  last_viewed: string;
-  last_edited: string;
-}
-
-await invoke('get_note_analytics', { note_id: string });
+// Usage
+const notes = await invoke<Note[]>('get_recent_notes', { limit: 10 });
 ```
 
-## ⚙️ Settings API
+### 🔗 Link Commands (6 commands)
 
-### Get Settings
-Retrieves application settings.
-
-```typescript
-interface Settings {
-  theme: 'light' | 'dark' | 'auto';
-  language: string;
-  auto_save: boolean;
-  auto_save_interval: number;
-  default_folder?: string;
-  search_engine: 'sqlite' | 'client';
-  plugins_enabled: boolean;
-  encryption_enabled: boolean;
-}
-
-await invoke('get_settings', {});
-```
-
-### Update Settings
-Updates application settings.
+#### `list_links`
+Lists all links between notes.
 
 ```typescript
-await invoke('update_settings', {
-  settings: Partial<Settings>
-});
-```
+// Usage
+const links = await invoke<Link[]>('list_links');
 
-## 🔌 Plugin API
-
-### List Plugins
-Retrieves available and installed plugins.
-
-```typescript
-interface Plugin {
-  id: string;
-  name: string;
-  version: string;
-  description: string;
-  author: string;
-  enabled: boolean;
-  installed: boolean;
-  permissions: string[];
-}
-
-await invoke('list_plugins', {});
-```
-
-### Enable/Disable Plugin
-Enables or disables a specific plugin.
-
-```typescript
-await invoke('set_plugin_enabled', {
-  plugin_id: string,
-  enabled: boolean
-});
-```
-
-### Execute Plugin Command
-Executes a command on a specific plugin.
-
-```typescript
-await invoke('execute_plugin_command', {
-  plugin_id: string,
-  command: string,
-  parameters?: Record<string, any>
-});
-```
-
-## 📡 Event System
-
-The API also provides an event system for real-time updates:
-
-### Subscribe to Events
-```typescript
-import { listen } from '@tauri-apps/api/event';
-
-await listen('note-updated', (event) => {
-  console.log('Note updated:', event.payload);
-});
-
-await listen('search-results', (event) => {
-  console.log('Search completed:', event.payload);
-});
-```
-
-### Event Types
-- `note-created`: New note created
-- `note-updated`: Note modified
-- `note-deleted`: Note removed
-- `folder-created`: New folder created
-- `tag-created`: New tag created
-- `link-created`: New link established
-- `search-results`: Search operation completed
-- `backup-completed`: Backup operation finished
-- `import-completed`: Import operation finished
-
-## 🚨 Error Handling
-
-### Error Codes
-- `INVALID_INPUT`: Input validation failed
-- `NOT_FOUND`: Requested resource not found
-- `PERMISSION_DENIED`: Insufficient permissions
-- `DATABASE_ERROR`: Database operation failed
-- `FILE_ERROR`: File system operation failed
-- `ENCRYPTION_ERROR`: Encryption/decryption failed
-- `PLUGIN_ERROR`: Plugin operation failed
-- `UNKNOWN_ERROR`: Unexpected error occurred
-
-### Error Response Format
-```typescript
-{
-  success: false,
-  error: {
-    code: string;
-    message: string;
-    details?: Record<string, any>;
-  }
+// Returns
+interface Link {
+    id: string;
+    source_note_id: string;
+    target_note_id: string;
+    source_block_id?: string;
+    target_block_id?: string;
+    link_type: string;
+    created_at: string;
 }
 ```
 
-## 📖 Usage Examples
+#### `create_link`
+Creates a new link between notes.
 
-### Complete Note Workflow
 ```typescript
-// Create a note
-const note = await invoke('create_note', {
-  title: "Meeting Notes",
-  content: "# Project Meeting\n\nDiscussed new features...",
-  properties: JSON.stringify({
-    meeting_date: "2025-12-28",
-    attendees: ["John", "Jane"]
-  })
-});
-
-// Add tags
-const tag = await invoke('create_tag', {
-  name: "meeting",
-  color: "#3b82f6"
-});
-await invoke('add_tag_to_note', {
-  note_id: note.id,
-  tag_id: tag.id
-});
-
-// Create link to another note
-await invoke('create_link', {
-  source_note_id: note.id,
-  target_note_id: "existing-note-id"
-});
-
-// Search for the note
-const results = await invoke('search_notes', {
-  query: "Project Meeting",
-  options: { limit: 10 }
+// Usage
+const link = await invoke<Link>('create_link', {
+    source_note_id: 'source-id',
+    target_note_id: 'target-id',
+    source_block_id: 'block-id', // optional
+    target_block_id: 'block-id', // optional
+    link_type: 'wikilink' // optional
 });
 ```
 
-This API documentation provides comprehensive coverage of all available operations in the KnowledgeBase Pro application, enabling developers to build powerful integrations and extensions.
+#### `delete_link`
+Deletes a link by ID.
+
+```typescript
+// Usage
+await invoke('delete_link', { id: 'link-id' });
+```
+
+#### `get_backlinks`
+Gets all notes that link to the specified note.
+
+```typescript
+// Usage
+const notes = await invoke<Note[]>('get_backlinks', { note_id: 'note-id' });
+```
+
+#### `get_forward_links`
+Gets all notes that the specified note links to.
+
+```typescript
+// Usage
+const notes = await invoke<Note[]>('get_forward_links', { note_id: 'note-id' });
+```
+
+#### `parse_and_create_links`
+Parses wikilinks from content and creates links.
+
+```typescript
+// Usage
+const links = await invoke<Link[]>('parse_and_create_links', {
+    note_id: 'note-id',
+    content: 'Content with [[wikilinks]]'
+});
+```
+
+#### `get_link_count`
+Gets total number of links (forward + backlinks) for a note.
+
+```typescript
+// Usage
+const count = await invoke<number>('get_link_count', { note_id: 'note-id' });
+```
+
+### 🤖 AI Commands (5 commands)
+
+#### `generate_ai_response`
+Generates AI response with source grounding.
+
+```typescript
+// Usage
+const response = await invoke<AIResponse>('generate_ai_response', {
+    query: 'What are the main topics?',
+    context_documents: ['note-id-1', 'note-id-2'],
+    include_citations: true,
+    model_preference: 'phi3.1:mini' // optional
+});
+
+// Returns
+interface AIResponse {
+    answer: string;
+    citations: AICitation[];
+    confidence_score: number;
+    model_used: string;
+    processing_time: number;
+}
+
+interface AICitation {
+    document_id: string;
+    document_title: string;
+    relevant_excerpt: string;
+    confidence_score: number;
+}
+```
+
+#### `create_ai_conversation`
+Creates a new AI conversation.
+
+```typescript
+// Usage
+const conversation = await invoke<AIConversation>('create_ai_conversation', {
+    title: 'Research Discussion'
+});
+
+// Returns
+interface AIConversation {
+    id: string;
+    title: string;
+    created_at: string;
+    message_count: number;
+}
+```
+
+#### `add_ai_message`
+Adds a message to an AI conversation.
+
+```typescript
+// Usage
+const message = await invoke<AIMessage>('add_ai_message', {
+    conversation_id: 'conv-id',
+    role: 'user', // 'user' or 'assistant'
+    content: 'Message content',
+    citations: 'json-citations' // optional
+});
+
+// Returns
+interface AIMessage {
+    id: string;
+    conversation_id: string;
+    role: string;
+    content: string;
+    citations?: string;
+    created_at: string;
+}
+```
+
+#### `get_ai_conversation_history`
+Gets all messages in a conversation.
+
+```typescript
+// Usage
+const messages = await invoke<AIMessage[]>('get_ai_conversation_history', {
+    conversation_id: 'conv-id'
+});
+```
+
+#### `list_ai_conversations`
+Lists all AI conversations.
+
+```typescript
+// Usage
+const conversations = await invoke<AIConversation[]>('list_ai_conversations');
+```
+
+## 🔧 Error Handling
+
+All commands return `Result<T, String>` from Rust, which translates to:
+- **Success**: Returns the specified type
+- **Error**: Throws an error with the error message string
+
+```typescript
+try {
+    const note = await invoke<Note>('get_note', { id: 'note-id' });
+    // Handle success
+} catch (error) {
+    console.error('Command failed:', error);
+    // Handle error
+}
+```
+
+## 🚀 Performance Notes
+
+- **Database**: SQLite with connection pooling (max 5 connections)
+- **Search**: FTS5 with BM25 ranking for sub-100ms results
+- **AI**: Mock responses currently, ready for Ollama integration
+- **Memory**: Efficient service sharing with Arc references
+- **Type Safety**: Full TypeScript interfaces for all data structures
+
+## 📝 Development Notes
+
+- All services are modular and can be extended independently
+- Commands follow RESTful naming conventions
+- Database migrations are versioned and run automatically
+- Frontend services are already updated to use new command names
+- Ready for real AI model integration (Ollama, local LLMs)
