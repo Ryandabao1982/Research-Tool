@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, X, Plus, Hash, Check } from 'lucide-react';
 import { useServices } from '../../shared/services/serviceContext';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '../../shared/components/Button';
+
 import { Input } from '../../shared/components/Input';
 import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
