@@ -14,12 +14,15 @@ vi.mock('lucide-react', async (importOriginal) => {
   };
 });
 
-// Mock Framer Motion
+// Mock Framer Motion to avoid animation issues in tests
 vi.mock('framer-motion', () => ({
   motion: {
     div: ({ children, className, ...props }: any) => <div className={className} {...props}>{children}</div>,
+    h1: ({ children, className, ...props }: any) => <h1 className={className} {...props}>{children}</h1>,
+    p: ({ children, className, ...props }: any) => <p className={className} {...props}>{children}</p>,
     button: ({ children, className, ...props }: any) => <button className={className} {...props}>{children}</button>,
   },
+  AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
 
 // Mock useNavigate
@@ -39,7 +42,8 @@ describe('DashboardPage', () => {
         <DashboardPage />
       </BrowserRouter>
     );
-    expect(screen.getByText('Welcome back, User')).toBeDefined();
+    expect(screen.getByText(/Welcome back/i)).toBeDefined();
+    expect(screen.getByText(/User/i)).toBeDefined();
   });
 
   it('should render quick actions section', () => {
@@ -48,8 +52,8 @@ describe('DashboardPage', () => {
         <DashboardPage />
       </BrowserRouter>
     );
-    expect(screen.getAllByText('Quick Actions')[0]).toBeDefined();
-    expect(screen.getAllByText('New Note')[0]).toBeDefined();
+    expect(screen.getAllByText(/Quick Actions/i)[0]).toBeDefined();
+    expect(screen.getAllByText(/New Note/i)[0]).toBeDefined();
   });
 
   it('should navigate to notes when New Note is clicked', () => {
@@ -58,7 +62,7 @@ describe('DashboardPage', () => {
         <DashboardPage />
       </BrowserRouter>
     );
-    const newNoteBtn = screen.getAllByText('New Note')[0].closest('button');
+    const newNoteBtn = screen.getAllByText(/New Note/i)[0].closest('button');
     expect(newNoteBtn).toBeDefined();
     fireEvent.click(newNoteBtn!);
     expect(mockNavigate).toHaveBeenCalledWith('/notes');
@@ -70,6 +74,6 @@ describe('DashboardPage', () => {
         <DashboardPage />
       </BrowserRouter>
     );
-    expect(screen.getAllByText('Total Notes')[0]).toBeDefined();
+    expect(screen.getAllByText(/Total Notes/i)[0]).toBeDefined();
   });
 });

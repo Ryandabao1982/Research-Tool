@@ -9,18 +9,17 @@
     - [x] Implement "New Note", "Search" buttons with icons.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Structure & Layout' (Protocol in workflow.md)
 
-## Phase 2: Data Integration
-- [~] Task: Connect Dashboard to `useNotes` store.
-    - [ ] Write tests for data loading state.
-    - [ ] Fetch recent notes and stats.
-- [ ] Task: Implement Recent Notes widget.
-    - [ ] Write tests for empty and populated states.
-    - [ ] Implement card list for recent notes.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Integration' (Protocol in workflow.md)
+## Phase 2: Data Integration [checkpoint: 4a13ae6]
+- [x] Task: Connect Dashboard to `useNotes` store. 4a13ae6
+    - [x] Write tests for data loading state.
+    - [x] Fetch recent notes and stats.
+- [x] Task: Implement Recent Notes widget. 4a13ae6
+    - [x] Write tests for empty and populated states.
+    - [x] Implement card list for recent notes.
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Data Integration' (Protocol in workflow.md)
 
 ## Phase 3: Visual Polish
-- [ ] Task: Add Framer Motion animations.
+- [~] Task: Add Framer Motion animations and refine Glassmorphism styling.
     - [ ] Add entrance animations to widgets.
-- [ ] Task: Apply Glassmorphism styling.
     - [ ] Refine gradients, shadows, and borders.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Visual Polish' (Protocol in workflow.md)

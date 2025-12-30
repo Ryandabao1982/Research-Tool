@@ -23,9 +23,10 @@ import {
   FolderIcon,
   PlusIcon,
   StarIcon,
-  SettingsIcon
+  SettingsIcon,
+  ClockIcon
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useNotesStore } from '../../shared/hooks/useNotesStore';
 
@@ -69,11 +70,10 @@ export default function DashboardPage() {
 
   const recentNotes = notes.slice(0, 4);
   
-  // Dynamic stats
   const stats = {
     totalNotes: notes.length,
     favorites: notes.filter(n => (n as any).isFavorite).length,
-    folders: 0, // Not implemented yet
+    folders: 0,
     tags: Array.from(new Set(notes.flatMap(n => (n as any).tags || []))).length
   };
 
@@ -88,132 +88,174 @@ export default function DashboardPage() {
     if (actionId === 'create-note' || actionId === 'new-note') {
       navigate('/notes');
     }
-    console.log('Action triggered:', actionId);
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1
+    }
   };
 
   return (
     <Layout>
-      <div className="relative min-h-[calc(100vh-5rem)]">
-        {/* Ambient Background Glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" style={{ filter: 'blur(100px)' }} />
+      <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
+        {/* Animated Background Orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div 
+            animate={{ 
+              x: [0, 100, 0],
+              y: [0, 50, 0],
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px]" 
+          />
+          <motion.div 
+            animate={{ 
+              x: [0, -80, 0],
+              y: [0, 100, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[120px]" 
+          />
+        </div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 space-y-8">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="relative z-10 max-w-7xl mx-auto px-6 py-10 space-y-10"
+        >
           {/* Welcome Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-4xl font-bold text-white mb-2">Welcome back, User</h1>
-            <p className="text-slate-400">Here's what's happening in your knowledge base today.</p>
+          <motion.div variants={itemVariants} className="space-y-2">
+            <h1 className="text-5xl font-extrabold tracking-tight text-white">
+              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">User</span>
+            </h1>
+            <p className="text-slate-400 text-lg max-w-2xl">
+              Your research, insights, and knowledge, all in one place. What will you discover today?
+            </p>
           </motion.div>
 
           {/* Quick Actions Section */}
-          <div className="space-y-4">
-            <SectionHeader title="Quick Actions" delay={0.1} />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div variants={itemVariants} className="space-y-6">
+            <SectionHeader title="Quick Actions" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {quickActions.map((action, index) => (
                 <QuickActionCard
                   key={action.id}
                   action={action}
                   onClick={() => handleQuickAction(action.id)}
-                  delay={0.15 + (index * 0.05)}
                 />
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard
               title="Total Notes"
               value={stats.totalNotes}
-              icon={<FileTextIcon className="w-5 h-5" />}
+              icon={<FileTextIcon className="w-6 h-6" />}
               color="blue"
-              delay={0.3}
             />
             <StatCard
               title="Favorites"
               value={stats.favorites}
-              icon={<StarIcon className="w-5 h-5" />}
+              icon={<StarIcon className="w-6 h-6" />}
               color="purple"
-              delay={0.35}
             />
             <StatCard
               title="Folders"
               value={stats.folders}
-              icon={<FolderIcon className="w-5 h-5" />}
+              icon={<FolderIcon className="w-6 h-6" />}
               color="green"
-              delay={0.4}
             />
             <StatCard
               title="Tags"
               value={stats.tags}
-              icon={<TagIcon className="w-5 h-5" />}
+              icon={<TagIcon className="w-6 h-6" />}
               color="pink"
-              delay={0.45}
             />
-          </div>
+          </motion.div>
 
           {/* Main Content Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Recent Notes */}
-            <div className="lg:col-span-2 space-y-4">
+            <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
               <SectionHeader
                 title="Recent Notes"
                 action={{
                   label: 'View All',
                   onClick: () => navigate('/notes')
                 }}
-                delay={0.5}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recentNotes.length > 0 ? (
-                  recentNotes.map((note, index) => (
-                    <RecentNoteCard
-                      key={note.id}
-                      note={note}
-                      onClick={() => navigate('/notes')}
-                      delay={0.55 + (index * 0.1)}
-                    />
-                  ))
-                ) : (
-                  <div className="col-span-full">
-                    <EmptyState
-                      icon={<FileTextIcon className="w-12 h-12 text-slate-400" />}
-                      title="No notes yet"
-                      description="Start by creating your first knowledge note"
-                      action={{
-                        label: 'Create Note',
-                        onClick: () => navigate('/notes')
-                      }}
-                    />
-                  </div>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <AnimatePresence mode="popLayout">
+                  {recentNotes.length > 0 ? (
+                    recentNotes.map((note, index) => (
+                      <RecentNoteCard
+                        key={note.id}
+                        note={note}
+                        onClick={() => navigate('/notes')}
+                      />
+                    ))
+                  ) : (
+                    <motion.div 
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="col-span-full"
+                    >
+                      <EmptyState
+                        icon={<FileTextIcon className="w-16 h-16 text-slate-500" />}
+                        title="Your knowledge base is empty"
+                        description="Start capturing your thoughts, research, and ideas to see them here."
+                        action={{
+                          label: 'Create Your First Note',
+                          onClick: () => navigate('/notes')
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
 
             {/* Activity Feed */}
-            <div className="space-y-4">
-              <SectionHeader title="Recent Activity" delay={0.5} />
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 space-y-2">
+            <motion.div variants={itemVariants} className="space-y-6">
+              <SectionHeader title="Recent Activity" />
+              <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 space-y-4 shadow-2xl">
                 {recentActivity.length > 0 ? (
                   recentActivity.map((activity, index) => (
                     <ActivityItem
                       key={activity.id}
                       activity={activity}
-                      delay={0.6 + (index * 0.08)}
                     />
                   ))
                 ) : (
-                  <p className="text-sm text-slate-500 text-center py-8">No recent activity</p>
+                  <div className="text-center py-12 space-y-2">
+                    <ClockIcon className="w-10 h-10 text-slate-600 mx-auto" />
+                    <p className="text-slate-500 font-medium">No recent activity</p>
+                  </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </Layout>
   );
 }
-
