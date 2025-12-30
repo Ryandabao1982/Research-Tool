@@ -1,6 +1,8 @@
-import type { LayoutProps } from './types';
+export interface LayoutProps {
+  children: React.ReactNode;
+}
 
-const Layout = ({ children }: LayoutProps) => {
+export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
       <div className="container mx-auto px-4 py-8">
@@ -17,14 +19,14 @@ const Layout = ({ children }: LayoutProps) => {
                 </button>
               </div>
             </div>
-          </header>
-          <main className="flex-1">
-            {children}
-          </main>
-        </div>
+          </div>
+        </header>
+        <main className="flex-1">
+          {children}
+        </main>
       </div>
     </div>
   );
-};
+}
 
 export default Layout;
