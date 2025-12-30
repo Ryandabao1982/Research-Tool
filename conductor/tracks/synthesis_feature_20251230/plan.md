@@ -19,7 +19,7 @@
     - [ ] Implement selection checkboxes in the sidebar/note list components.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Frontend Selection State & UI' (Protocol in workflow.md)
 
-## Phase 3: Synthesis Panel & AI Integration
+## Phase 3: Synthesis Panel & AI Integration [checkpoint: dc631b6]
 - [x] Task: Create the `SynthesisPanel` component. 485bb59
     - [ ] Write tests for the panel's rendering and empty states.
     - [ ] Implement the glassmorphic panel in `src/features/ai/components/`.
