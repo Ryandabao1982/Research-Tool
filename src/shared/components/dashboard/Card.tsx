@@ -1,27 +1,71 @@
+/**
+ * @fileoverview Dashboard Card Components Library
+ * 
+ * Provides a comprehensive set of reusable card components for the dashboard UI.
+ * All components use glassmorphism design with Framer Motion animations.
+ * 
+ * @module shared/components/dashboard/Card
+ * @requires react
+ * @requires framer-motion
+ * @requires clsx
+ */
+
 import React from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { clsx } from 'clsx';
 import { cn } from '@/shared/utils';
 
+/**
+ * Props for the base Card component.
+ */
 interface CardProps {
+  /** Content to render inside the card */
   children: React.ReactNode;
+  /** Additional CSS classes to apply */
   className?: string;
+  /** Click handler - converts card to button when provided */
   onClick?: () => void;
+  /** Enable hover scale animation */
   hover?: boolean;
+  /** Use glassmorphism effect (default: true) */
   glass?: boolean;
+  /** Animation delay in seconds */
   delay?: number;
-}
+};
 
+/**
+ * Animation variants for card entrance animations.
+ */
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0 },
 };
 
+/**
+ * Animation variants for hover interactions.
+ * @deprecated Use inline whileHover/whileTap props instead
+ */
 const hoverVariants: Variants = {
   hover: { scale: 1.02 },
   tap: { scale: 0.98 },
 };
 
+/**
+ * Base Card component with glassmorphism effect and optional interactions.
+ * 
+ * Automatically renders as a button when onClick is provided.
+ * Supports both glass and solid background styles.
+ * 
+ * @example
+ * ```tsx
+ * <Card glass hover onClick={() => console.log('clicked')}>
+ *   <h3>Card Title</h3>
+ * </Card>
+ * ```
+ * 
+ * @param props - Card component props
+ * @returns Animated card element (div or button)
+ */
 export function Card({
   children,
   className,
@@ -44,7 +88,7 @@ export function Card({
     variants: cardVariants,
     transition: { duration: 0.4, delay },
   };
-  
+
   if (onClick) {
     const buttonProps = {
       ...motionProps,
@@ -57,7 +101,7 @@ export function Card({
         className ?? ''
       ),
     };
-    
+
     if (hover) {
       return (
         <motion.button
@@ -69,7 +113,7 @@ export function Card({
         </motion.button>
       );
     }
-    
+
     return (
       <motion.button {...buttonProps}>
         {children}
@@ -93,14 +137,37 @@ export function Card({
   );
 }
 
+/**
+ * Props for the GlassCard component.
+ */
 interface GlassCardProps {
+  /** Content to render inside the card */
   children: React.ReactNode;
+  /** Additional CSS classes to apply */
   className?: string;
+  /** Click handler */
   onClick?: () => void;
+  /** Enable hover animation (default: true) */
   hover?: boolean;
+  /** Animation delay in seconds */
   delay?: number;
 }
 
+/**
+ * Pre-configured Card with glassmorphism effect enabled.
+ * 
+ * Convenience wrapper around Card component with glass={true}.
+ * 
+ * @example
+ * ```tsx
+ * <GlassCard hover onClick={handleClick}>
+ *   <p>Glass effect card</p>
+ * </GlassCard>
+ * ```
+ * 
+ * @param props - GlassCard component props
+ * @returns Glass-styled card element
+ */
 export function GlassCard({
   children,
   className,
@@ -111,7 +178,7 @@ export function GlassCard({
   const cardProps: Partial<CardProps> = { hover, glass: true, delay };
   if (className !== undefined) cardProps.className = className;
   if (onClick !== undefined) cardProps.onClick = onClick;
-  
+
   return (
     <Card {...cardProps}>
       {children}
@@ -119,18 +186,52 @@ export function GlassCard({
   );
 }
 
+/**
+ * Props for the StatCard component.
+ */
 interface StatCardProps {
+  /** Metric label (e.g., "Total Notes") */
   title: string;
+  /** Metric value to display */
   value: string | number;
+  /** Icon element to display */
   icon: React.ReactNode;
+  /** Optional trend indicator */
   trend?: {
+    /** Percentage change (positive or negative) */
     value: number;
+    /** Trend label (e.g., "this week") */
     label: string;
   };
+  /** Color theme for the card */
   color?: 'blue' | 'green' | 'purple' | 'orange' | 'pink';
+  /** Animation delay in seconds */
   delay?: number;
 }
 
+/**
+ * Statistics display card with icon, value, and optional trend indicator.
+ * 
+ * Features:
+ * - Color-coded themes
+ * - Gradient hover effect
+ * - Animated icon on hover
+ * - Positive/negative trend badges
+ * 
+ * @example
+ * ```tsx
+ * <StatCard
+ *   title="Total Notes"
+ *   value={142}
+ *   icon={<FileIcon />}
+ *   trend={{ value: 12, label: "this month" }}
+ *   color="blue"
+ * />
+ * ```
+ * 
+ * @param props - StatCard component props
+ * @returns Animated statistics card
+ */
 export function StatCard({
   title,
   value,
@@ -203,18 +304,52 @@ export function StatCard({
   );
 }
 
+/**
+ * Props for the QuickActionCard component.
+ */
 interface QuickActionCardProps {
+  /** Action configuration object */
   action: {
+    /** Unique action identifier */
     id: string;
+    /** Action title */
     title: string;
+    /** Action description */
     description: string;
+    /** Icon element */
     icon: React.ReactNode;
+    /** Optional keyboard shortcut (e.g., "Ctrl+N") */
     shortcut?: string;
   };
+  /** Click handler */
   onClick: () => void;
+  /** Animation delay in seconds */
   delay?: number;
 }
 
+/**
+ * Quick action button card with icon, title, description, and keyboard shortcut.
+ * 
+ * Displays as a horizontal card with gradient icon background.
+ * Keyboard shortcuts are hidden on mobile devices.
+ * 
+ * @example
+ * ```tsx
+ * <QuickActionCard
+ *   action={{
+ *     id: 'new-note',
+ *     title: 'New Note',
+ *     description: 'Create a new knowledge note',
+ *     icon: <PlusIcon />,
+ *     shortcut: 'Ctrl+N'
+ *   }}
+ *   onClick={handleNewNote}
+ * />
+ * ```
+ * 
+ * @param props - QuickActionCard component props
+ * @returns Interactive action card
+ */
 export function QuickActionCard({ action, onClick, delay = 0 }: QuickActionCardProps) {
   return (
     <motion.div
@@ -240,21 +375,63 @@ export function QuickActionCard({ action, onClick, delay = 0 }: QuickActionCardP
   );
 }
 
+/**
+ * Props for the RecentNoteCard component.
+ */
 interface RecentNoteCardProps {
+  /** Note data object */
   note: {
+    /** Unique note identifier */
     id: string;
+    /** Note title */
     title: string;
+    /** Note content preview */
     content: string;
+    /** Creation timestamp */
     createdAt: Date;
+    /** Last update timestamp */
     updatedAt: Date;
+    /** Favorite status */
     isFavorite?: boolean;
+    /** Associated tags */
     tags?: string[];
   };
+  /** Click handler for the entire card */
   onClick: () => void;
+  /** Click handler for favorite toggle button */
   onFavorite?: () => void;
+  /** Animation delay in seconds */
   delay?: number;
 }
 
+/**
+ * Note preview card with title, content snippet, tags, and favorite button.
+ * 
+ * Features:
+ * - Relative timestamps ("5m ago", "2h ago")
+ * - Tag chips with overflow indicator
+ * - Interactive favorite star button
+ * - Truncated content preview (2 lines max)
+ * 
+ * @example
+ * ```tsx
+ * <RecentNoteCard
+ *   note={{
+ *     id: '1',
+ *     title: 'My Note',
+ *     content: 'Note content...',
+ *     tags: ['react', 'typescript'],
+ *     isFavorite: true,
+ *     updatedAt: new Date()
+ *   }}
+ *   onClick={() => navigate(`/notes/${note.id}`)}
+ *   onFavorite={() => toggleFavorite(note.id)}
+ * />
+ * ```
+ * 
+ * @param props - RecentNoteCard component props
+ * @returns Interactive note preview card
+ */
 export function RecentNoteCard({
   note,
   onClick,
@@ -345,17 +522,59 @@ export function RecentNoteCard({
   );
 }
 
+/**
+ * Props for the ActivityItem component.
+ */
 interface ActivityItemProps {
+  /** Activity data object */
   activity: {
+    /** Unique activity identifier */
     id: string;
+    /** Type of activity performed */
     type: 'note_created' | 'note_updated' | 'note_deleted' | 'link_created' | 'ai_interaction';
+    /** Associated note title (optional) */
     noteTitle?: string;
+    /** When the activity occurred */
     timestamp: Date;
+    /** Additional activity details (optional) */
     details?: string;
   };
+  /** Animation delay in seconds */
   delay?: number;
 }
 
+/**
+ * Activity feed item with type-specific icon, label, and timestamp.
+ * 
+ * Features:
+ * - Color-coded icons for each activity type
+ * - Relative timestamps ("5m ago", "2h ago")
+ * - Optional note title and details
+ * - Hover effect for better interactivity
+ * 
+ * Supported activity types:
+ * - `note_created` - Green with plus icon
+ * - `note_updated` - Blue with edit icon
+ * - `note_deleted` - Red with trash icon
+ * - `link_created` - Purple with link icon
+ * - `ai_interaction` - Orange with lightbulb icon
+ * 
+ * @example
+ * ```tsx
+ * <ActivityItem
+ *   activity={{
+ *     id: '1',
+ *     type: 'note_created',
+ *     noteTitle: 'My New Note',
+ *     timestamp: new Date(),
+ *     details: 'Created in Research folder'
+ *   }}
+ * />
+ * ```
+ * 
+ * @param props - ActivityItem component props
+ * @returns Activity feed item element
+ */
 export function ActivityItem({ activity, delay = 0 }: ActivityItemProps) {
   const formatTime = (date: Date) => {
     const now = new Date();
@@ -446,17 +665,49 @@ export function ActivityItem({ activity, delay = 0 }: ActivityItemProps) {
   );
 }
 
+/**
+ * Props for the EmptyState component.
+ */
 interface EmptyStateProps {
+  /** Icon to display */
   icon: React.ReactNode;
+  /** Empty state title */
   title: string;
+  /** Empty state description */
   description: string;
+  /** Optional call-to-action button */
   action?: {
+    /** Button label */
     label: string;
+    /** Button click handler */
     onClick: () => void;
   };
+  /** Animation delay in seconds */
   delay?: number;
 }
 
+/**
+ * Empty state placeholder with icon, message, and optional action button.
+ * 
+ * Used when a section has no data to display (e.g., no notes, no activity).
+ * Provides clear messaging and actionable next steps.
+ * 
+ * @example
+ * ```tsx
+ * <EmptyState
+ *   icon={<FileTextIcon className="w-12 h-12" />}
+ *   title="No notes yet"
+ *   description="Start by creating your first knowledge note"
+ *   action={{
+ *     label: 'Create Note',
+ *     onClick: handleCreateNote
+ *   }}
+ * />
+ * ```
+ * 
+ * @param props - EmptyState component props
+ * @returns Centered empty state element
+ */
 export function EmptyState({ icon, title, description, action, delay = 0 }: EmptyStateProps) {
   return (
     <motion.div
@@ -482,15 +733,43 @@ export function EmptyState({ icon, title, description, action, delay = 0 }: Empt
   );
 }
 
+/**
+ * Props for the SectionHeader component.
+ */
 interface SectionHeaderProps {
+  /** Section title */
   title: string;
+  /** Optional action button (e.g., "View All") */
   action?: {
+    /** Button label */
     label: string;
+    /** Button click handler */
     onClick: () => void;
   };
+  /** Animation delay in seconds */
   delay?: number;
 }
 
+/**
+ * Section header with title and optional action link.
+ * 
+ * Used to label dashboard sections with consistent styling.
+ * Action link typically navigates to a full view (e.g., "View All Notes").
+ * 
+ * @example
+ * ```tsx
+ * <SectionHeader
+ *   title="Recent Notes"
+ *   action={{
+ *     label: 'View All',
+ *     onClick: () => navigate('/notes')
+ *   }}
+ * />
+ * ```
+ * 
+ * @param props - SectionHeader component props
+ * @returns Section header element
+ */
 export function SectionHeader({ title, action, delay = 0 }: SectionHeaderProps) {
   return (
     <motion.div

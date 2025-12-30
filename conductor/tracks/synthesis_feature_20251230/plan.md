@@ -10,7 +10,8 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend Service Layer' (Protocol in workflow.md)
 
 ## Phase 2: Frontend Selection State & UI
-- [ ] Task: Implement multi-select state in Zustand.
+- [~] Task: Implement multi-select state in Zustand.
+
     - [ ] Write unit tests for the selection store (add/remove/clear).
     - [ ] Create `useSelectionStore` in `src/shared/hooks/`.
 - [ ] Task: Update Note List to support multi-selection.
