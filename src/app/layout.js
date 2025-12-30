@@ -1,6 +1,0 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-export function Layout({ children }) {
-    return (_jsx("div", { className: "min-h-screen bg-gradient-to-br from-slate-900 to-slate-800", children: _jsxs("div", { className: "container mx-auto px-4 py-8", children: [_jsx("header", { className: "border-b border-gray-200 bg-white/5 backdrop-blur-sm", children: _jsx("div", { className: "container mx-auto px-4 py-4", children: _jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { className: "flex items-center space-x-4", children: [_jsx("h1", { className: "text-2xl font-bold text-white", children: "KnowledgeBase Pro" }), _jsx("p", { className: "text-gray-300 text-sm", children: "AI-powered research paper and knowledge management" })] }), _jsx("div", { className: "flex items-center space-x-4", children: _jsx("button", { className: "bg-white/10 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/20 transition-colors", onClick: () => console.log('Sign in clicked'), children: "Sign In" }) })] }) }) }), _jsx("main", { className: "flex-1", children: children })] }) }));
-}
-export default Layout;
-//# sourceMappingURL=layout.js.map

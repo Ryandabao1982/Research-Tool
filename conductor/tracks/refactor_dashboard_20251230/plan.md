@@ -4,7 +4,7 @@
 - [x] Task: specificy and create `Dashboard` component structure. eeec0fb
     - [ ] Write tests for Dashboard rendering.
     - [ ] Implement basic layout with header and grid container.
-- [ ] Task: Implement Quick Actions widget.
+- [~] Task: Implement Quick Actions widget.
     - [ ] Write tests for action buttons.
     - [ ] Implement "New Note", "Search" buttons with icons.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Structure & Layout' (Protocol in workflow.md)
