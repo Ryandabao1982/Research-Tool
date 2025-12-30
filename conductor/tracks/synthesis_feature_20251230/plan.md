@@ -29,7 +29,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Synthesis Panel & AI Integration' (Protocol in workflow.md)
 
 ## Phase 4: Refinement & Saving
-- [ ] Task: Implement "Save as Note" feature for generated content.
+- [x] Task: Implement "Save as Note" feature for generated content. f265f8f
     - [ ] Write tests for the save operation.
     - [ ] Implement the save button and backend call.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Refinement & Saving' (Protocol in workflow.md)
