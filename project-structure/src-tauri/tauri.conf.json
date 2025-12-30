@@ -51,7 +51,7 @@
             "icon": [],
             "identifier": "pro.knowledgebase.app",
             "longDescription": "AI-powered desktop knowledge management application with modular plugin architecture",
-            "macos": {
+            "macOS": {
                 "entitlements": null,
                 "exceptionDomain": "",
                 "frameworks": [],
