@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Layout from '../layout';
 import { 
   StatCard, 
@@ -12,7 +12,6 @@ import type {
   Note 
 } from '@/shared/types';
 import type { 
-  DashboardStats, 
   QuickAction, 
   RecentActivity 
 } from '@/shared/types/dashboard';
@@ -21,7 +20,6 @@ import {
   SparklesIcon, 
   SearchIcon, 
   TagIcon,
-  ClockIcon,
   FolderIcon,
   PlusIcon,
   StarIcon,
@@ -29,6 +27,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useNotesStore } from '../../shared/hooks/useNotesStore';
 
 const quickActions: QuickAction[] = [
   {
@@ -64,59 +63,26 @@ const quickActions: QuickAction[] = [
   }
 ];
 
-const mockStats: DashboardStats = {
-  totalNotes: 142,
-  totalFolders: 8,
-  totalTags: 23,
-  recentNotesCount: 12,
-  favoriteNotesCount: 28,
-  dailyNotesCount: 45,
-  totalWords: 28456,
-  linksCreated: 67
-};
-
-const mockNotes: Note[] = [
-  {
-    id: '1',
-    title: 'Machine Learning Fundamentals',
-    content: 'Understanding neural networks and backpropagation algorithms...',
-    createdAt: new Date(Date.now() - 3600000),
-    updatedAt: new Date(Date.now() - 1800000),
-    tags: ['ml', 'ai'],
-    isFavorite: true
-  },
-  {
-    id: '2',
-    title: 'React Server Components',
-    content: 'Exploring the new paradigm with RSC and Next.js 13...',
-    createdAt: new Date(Date.now() - 7200000),
-    updatedAt: new Date(Date.now() - 3600000),
-    tags: ['react', 'frontend'],
-    isFavorite: false
-  }
-];
-
-const mockActivities: RecentActivity[] = [
-  {
-    id: '1',
-    type: 'note_created',
-    noteTitle: 'Machine Learning Fundamentals',
-    timestamp: new Date(Date.now() - 1800000)
-  },
-  {
-    id: '2',
-    type: 'note_updated',
-    noteTitle: 'React Server Components',
-    details: 'Added section on streaming',
-    timestamp: new Date(Date.now() - 3600000)
-  }
-];
-
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const [stats] = useState<DashboardStats>(mockStats);
-  const [recentNotes] = useState<Note[]>(mockNotes);
-  const [recentActivity] = useState<RecentActivity[]>(mockActivities);
+  const { notes } = useNotesStore();
+
+  const recentNotes = notes.slice(0, 4);
+  
+  // Dynamic stats
+  const stats = {
+    totalNotes: notes.length,
+    favorites: notes.filter(n => (n as any).isFavorite).length,
+    folders: 0, // Not implemented yet
+    tags: Array.from(new Set(notes.flatMap(n => (n as any).tags || []))).length
+  };
+
+  const recentActivity: RecentActivity[] = notes.slice(0, 5).map(note => ({
+    id: note.id,
+    type: 'note_updated',
+    noteTitle: note.title,
+    timestamp: note.updatedAt
+  }));
 
   const handleQuickAction = (actionId: string) => {
     if (actionId === 'create-note' || actionId === 'new-note') {
@@ -163,27 +129,26 @@ export default function DashboardPage() {
               title="Total Notes"
               value={stats.totalNotes}
               icon={<FileTextIcon className="w-5 h-5" />}
-              trend={{ value: 12, label: 'this month' }}
               color="blue"
               delay={0.3}
             />
             <StatCard
               title="Favorites"
-              value={stats.favoriteNotesCount}
+              value={stats.favorites}
               icon={<StarIcon className="w-5 h-5" />}
               color="purple"
               delay={0.35}
             />
             <StatCard
               title="Folders"
-              value={stats.totalFolders}
+              value={stats.folders}
               icon={<FolderIcon className="w-5 h-5" />}
               color="green"
               delay={0.4}
             />
             <StatCard
               title="Tags"
-              value={stats.totalTags}
+              value={stats.tags}
               icon={<TagIcon className="w-5 h-5" />}
               color="pink"
               delay={0.45}
@@ -232,13 +197,17 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <SectionHeader title="Recent Activity" delay={0.5} />
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 space-y-2">
-                {recentActivity.map((activity, index) => (
-                  <ActivityItem
-                    key={activity.id}
-                    activity={activity}
-                    delay={0.6 + (index * 0.08)}
-                  />
-                ))}
+                {recentActivity.length > 0 ? (
+                  recentActivity.map((activity, index) => (
+                    <ActivityItem
+                      key={activity.id}
+                      activity={activity}
+                      delay={0.6 + (index * 0.08)}
+                    />
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 text-center py-8">No recent activity</p>
+                )}
               </div>
             </div>
           </div>
@@ -247,3 +216,4 @@ export default function DashboardPage() {
     </Layout>
   );
 }
+

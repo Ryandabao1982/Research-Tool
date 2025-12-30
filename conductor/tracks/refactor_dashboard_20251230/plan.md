@@ -10,7 +10,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Structure & Layout' (Protocol in workflow.md)
 
 ## Phase 2: Data Integration
-- [ ] Task: Connect Dashboard to `useNotes` store.
+- [~] Task: Connect Dashboard to `useNotes` store.
     - [ ] Write tests for data loading state.
     - [ ] Fetch recent notes and stats.
 - [ ] Task: Implement Recent Notes widget.

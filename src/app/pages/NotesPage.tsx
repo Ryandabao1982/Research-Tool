@@ -6,38 +6,21 @@ import { NoteList } from '../../features/notes/components/NoteList';
 import { useSelectionStore } from '../../shared/hooks/useSelectionStore';
 import { SynthesisPanel } from '../../features/ai/components/SynthesisPanel';
 import { aiService } from '../../shared/services/aiService';
+import { useNotesStore } from '../../shared/hooks/useNotesStore';
 
 export function NotesPage() {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const { notes, addNote, updateNote, deleteNote } = useNotesStore();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const { isSelectionMode, toggleSelectionMode, selectedNoteIds } = useSelectionStore();
 
-  const handleCreateNote = (title: string, content: string) => {
-    const newNote: Note = {
-      id: crypto.randomUUID(),
-      title,
-      content,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setNotes(prev => [...prev, newNote]);
-  };
-
-  const handleUpdateNote = (note: Note) => {
-    const updatedNote = { ...note, updatedAt: new Date() };
-    setNotes(prev => 
-      prev.map(n => 
-        n.id === note.id ? updatedNote : n
-      )
-    );
+  const handleCreateNote = async (title: string, content: string) => {
+    await addNote(title, content);
     setSelectedNote(null);
   };
 
-  const handleDeleteNote = (id: string) => {
-    setNotes(prev => prev.filter(n => n.id !== id));
-    if (selectedNote?.id === id) {
-      setSelectedNote(null);
-    }
+  const handleUpdateNote = async (note: Note) => {
+    await updateNote(note.id, note);
+    setSelectedNote(null);
   };
 
   const handleEditNote = (note: Note) => {
@@ -52,7 +35,6 @@ export function NotesPage() {
     try {
       const response = await aiService.synthesizeNotes(selectedNoteIds, 'summary');
       console.log('Synthesis result:', response);
-      // TODO: Display result in a modal or side panel
     } catch (error) {
       console.error('Synthesis failed:', error);
     }
