@@ -1,13 +1,13 @@
 # Plan: Refactor Dashboard
 
-## Phase 1: Structure & Layout
+## Phase 1: Structure & Layout [checkpoint: 228d540]
 - [x] Task: specificy and create `Dashboard` component structure. eeec0fb
-    - [ ] Write tests for Dashboard rendering.
-    - [ ] Implement basic layout with header and grid container.
-- [~] Task: Implement Quick Actions widget.
-    - [ ] Write tests for action buttons.
-    - [ ] Implement "New Note", "Search" buttons with icons.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Structure & Layout' (Protocol in workflow.md)
+    - [x] Write tests for Dashboard rendering.
+    - [x] Implement basic layout with header and grid container.
+- [x] Task: Implement Quick Actions widget. 228d540
+    - [x] Write tests for action buttons.
+    - [x] Implement "New Note", "Search" buttons with icons.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Structure & Layout' (Protocol in workflow.md)
 
 ## Phase 2: Data Integration
 - [ ] Task: Connect Dashboard to `useNotes` store.
