@@ -9,7 +9,7 @@
     - [ ] Implement the command in `src-tauri/src/commands/ai.rs`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend Service Layer' (Protocol in workflow.md)
 
-## Phase 2: Frontend Selection State & UI
+## Phase 2: Frontend Selection State & UI [checkpoint: 9f1cf05]
 - [x] Task: Implement multi-select state in Zustand. 48c7681
 
     - [ ] Write unit tests for the selection store (add/remove/clear).
