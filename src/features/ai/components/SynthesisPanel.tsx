@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelectionStore } from '../../../shared/hooks/useSelectionStore';
-import { Sparkles, Save, Loader2, X } from 'lucide-react';
+import { Sparkles, Save, Loader2, X, Trash2, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SynthesisPanelProps {
   onSynthesize?: () => Promise<string | void>;
@@ -12,8 +13,8 @@ export function SynthesisPanel({ onSynthesize, onSave, initialResult = '' }: Syn
   const { selectedNoteIds, clearSelection } = useSelectionStore();
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [result, setResult] = useState(initialResult);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Update result if initialResult prop changes (useful for testing)
   useEffect(() => {
     if (initialResult) {
       setResult(initialResult);
@@ -45,81 +46,127 @@ export function SynthesisPanel({ onSynthesize, onSave, initialResult = '' }: Syn
     if (onSave && result) {
       onSave(result);
       setResult('');
-      clearSelection();
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        clearSelection();
+      }, 2000);
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 bg-white/90 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl p-5 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300 flex flex-col max-h-[80vh]">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 text-blue-900">
-          <Sparkles className="w-5 h-5 text-blue-600" />
-          <span className="font-bold text-base">AI Synthesis</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full">
-            {selectedNoteIds.length} source{selectedNoteIds.length !== 1 ? 's' : ''}
-          </span>
-          <button 
-            onClick={clearSelection}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-      
-      {!result && !isSynthesizing && (
-        <p className="text-sm text-gray-600 mb-6">
-          Synthesize insights from your selected notes. The AI will strictly use the content of these notes to generate a response.
-        </p>
-      )}
+    <motion.div 
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="fixed bottom-8 right-8 w-[420px] bg-slate-900/40 backdrop-blur-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-[2.5rem] p-6 z-50 flex flex-col max-h-[85vh] overflow-hidden"
+    >
+      {/* Accent Glow */}
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px] pointer-events-none" />
 
-      {isSynthesizing && (
-        <div className="flex flex-col items-center justify-center py-12 space-y-4">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-          <p className="text-sm font-medium text-blue-900">Generating insights...</p>
-        </div>
-      )}
-
-      {result && (
-        <div className="flex-1 overflow-y-auto mb-6 pr-2 custom-scrollbar">
-          <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100">
-            <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-              {result}
-            </p>
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-blue-500/20 rounded-2xl text-blue-400 border border-blue-500/20">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-bold text-white text-lg tracking-tight">AI Synthesis</h2>
+              <p className="text-[10px] uppercase tracking-widest text-blue-400 font-bold">Source-Grounded</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold px-3 py-1.5 bg-white/5 text-white/70 border border-white/10 rounded-full backdrop-blur-md">
+              {selectedNoteIds.length} {selectedNoteIds.length === 1 ? 'note' : 'notes'}
+            </span>
+            <button 
+              onClick={clearSelection}
+              className="p-2 hover:bg-white/10 rounded-xl transition-all text-white/40 hover:text-white border border-transparent hover:border-white/10"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
-      )}
+        
+        <AnimatePresence mode="wait">
+          {showSuccess ? (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center justify-center py-12 space-y-4"
+            >
+              <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30">
+                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+              </div>
+              <p className="text-white font-medium text-lg">Saved to notes!</p>
+            </motion.div>
+          ) : (
+            <div className="space-y-6">
+              {!result && !isSynthesizing && (
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  Synthesize insights from your selected documents. The response will be strictly restricted to the content of your local notes.
+                </p>
+              )}
 
-      <div className="flex gap-3 mt-auto">
-        {!result ? (
-          <button
-            onClick={handleSynthesize}
-            disabled={isSynthesizing}
-            className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white text-sm font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-          >
-            {isSynthesizing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            Synthesize
-          </button>
-        ) : (
-          <>
-            <button
-              onClick={() => setResult('')}
-              className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-xl transition-all"
-            >
-              Clear
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex-[2] py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              Save as Note
-            </button>
-          </>
-        )}
+              {isSynthesizing && (
+                <div className="flex flex-col items-center justify-center py-16 space-y-6">
+                  <div className="relative">
+                    <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                    <Sparkles className="w-5 h-5 text-purple-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-semibold mb-1">Analyzing knowledge base...</p>
+                    <p className="text-slate-500 text-xs italic">Constructing grounded response</p>
+                  </div>
+                </div>
+              )}
+
+              {result && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex-1 overflow-y-auto max-h-[40vh] custom-scrollbar rounded-3xl border border-white/5 bg-white/[0.02] p-5 shadow-inner"
+                >
+                  <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap font-medium">
+                    {result}
+                  </p>
+                </motion.div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                {!result ? (
+                  <button
+                    onClick={handleSynthesize}
+                    disabled={isSynthesizing}
+                    className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 disabled:from-slate-700 disabled:to-slate-800 disabled:opacity-50 text-white text-sm font-bold rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.2)] hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)] transition-all flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    {isSynthesizing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                    Generate Synthesis
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setResult('')}
+                      className="flex-1 py-4 px-6 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-sm font-bold rounded-2xl border border-white/10 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Discard
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className="flex-[2] py-4 px-6 bg-white text-slate-900 hover:bg-slate-100 text-sm font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save as Note
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 }

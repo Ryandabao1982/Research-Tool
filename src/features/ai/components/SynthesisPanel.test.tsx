@@ -18,6 +18,7 @@ describe('SynthesisPanel', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it('should render nothing when no notes are selected', () => {
@@ -37,11 +38,11 @@ describe('SynthesisPanel', () => {
     });
 
     render(<SynthesisPanel />);
-    expect(screen.getByText(/2 source/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Synthesize/i })).toBeInTheDocument();
+    expect(screen.getByText(/2 note/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Generate Synthesis/i })).toBeInTheDocument();
   });
 
-  it('should call onSynthesize when button is clicked', () => {
+  it('should call onSynthesize when button is clicked', async () => {
     (useSelectionStoreModule.useSelectionStore as any).mockReturnValue({
       selectedNoteIds: ['1', '2'],
       clearSelection: vi.fn(),
@@ -49,12 +50,13 @@ describe('SynthesisPanel', () => {
 
     const onSynthesizeMock = vi.fn().mockResolvedValue('Result');
     render(<SynthesisPanel onSynthesize={onSynthesizeMock} />);
-    fireEvent.click(screen.getByRole('button', { name: /Synthesize/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Generate Synthesis/i }));
     
     expect(onSynthesizeMock).toHaveBeenCalled();
   });
 
   it('should call onSave when save button is clicked', () => {
+    vi.useFakeTimers();
     const clearSelectionMock = vi.fn();
     (useSelectionStoreModule.useSelectionStore as any).mockReturnValue({
       selectedNoteIds: ['1', '2'],
@@ -71,6 +73,13 @@ describe('SynthesisPanel', () => {
     }
     
     expect(onSaveMock).toHaveBeenCalledWith('Test Result');
+    
+    // Check if success message is shown
+    expect(screen.getByText(/Saved to notes/i)).toBeInTheDocument();
+    
+    // Fast-forward timers
+    vi.advanceTimersByTime(2000);
+    
     expect(clearSelectionMock).toHaveBeenCalled();
   });
 });
