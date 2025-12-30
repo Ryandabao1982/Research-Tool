@@ -34,10 +34,14 @@ export function NotesPage() {
   const handleSynthesize = async () => {
     try {
       const response = await aiService.synthesizeNotes(selectedNoteIds, 'summary');
-      console.log('Synthesis result:', response);
+      return response;
     } catch (error) {
       console.error('Synthesis failed:', error);
     }
+  };
+
+  const handleSaveSynthesis = async (content: string) => {
+    await addNote('AI Synthesis Result', content);
   };
 
   return (
@@ -84,7 +88,7 @@ export function NotesPage() {
           </div>
         )}
 
-        <SynthesisPanel onSynthesize={handleSynthesize} />
+        <SynthesisPanel onSynthesize={handleSynthesize} onSave={handleSaveSynthesis} />
       </div>
     </Layout>
   );
