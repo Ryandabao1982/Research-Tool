@@ -204,7 +204,7 @@ interface StatCardProps {
     label: string;
   };
   /** Color theme for the card */
-  color?: 'blue' | 'green' | 'purple' | 'orange' | 'pink';
+  color?: 'blue' | 'green' | 'orange';
   /** Animation delay in seconds */
   delay?: number;
 }
@@ -243,17 +243,13 @@ export function StatCard({
   const colorClasses = {
     blue: 'from-blue-500/20 to-blue-600/10 border-blue-500/20',
     green: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/20',
-    purple: 'from-purple-500/20 to-purple-600/10 border-purple-500/20',
     orange: 'from-orange-500/20 to-orange-600/10 border-orange-500/20',
-    pink: 'from-pink-500/20 to-pink-600/10 border-pink-500/20',
   };
 
   const iconColorClasses = {
     blue: 'text-blue-400',
     green: 'text-emerald-400',
-    purple: 'text-purple-400',
     orange: 'text-orange-400',
-    pink: 'text-pink-400',
   };
 
   return (
@@ -358,7 +354,7 @@ export function QuickActionCard({ action, onClick, delay = 0 }: QuickActionCardP
       transition={{ duration: 0.3, delay }}
     >
       <Card onClick={onClick} hover className="flex items-center gap-4 p-4 group">
-        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
           {action.icon}
         </div>
         <div className="flex-1 text-left">
@@ -620,7 +616,7 @@ export function ActivityItem({ activity, delay = 0 }: ActivityItemProps) {
     note_created: 'bg-emerald-500/20 text-emerald-400',
     note_updated: 'bg-blue-500/20 text-blue-400',
     note_deleted: 'bg-red-500/20 text-red-400',
-    link_created: 'bg-purple-500/20 text-purple-400',
+    link_created: 'bg-blue-500/20 text-blue-400',
     ai_interaction: 'bg-orange-500/20 text-orange-400',
   };
 

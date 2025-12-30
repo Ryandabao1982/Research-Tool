@@ -76,7 +76,7 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
                     <div className="pt-6 pb-2 px-2">
                       <div className="relative h-1 bg-white/10 rounded-full">
                         <div 
-                          className="absolute h-full bg-[#bd00ff] rounded-full" 
+                          className="absolute h-full bg-brand-blue rounded-full" 
                           style={{ width: `${(satisfaction - 1) * 11.11}%` }} 
                         />
                         <input
@@ -88,7 +88,7 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
                         <div 
-                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-4 border-[#bd00ff] rounded-full shadow-lg pointer-events-none transition-all"
+                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-4 border-brand-blue rounded-full shadow-lg pointer-events-none transition-all"
                           style={{ left: `${(satisfaction - 1) * 11.11}%`, transform: 'translate(-50%, -50%)' }}
                         />
                       </div>
@@ -121,7 +121,7 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
                         className={cn(
                           "flex-1 aspect-[1.2/1] rounded-[2rem] text-sm font-bold transition-all",
                           easyAccess === false 
-                            ? "bg-[#bd00ff] text-white shadow-xl scale-105 shadow-[#bd00ff]/20" 
+                            ? "bg-brand-blue text-white shadow-xl scale-105 shadow-brand-blue/20" 
                             : "bg-white/5 text-white border border-white/5 hover:bg-white/10"
                         )}
                       >
