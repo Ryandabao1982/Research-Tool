@@ -23,7 +23,7 @@
 - [x] Task: Create the `SynthesisPanel` component. 485bb59
     - [ ] Write tests for the panel's rendering and empty states.
     - [ ] Implement the glassmorphic panel in `src/features/ai/components/`.
-- [ ] Task: Connect Synthesis Panel to Backend.
+- [x] Task: Connect Synthesis Panel to Backend. 0226d61
     - [ ] Write integration tests for the `synthesize_notes` call from frontend.
     - [ ] Implement the trigger and streaming display in `SynthesisPanel`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Synthesis Panel & AI Integration' (Protocol in workflow.md)
