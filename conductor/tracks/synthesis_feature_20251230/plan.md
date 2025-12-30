@@ -1,0 +1,34 @@
+# Plan: NotebookLM-style Synthesis Feature
+
+## Phase 1: Backend Service Layer
+- [ ] Task: Create `SynthesisService` in Rust for note bundling.
+    - [ ] Write tests for note bundling logic (multiple notes to single text block).
+    - [ ] Implement `bundle_notes_content` in `src-tauri/src/services/ai_service.rs` (or new service).
+- [ ] Task: Implement `synthesize_notes` Tauri command.
+    - [ ] Write tests for the command handler mocking the AI response.
+    - [ ] Implement the command in `src-tauri/src/commands/ai.rs`.
+- [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend Service Layer' (Protocol in workflow.md)
+
+## Phase 2: Frontend Selection State & UI
+- [ ] Task: Implement multi-select state in Zustand.
+    - [ ] Write unit tests for the selection store (add/remove/clear).
+    - [ ] Create `useSelectionStore` in `src/shared/hooks/`.
+- [ ] Task: Update Note List to support multi-selection.
+    - [ ] Write tests for the checkbox/selection logic in `NoteList`.
+    - [ ] Implement selection checkboxes in the sidebar/note list components.
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Frontend Selection State & UI' (Protocol in workflow.md)
+
+## Phase 3: Synthesis Panel & AI Integration
+- [ ] Task: Create the `SynthesisPanel` component.
+    - [ ] Write tests for the panel's rendering and empty states.
+    - [ ] Implement the glassmorphic panel in `src/features/ai/components/`.
+- [ ] Task: Connect Synthesis Panel to Backend.
+    - [ ] Write integration tests for the `synthesize_notes` call from frontend.
+    - [ ] Implement the trigger and streaming display in `SynthesisPanel`.
+- [ ] Task: Conductor - User Manual Verification 'Phase 3: Synthesis Panel & AI Integration' (Protocol in workflow.md)
+
+## Phase 4: Refinement & Saving
+- [ ] Task: Implement "Save as Note" feature for generated content.
+    - [ ] Write tests for the save operation.
+    - [ ] Implement the save button and backend call.
+- [ ] Task: Conductor - User Manual Verification 'Phase 4: Refinement & Saving' (Protocol in workflow.md)

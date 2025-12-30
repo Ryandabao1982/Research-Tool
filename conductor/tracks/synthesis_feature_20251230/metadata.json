@@ -1,0 +1,8 @@
+{
+  "track_id": "synthesis_feature_20251230",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2025-12-30T19:00:00Z",
+  "updated_at": "2025-12-30T19:00:00Z",
+  "description": "Build the core 'NotebookLM-style' synthesis feature: Implement the ability to select multiple notes and generate a summary or FAQ based strictly on their content using an OpenAI-compatible model."
+}
