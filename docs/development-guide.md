@@ -83,39 +83,33 @@ ollama pull whisper:small
 
 ```
 knowledge-base-pro/
-├── project-structure/           # Source code
-│   ├── src-tauri/             # Rust backend (Modular Architecture)
-│   │   ├── src/
-│   │   │   ├── main.rs       # Application entry with modular setup
-│   │   │   ├── models.rs     # All data structures
-│   │   │   ├── database/     # SQLite connection & migrations
-│   │   │   ├── services/     # Business logic layer
-│   │   │   │   ├── note_service.rs
-│   │   │   │   ├── folder_service.rs
-│   │   │   │   ├── tag_service.rs
-│   │   │   │   ├── search_service.rs
-│   │   │   │   ├── link_service.rs
-│   │   │   │   ├── link_parser.rs
-│   │   │   │   └── ai_service.rs
-│   │   │   ├── commands/     # Tauri IPC command handlers
-│   │   │   │   ├── note.rs
-│   │   │   │   ├── folder.rs
-│   │   │   │   ├── tag.rs
-│   │   │   │   ├── search.rs
-│   │   │   │   ├── link.rs
-│   │   │   │   └── ai.rs
-│   │   ├── migrations/        # SQL migrations
-│   │   │   ├── 001_initial_schema.sql
-│   │   │   └── 002_ai_features.sql
-│   │   └── Cargo.toml
-│   └── src/                   # React frontend
-│       ├── app/              # Application entry and routing
-│       ├── features/         # Feature-based components
-│       ├── shared/           # Reusable components and services
-│       └── main.tsx
-├── docs/                     # Documentation
-├── plans/                    # Planning documents
-└── .coderrules/             # Agent rules and Global Vibe Constitution
+├── src/                       # React + TypeScript frontend
+│   ├── 📂 app/               # Application shell
+│   │   ├── layout.tsx       # Root layout wrapper
+│   │   └── 📂 pages/        # Page components
+│   │       ├── index.tsx    # Home page
+│   │       └── NotesPage.tsx # Notes management
+│   ├── 📂 shared/           # Shared infrastructure
+│   │   ├── 📂 components/   # Reusable UI components
+│   │   │   ├── NoteForm.tsx # Note form
+│   │   │   └── index.ts     # Component exports
+│   │   ├── 📂 hooks/        # Custom React hooks
+│   │   │   └── useNotes.ts  # Notes state management
+│   │   ├── 📂 services/     # Business logic
+│   │   │   └── noteService.ts
+│   │   └── types.ts         # TypeScript interfaces
+│   └── main.tsx             # Application entry
+├── src-tauri/               # Rust backend
+│   ├── src/
+│   │   ├── main.rs         # Application entry
+│   │   ├── commands/       # Tauri command handlers
+│   │   ├── services/       # Business logic layer
+│   │   ├── models/         # Data models
+│   │   └── migrations/     # SQL migrations
+│   └── Cargo.toml
+├── docs/                    # Documentation
+├── .coderrules/            # Agent rules and standards
+└── package.json            # Dependencies
 ```
 
 ## 🏃‍♂️ Development Phases

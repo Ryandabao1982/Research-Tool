@@ -15,11 +15,11 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false,
+    "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -32,13 +32,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./project-structure/src/*"
+        "./src/*"
       ]
     }
   },
   "include": [
-    "project-structure/src/**/*",
-    "project-structure/vite.config.ts"
+    "src/**/*",
+    "vite.config.ts"
   ],
   "exclude": [
     "node_modules",

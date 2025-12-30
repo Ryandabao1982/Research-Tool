@@ -67,6 +67,96 @@ A revolutionary desktop knowledge management application combining best features
 
 ```
 knowledge-base-pro/
+├── 📂 src/                         # React + TypeScript frontend
+│   ├── 📂 app/                     # Application shell
+│   │   ├── layout.tsx             # Main layout wrapper
+│   │   └── 📂 pages/              # Page components
+│   │       ├── index.tsx          # Home page
+│   │       └── NotesPage.tsx      # Notes management page
+│   ├── 📂 shared/                 # Shared infrastructure
+│   │   ├── 📂 components/         # Reusable UI components
+│   │   │   ├── NoteForm.tsx       # Note creation/editing form
+│   │   │   └── index.ts           # Component exports
+│   │   ├── 📂 hooks/              # Custom React hooks
+│   │   │   └── useNotes.ts        # Notes state management
+│   │   ├── 📂 services/           # Business logic services
+│   │   │   └── noteService.ts     # Note CRUD operations
+│   │   └── types.ts               # TypeScript interfaces
+├── 📂 src-tauri/                  # Rust backend (Tauri)
+│   ├── 📂 src/                    # Backend source
+│   │   ├── main.rs               # Application entry point
+│   │   ├── commands/             # Tauri command handlers
+│   │   ├── services/             # Business logic layer
+│   │   ├── models/               # Data models
+│   │   └── migrations/           # Database migrations
+│   └── Cargo.toml                # Rust dependencies
+├── 📂 docs/                       # Documentation
+├── 📂 .coderrules/                # Development standards
+├── package.json                   # Frontend dependencies
+├── tsconfig.json                  # TypeScript configuration
+├── tailwind.config.mjs            # Tailwind CSS configuration
+└── tauri.conf.json               # Tauri configuration
+```
+
+### Directory Purpose
+
+| Directory | Purpose |
+|-----------|---------|
+| `src/app/` | Application pages and routing |
+| `src/shared/components/` | Reusable UI components |
+| `src/shared/hooks/` | Custom React hooks for state management |
+| `src/shared/services/` | Business logic and API services |
+| `src/shared/types/` | TypeScript type definitions |
+| `src-tauri/src/` | Rust backend with Tauri commands |
+| `docs/` | Project documentation |
+| `.coderrules/` | Agent and development standards |
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/app/pages/NotesPage.tsx` | Main notes management interface |
+| `src/shared/components/NoteForm.tsx` | Reusable note form component |
+| `src/shared/hooks/useNotes.ts` | Notes state management hook |
+| `src/shared/services/noteService.ts` | Note business logic service |
+| `src/shared/types.ts` | Core TypeScript interfaces |
+| `src/app/layout.tsx` | Main application layout |
+
+---
+
+## 🎯 Quick Start
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Start with Tauri (desktop)
+npm run tauri:dev
+
+# Build for production
+npm run build
+```
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite development server |
+| `npm run build` | Build for production |
+| `npm run tauri:dev` | Start Tauri desktop app |
+| `npm run tauri:build` | Build desktop installer |
+| `npm run type-check` | TypeScript type checking |
+| `npm run lint` | Run ESLint |
+| `npm run lint:fix` | Auto-fix linting issues |
+| `npm run format` | Format with Prettier |
+| `npm run test` | Run tests |
+| `npm run test:coverage` | Generate coverage report |
+knowledge-base-pro/
 ├── 📂 project-structure/           # Main application code
 │   ├── 📂 src-tauri/             # Rust backend
 │   │   ├── 📂 src/
@@ -273,32 +363,30 @@ knowledge-base-pro/
 ```bash
 # Clone repository
 git clone https://github.com/knowledgebase-pro/knowledge-base-pro.git
-cd knowledge-base-pro/project-structure
+cd knowledge-base-pro
 
 # Install dependencies
 npm install
 
-# Install Ollama (for local AI)
-# Download from https://ollama.ai/
+# Start development server
+npm run dev
 
-# Pull recommended models
-ollama pull phi3.1
-ollama pull gemma2:2b
-ollama pull codellama:7b
-````
+# Start Tauri desktop app
+npm run tauri:dev
+```
 
 ### Development
 
 ```bash
 # Clone repository
 git clone https://github.com/knowledgebase-pro/knowledge-base-pro.git
-cd knowledge-base-pro/project-structure
+cd knowledge-base-pro
 
 # Install dependencies
 npm install
 
 # Start development server
-npm run tauri:dev
+npm run dev
 
 # Type checking
 npm run type-check
@@ -595,11 +683,105 @@ Target Coverage:
 
 ---
 
+## 🗂️ Code Architecture
+
+### Frontend Structure
+
+The frontend follows a feature-based architecture:
+
+```
+src/
+├── app/                    # Application pages
+│   ├── layout.tsx         # Root layout with providers
+│   └── pages/             # Route components
+│       ├── index.tsx      # Home/Dashboard
+│       └── NotesPage.tsx  # Notes management
+├── shared/                # Shared infrastructure
+│   ├── components/        # Reusable UI components
+│   │   ├── NoteForm.tsx  # Form for notes
+│   │   └── index.ts      # Component exports
+│   ├── hooks/             # Custom React hooks
+│   │   └── useNotes.ts   # Notes state logic
+│   ├── services/          # Business logic
+│   │   └── noteService.ts
+│   └── types.ts           # TypeScript definitions
+```
+
+### Key Patterns
+
+1. **Component Pattern**: Functional components with TypeScript interfaces
+2. **State Management**: React hooks (useState, useEffect) + custom hooks
+3. **Service Layer**: Separate business logic from UI
+4. **Type Safety**: Explicit interfaces for all props and data
+
+### Type Definitions
+
+```typescript
+// Core Note type
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Note service interface
+interface NoteService {
+  createNote(note: CreateNoteRequest): Promise<Note>;
+  updateNote(id: string, updates: UpdateNoteRequest): Promise<Note>;
+  deleteNote(id: string): Promise<void>;
+}
+```
+
+---
+
+## 🔧 Development Standards
+
+### Code Style
+
+- **TypeScript**: Strict mode, no `any` types
+- **Import Order**: External → Internal → Styles
+- **Naming**: PascalCase for components, camelCase for functions
+- **Documentation**: TSDoc for public APIs
+
+### Component Example
+
+```typescript
+// src/shared/components/NoteForm.tsx
+interface NoteFormProps {
+  note?: Note;
+  onSave: (note: Note) => void;
+  onCancel: () => void;
+}
+
+export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
+  // Component implementation
+}
+```
+
+### Custom Hook Example
+
+```typescript
+// src/shared/hooks/useNotes.ts
+export function useNotes() {
+  const [notes, setNotes] = useState<Note[]>([]);
+  
+  const createNote = async (title: string, content: string) => {
+    // Implementation
+  };
+  
+  return { notes, createNote, /* ... */ };
+}
+```
+
+---
+
 ## 🔧 Configuration
 
 ### Tauri Configuration
 
-Located in `src-tauri/tauri.conf.json`:
+Located in `src-tauri/tauri.conf.json` or `tauri.conf.json`:
 
 ```json
 {
@@ -680,6 +862,20 @@ AI providers can be configured in Settings > AI:
 - **Documentation**: TSDoc for all public APIs
 - **Testing**: Comprehensive test coverage
 - **Linting**: Follow ESLint and Prettier rules
+
+### Adding New Features
+
+1. Create component in appropriate directory:
+   - `src/app/pages/` for new pages
+   - `src/shared/components/` for reusable components
+   - `src/shared/hooks/` for stateful logic
+   - `src/shared/services/` for business logic
+
+2. Export from `src/shared/components/index.ts`
+
+3. Update routing in main app file
+
+4. Add tests for new functionality
 
 ---
 

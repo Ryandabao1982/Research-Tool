@@ -39,13 +39,17 @@ export class DefaultNoteService implements NoteService {
       throw new Error('Note not found');
     }
     
-    this.notes[noteIndex] = {
-      ...this.notes[noteIndex],
-      ...updates,
+    const existingNote = this.notes[noteIndex]!;
+    const updatedNote: Note = {
+      id: existingNote.id,
+      title: updates.title ?? existingNote.title,
+      content: updates.content ?? existingNote.content,
+      createdAt: existingNote.createdAt,
       updatedAt: new Date(),
     };
     
-    return this.notes[noteIndex];
+    this.notes[noteIndex] = updatedNote;
+    return updatedNote;
   }
 
   async deleteNote(id: string): Promise<void> {
