@@ -53,14 +53,15 @@ knowledge-base-pro/
 
 ### `src/app/` - Application Shell
 
-Contains the main application pages and layout.
+Contains the main application pages and layout components.
 
 | File/Directory | Purpose |
 |---------------|---------|
-| `layout.tsx` | Root layout with providers and global UI |
+| `layout.tsx` | Root layout with fixed Sidebar and TopBar |
+| `components/layout/` | Layout-specific UI (Sidebar, TopBar) |
 | `pages/` | Route components for each page |
-| `index.tsx` | Home/Dashboard page |
-| `NotesPage.tsx` | Notes management interface |
+| `pages/Dashboard.tsx` | High-fidelity dashboard interface |
+| `pages/NotesPage.tsx` | Notes management interface |
 
 ### `src/shared/` - Shared Infrastructure
 
@@ -68,10 +69,11 @@ Reusable code shared across the application.
 
 | Directory | Purpose | Contents |
 |-----------|---------|----------|
-| `components/` | Reusable UI components | NoteForm, buttons, cards, inputs |
-| `hooks/` | Custom React hooks | useNotes, useSearch, useAI |
+| `components/dashboard/` | High-fidelity dashboard UI | FeatureCard, CalendarCell, Sidebar |
+| `components/modals/` | Shared overlay interfaces | FeedbackModal, SearchDialog |
+| `hooks/` | Custom React hooks | useNotesStore (Zustand), useAI |
 | `services/` | Business logic | noteService, aiService, searchService |
-| `types.ts` | TypeScript definitions | Note, User, AIResponse interfaces |
+| `types/` | TypeScript definitions | Dashboard, Note, User interfaces |
 
 ### `src-tauri/src/` - Rust Backend
 

@@ -35,21 +35,24 @@ A revolutionary desktop knowledge management application combining best features
 
 **Completed Features:**
 
-- ✅ **Modular Backend Architecture**: 7 service modules with clean separation of concerns
-- ✅ **31 Tauri Commands**: Note, folder, tag, search, link, and AI operations
-- ✅ **Complete AI Integration**: Multi-provider support with streaming responses
-- ✅ **Neural Linking**: Concept extraction and relationship mapping
-- ✅ **Database Schema**: 2 migrations with AI features and FTS5 search
-- ✅ **Frontend Services**: Complete service layer with React Context
+- ✅ **Professional Layout Architecture**: Fixed left sidebar with multi-level navigation and contextual TopBar.
+- ✅ **High-Fidelity Dashboard**: Interactive calendar, feature highlights grid, and contextual status sidebar.
+- ✅ **NoteMaster Pro Theme**: Premium blue-centric design system with glassmorphism and motion.
+- ✅ **Modular Backend Architecture**: 7 service modules with clean separation of concerns.
+- ✅ **31 Tauri Commands**: Note, folder, tag, search, link, and AI operations.
+- ✅ **Complete AI Integration**: Multi-provider support with streaming responses.
+- ✅ **Neural Linking**: Concept extraction and relationship mapping.
+- ✅ **Database Schema**: 2 migrations with AI features and FTS5 search.
+- ✅ **Frontend Services**: Complete service layer with React Context.
 
 **AI Features:**
 
-- ✅ **Streaming Chat**: Real-time AI responses with token tracking
-- ✅ **Multi-Provider Support**: Ollama, OpenAI, Anthropic, HuggingFace
-- ✅ **Source-Grounded Responses**: Citation system with confidence scores
-- ✅ **Note Processing**: Concept extraction, auto-tagging, sentiment analysis
-- ✅ **Model Selection**: Intelligent routing based on query type
-- ✅ **Conversation Management**: Multiple chat threads with history
+- ✅ **Source-Grounded Synthesis**: RAG-based insight generation from selected notes with streaming UI.
+- ✅ **Streaming Chat**: Real-time AI responses with token tracking.
+- ✅ **Multi-Provider Support**: Ollama, OpenAI, Anthropic, HuggingFace.
+- ✅ **Source-Grounded Responses**: Citation system with confidence scores.
+- ✅ **Note Processing**: Concept extraction, auto-tagging, sentiment analysis.
+- ✅ **Model Selection**: Intelligent routing based on query type.
 
 **Core Modules:**
 
@@ -69,47 +72,41 @@ A revolutionary desktop knowledge management application combining best features
 knowledge-base-pro/
 ├── 📂 src/                         # React + TypeScript frontend
 │   ├── 📂 app/                     # Application shell
-│   │   ├── layout.tsx             # Main layout wrapper
-│   │   └── 📂 pages/              # Page components
-│   │       ├── index.tsx          # Home page
-│   │       └── NotesPage.tsx      # Notes management page
+│   │   ├── layout.tsx             # Sidebar-driven main layout
+│   │   ├── 📂 components/         # Layout-specific components
+│   │   │   └── 📂 layout/         # Sidebar, TopBar
+│   │   └── 📂 pages/              # Route components
+│   │       ├── index.tsx          # Redirects to Dashboard
+│   │       ├── Dashboard.tsx      # High-fidelity dashboard
+│   │       └── NotesPage.tsx      # Multi-select notes management
 │   ├── 📂 shared/                 # Shared infrastructure
 │   │   ├── 📂 components/         # Reusable UI components
-│   │   │   ├── NoteForm.tsx       # Note creation/editing form
-│   │   │   └── index.ts           # Component exports
+│   │   │   ├── 📂 dashboard/      # FeatureCard, Calendar, Sidebar
+│   │   │   ├── 📂 modals/         # FeedbackModal, search
+│   │   │   └── NoteForm.tsx       # Polished note capture
 │   │   ├── 📂 hooks/              # Custom React hooks
-│   │   │   └── useNotes.ts        # Notes state management
+│   │   │   └── useNotesStore.ts   # Zustand state management
 │   │   ├── 📂 services/           # Business logic services
-│   │   │   └── noteService.ts     # Note CRUD operations
 │   │   └── types.ts               # TypeScript interfaces
 ├── 📂 src-tauri/                  # Rust backend (Tauri)
 │   ├── 📂 src/                    # Backend source
 │   │   ├── main.rs               # Application entry point
 │   │   ├── commands/             # Tauri command handlers
-│   │   ├── services/             # Business logic layer
-│   │   ├── models/               # Data models
-│   │   └── migrations/           # Database migrations
+│   │   └── services/             # Business logic layer
 │   └── Cargo.toml                # Rust dependencies
 ├── 📂 docs/                       # Documentation
-├── 📂 .coderrules/                # Development standards
-├── package.json                   # Frontend dependencies
-├── tsconfig.json                  # TypeScript configuration
-├── tailwind.config.mjs            # Tailwind CSS configuration
-└── tauri.conf.json               # Tauri configuration
+└── tailwind.config.mjs            # NoteMaster Pro design tokens
 ```
 
 ### Directory Purpose
 
 | Directory | Purpose |
 |-----------|---------|
-| `src/app/` | Application pages and routing |
-| `src/shared/components/` | Reusable UI components |
-| `src/shared/hooks/` | Custom React hooks for state management |
-| `src/shared/services/` | Business logic and API services |
-| `src/shared/types/` | TypeScript type definitions |
-| `src-tauri/src/` | Rust backend with Tauri commands |
-| `docs/` | Project documentation |
-| `.coderrules/` | Agent and development standards |
+| `src/app/components/layout/` | Sidebar, TopBar, and Navigation |
+| `src/shared/components/dashboard/` | High-fidelity dashboard elements |
+| `src/shared/components/modals/` | High-end survey and feedback forms |
+| `src/shared/hooks/` | Zustand stores and service hooks |
+| `src/features/ai/components/` | Synthesis panel and LLM interfaces |
 
 ### Key Files
 
@@ -416,21 +413,19 @@ npm run tauri:build
 
 ## 🎨 Design System
 
-### Atmospheric Theme
+### NoteMaster Pro Theme
 
-KnowledgeBase Pro uses a custom atmospheric design system with:
+KnowledgeBase Pro features a premium, developer-focused "Pro" aesthetic:
 
-- **Glassmorphism**: Backdrop blur with transparency effects
-- **Depth Shadows**: Multi-layered shadows for elevation
-- **Motion**: Framer Motion for fluid interactions
-- **Custom Colors**: Atmospheric palette with depth and vibrancy
-
-### Component Library
-
-- **AtmosphericButton**: Glassmorphic buttons with glow effects
-- **GlassCard**: Elevated cards with depth shadows
-- **NoiseOverlay**: Subtle texture overlays for atmosphere
-- **MotionContainer**: Containers with entrance animations
+- **Color Palette**: Deep atmospheric background (`#0f0f0f`), layered surfaces (`#121212` to `#2a2a2a`), and professional blue accents (`#0070f3`).
+- **Glassmorphism**: Advanced backdrop blurs (`blur-3xl`) with micro-thin borders (`white/5`).
+- **High-End Typography**: Using `Plus Jakarta Sans` for display and `Inter` for content, focusing on bold weight hierarchies.
+- **Motion System**: Fluid page transitions and interactive hover states via Framer Motion.
+- **Component Library**: 
+    - **FeatureCard**: Large imagery with progress tracking.
+    - **CalendarGrid**: Interactive 7-column knowledge schedule.
+    - **ProSidebar**: Fixed navigation with active motion indicators.
+    - **TopBar**: Contextual search and user administration.
 
 ---
 

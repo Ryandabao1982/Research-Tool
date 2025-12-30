@@ -49,11 +49,13 @@ Build a next-generation personal knowledge base that combines the best features 
 
 #### Frontend Components
 
-- **UI Layer**: React components with Tailwind CSS styling
-- **State Management**: React Context + TanStack Query for server state
+- **UI Layer**: React components with Tailwind CSS styling (NoteMaster Pro theme)
+- **Layout Engine**: Fixed left sidebar with multi-level navigation and contextual TopBar
+- **State Management**: Zustand for global UI state + TanStack Query for server state
 - **Editor**: Markdown editor with live preview
-- **Search**: Client-side search interface and result display
-- **Navigation**: Sidebar, breadcrumbs, and view management
+- **Dashboard**: Modular widget-based dashboard with interactive calendar
+- **Search**: Client-side search interface with keyboard shortcuts (⌘K)
+- **Navigation**: Persistent Sidebar with active state motion tracking
 
 #### Backend Components
 
