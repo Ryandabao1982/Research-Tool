@@ -14,7 +14,7 @@
 
     - [ ] Write unit tests for the selection store (add/remove/clear).
     - [ ] Create `useSelectionStore` in `src/shared/hooks/`.
-- [ ] Task: Update Note List to support multi-selection.
+- [x] Task: Update Note List to support multi-selection. 6935525
     - [ ] Write tests for the checkbox/selection logic in `NoteList`.
     - [ ] Implement selection checkboxes in the sidebar/note list components.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Frontend Selection State & UI' (Protocol in workflow.md)
