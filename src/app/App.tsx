@@ -7,13 +7,11 @@ import DashboardPage from './pages/Dashboard'
 export default function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/notes" element={<NotesPage />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/notes" element={<NotesPage />} />
+      </Routes>
     </BrowserRouter>
   )
 }

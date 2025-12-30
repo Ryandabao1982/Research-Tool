@@ -46,12 +46,12 @@ export function NotesPage() {
 
   return (
     <Layout>
-      <div className="space-y-4 px-6">
+      <div className="space-y-4 px-6 pt-8">
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Notes</h1>
+            <h1 className="text-2xl font-bold text-white">Notes</h1>
             {isSelectionMode && (
-              <p className="text-sm text-blue-600 font-medium">
+              <p className="text-sm text-blue-400 font-medium">
                 {selectedNoteIds.length} notes selected
               </p>
             )}
@@ -61,8 +61,8 @@ export function NotesPage() {
               onClick={toggleSelectionMode}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isSelectionMode 
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30' 
+                  : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
               }`}
             >
               {isSelectionMode ? 'Exit Selection' : 'Select Notes'}
