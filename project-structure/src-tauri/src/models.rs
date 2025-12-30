@@ -15,6 +15,18 @@ pub struct Note {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Block {
+    pub id: String,
+    pub note_id: String,
+    pub content: String,
+    pub block_type: String,
+    pub position: i32,
+    pub parent_block_id: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Folder {
     pub id: String,
     pub name: String,
@@ -97,4 +109,20 @@ pub struct CreateLinkRequest {
 pub struct UpdateNoteTagsRequest {
     pub note_id: String,
     pub tag_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateBlockRequest {
+    pub note_id: String,
+    pub content: String,
+    pub block_type: Option<String>,
+    pub parent_block_id: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateBlockRequest {
+    pub content: Option<String>,
+    pub block_type: Option<String>,
+    pub parent_block_id: Option<String>,
+    pub position: Option<i32>,
 }

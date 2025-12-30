@@ -4,6 +4,7 @@ pub mod tag;
 pub mod search;
 pub mod link;
 pub mod ai;
+pub mod block;
 
 pub use note::*;
 pub use folder::*;

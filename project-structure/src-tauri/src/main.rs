@@ -25,6 +25,7 @@ pub struct AppState {
     pub search_service: SearchService,
     pub link_service: LinkService,
     pub ai_service: AIService,
+    pub block_service: BlockService,
 }
 
 #[tokio::main]
@@ -43,7 +44,8 @@ async fn main() -> anyhow::Result<()> {
     let search_service = SearchService::new(db.clone());
     let link_service = LinkService::new(db.clone(), note_service.clone());
     let ai_service = AIService::new(db.clone());
-    
+    let block_service = BlockService::new(db.clone());
+
     // Initialize AI providers
     ai_service.initialize_providers().await?;
 
@@ -55,6 +57,7 @@ async fn main() -> anyhow::Result<()> {
         search_service,
         link_service,
         ai_service,
+        block_service,
     });
 
     tauri::Builder::default()
@@ -104,10 +107,18 @@ async fn main() -> anyhow::Result<()> {
             list_ai_conversations,
             get_available_ai_models,
             search_related_documents,
-            generate_document_summary,
-            generate_study_guide,
-            initialize_ai_providers,
-        ])
+             generate_document_summary,
+             generate_study_guide,
+             initialize_ai_providers,
+             // Block commands
+             list_blocks,
+             get_block,
+             create_block,
+             update_block,
+             delete_block,
+             create_block_link,
+             search_blocks,
+         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 

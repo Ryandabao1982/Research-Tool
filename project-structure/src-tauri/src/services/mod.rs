@@ -5,6 +5,7 @@ pub mod search_service;
 pub mod link_service;
 pub mod link_parser;
 pub mod ai_service;
+pub mod block_service;
 
 pub use folder_service::FolderService;
 pub use tag_service::TagService;
@@ -17,3 +18,4 @@ pub use ai_service::{
     TokenUsage, CitationType, ModelType, ModelCapability, AIProviderConfig, ProviderType,
     LLMProvider
 };
+pub use block_service::BlockService;
