@@ -13,7 +13,7 @@
 import React from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { clsx } from 'clsx';
-import { cn } from '@/shared/utils';
+import { cn } from '../../utils';
 
 /**
  * Props for the base Card component.

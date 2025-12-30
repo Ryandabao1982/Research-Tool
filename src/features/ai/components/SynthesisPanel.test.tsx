@@ -26,7 +26,7 @@ describe('SynthesisPanel', () => {
     });
 
     const { container } = render(<SynthesisPanel />);
-    expect(container).toBeEmptyDOMElement();
+    expect(container.firstChild).toBeNull();
   });
 
   it('should render panel when notes are selected', () => {

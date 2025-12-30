@@ -18,8 +18,8 @@
     - [x] Implement card list for recent notes.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Data Integration' (Protocol in workflow.md)
 
-## Phase 3: Visual Polish
-- [~] Task: Add Framer Motion animations and refine Glassmorphism styling.
-    - [ ] Add entrance animations to widgets.
-    - [ ] Refine gradients, shadows, and borders.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Visual Polish' (Protocol in workflow.md)
+## Phase 3: Visual Polish [checkpoint: 4f911ba]
+- [x] Task: Add Framer Motion animations and refine Glassmorphism styling. 4f911ba
+    - [x] Add entrance animations to widgets.
+    - [x] Refine gradients, shadows, and borders.
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Visual Polish' (Protocol in workflow.md)

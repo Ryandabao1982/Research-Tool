@@ -62,9 +62,12 @@ describe('DashboardPage', () => {
         <DashboardPage />
       </BrowserRouter>
     );
-    const newNoteBtn = screen.getAllByText(/New Note/i)[0].closest('button');
+    const newNoteElements = screen.getAllByText(/New Note/i);
+    const newNoteBtn = newNoteElements[0]?.closest('button');
     expect(newNoteBtn).toBeDefined();
-    fireEvent.click(newNoteBtn!);
+    if (newNoteBtn) {
+      fireEvent.click(newNoteBtn);
+    }
     expect(mockNavigate).toHaveBeenCalledWith('/notes');
   });
 

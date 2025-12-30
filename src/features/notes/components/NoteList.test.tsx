@@ -55,7 +55,9 @@ describe('NoteList', () => {
 
     render(<NoteList notes={mockNotes} onNoteClick={() => {}} />);
     const checkboxes = screen.getAllByRole('checkbox');
-    fireEvent.click(checkboxes[0]);
+    if (checkboxes[0]) {
+      fireEvent.click(checkboxes[0]);
+    }
 
     expect(toggleNoteSelectionMock).toHaveBeenCalledWith('1');
   });

@@ -7,14 +7,14 @@ import {
   ActivityItem, 
   EmptyState,
   SectionHeader 
-} from '@/shared/components/dashboard/Card';
+} from '../../shared/components/dashboard/Card';
 import type { 
   Note 
-} from '@/shared/types';
+} from '../../shared/types';
 import type { 
   QuickAction, 
   RecentActivity 
-} from '@/shared/types/dashboard';
+} from '../../shared/types/dashboard';
 import { 
   FileTextIcon, 
   SparklesIcon, 
