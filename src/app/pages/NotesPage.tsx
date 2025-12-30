@@ -4,6 +4,8 @@ import type { Note } from '../../shared/types';
 import { NoteForm } from '../../shared/components/NoteForm';
 import { NoteList } from '../../features/notes/components/NoteList';
 import { useSelectionStore } from '../../shared/hooks/useSelectionStore';
+import { SynthesisPanel } from '../../features/ai/components/SynthesisPanel';
+import { aiService } from '../../shared/services/aiService';
 
 export function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -44,6 +46,16 @@ export function NotesPage() {
 
   const handleCancelEdit = () => {
     setSelectedNote(null);
+  };
+
+  const handleSynthesize = async () => {
+    try {
+      const response = await aiService.synthesizeNotes(selectedNoteIds, 'summary');
+      console.log('Synthesis result:', response);
+      // TODO: Display result in a modal or side panel
+    } catch (error) {
+      console.error('Synthesis failed:', error);
+    }
   };
 
   return (
@@ -89,6 +101,8 @@ export function NotesPage() {
             />
           </div>
         )}
+
+        <SynthesisPanel onSynthesize={handleSynthesize} />
       </div>
     </Layout>
   );
