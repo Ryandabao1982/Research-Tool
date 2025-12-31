@@ -11,6 +11,11 @@
         "version": "2.0.0"
     },
     "tauri": {
+        "systemTray": {
+            "iconPath": "icons/icon.png",
+            "iconPathAsTemplate": true,
+            "menuOnLeftClick": false
+        },
         "allowlist": {
             "all": false,
             "shell": {
@@ -81,6 +86,19 @@
                 "resizable": true,
                 "title": "KnowledgeBase Pro",
                 "width": 1080
+            },
+            {
+                "width": 600,
+                "height": 80,
+                "decorations": false,
+                "url": "/capture",
+                "label": "capture",
+                "transparent": true,
+                "alwaysOnTop": true,
+                "resizable": false,
+                "visible": false,
+                "center": true,
+                "title": "Neural Bar"
             }
         ]
     }

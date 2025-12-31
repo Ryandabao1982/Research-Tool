@@ -1,44 +1,39 @@
-use crate::services::synthesis_service;
 use crate::services::db_service::DbState;
+use crate::services::cards;
+use crate::services::ollama;
 use tauri::State;
 
 #[tauri::command]
-pub async fn synthesize_notes(
+pub async fn synthesize_query(
     state: State<'_, DbState>,
-    note_ids: Vec<String>, 
-    prompt_type: String
+    query: String,
 ) -> Result<String, String> {
+    // 1. Search for relevant cards using FTS5
     let conn = state.0.lock().map_err(|e| e.to_string())?;
-    
-    let mut notes = Vec::new();
-    
-    for id in note_ids {
-        let mut stmt = conn.prepare("SELECT title, content FROM notes WHERE id = ?")
-            .map_err(|e| e.to_string())?;
-        
-        let note = stmt.query_row([id], |row| {
-            Ok((
-                row.get::<_, String>(0)?,
-                row.get::<_, String>(1)?
-            ))
-        });
+    let cards = cards::search_cards(&conn, &query).map_err(|e| e.to_string())?;
 
-        if let Ok((title, content)) = note {
-            notes.push((title, content));
-        }
+    // 2. Bundle context from top 5 cards
+    let context = cards.iter()
+        .take(5)
+        .map(|c| format!("Source: Card {}\nContent: {}", c.id, c.content))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+
+    if context.is_empty() {
+        return Ok("I couldn't find any relevant notes in your brain to answer that.".to_string());
     }
 
-    // Convert notes into the format expected by bundle_notes_content
-    // The service currently expects Vec<(&str, &str, &str)> but we can adjust it or the caller.
-    // Let's adjust the bundling to be more flexible or map here.
-    let bundled_notes = notes.iter()
-        .map(|(t, c)| ("", t.as_str(), c.as_str()))
-        .collect::<Vec<_>>();
+    // 3. Generate response via Ollama
+    // We run this in a blocking task safely because reqwest blocking is used.
+    // In a real async heavy app we'd use async reqwest, but for local orchestration this is fine.
+    let response = tauri::async_runtime::spawn_blocking(move || {
+        ollama::generate_response(&query, &context)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .map_err(|e| e.to_string())?;
 
-    let bundled = synthesis_service::bundle_notes_content(bundled_notes);
-    
-    // In a real implementation, this would call an AI service with the bundled content
-    Ok(format!("Grounded synthesis: [Type: {}]\n\nUsing context:\n{}", prompt_type, bundled))
+    Ok(response)
 }
 
 #[cfg(test)]

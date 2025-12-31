@@ -57,5 +57,9 @@ pub fn init_db() -> Result<Connection> {
         END;
     ")?;
 
+    // Initialize Cards Schema
+    use crate::services::cards;
+    cards::create_tables(&conn)?;
+
     Ok(conn)
 }
