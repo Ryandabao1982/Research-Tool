@@ -127,14 +127,15 @@ Build a next-generation personal knowledge base that combines the best features 
 
 ```sql
 CREATE TABLE notes (
-    id TEXT PRIMARY KEY,
+    internal_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Used for FTS5 rowid mapping
+    id TEXT UNIQUE NOT NULL,                       -- Public UUID
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     folder_id TEXT,
     is_daily_note BOOLEAN DEFAULT FALSE,
-    properties TEXT, -- JSON metadata
+    properties TEXT,                               -- JSON metadata
     word_count INTEGER DEFAULT 0,
     reading_time INTEGER DEFAULT 0,
     FOREIGN KEY (folder_id) REFERENCES folders(id)
@@ -212,16 +213,33 @@ CREATE TABLE blocks (
 ### Full-Text Search Index
 
 ```sql
--- Create FTS5 virtual table for search
+-- Create FTS5 virtual table for search (External Content)
 CREATE VIRTUAL TABLE notes_fts USING fts5(
     title,
     content,
     tags,
-    properties, -- JSON properties as text
-    note_id UNINDEXED,
+    properties,
     content='notes',
-    content_rowid='rowid'
+    content_rowid='internal_id'
 );
+
+-- Synchronization Triggers
+CREATE TRIGGER notes_ai AFTER INSERT ON notes BEGIN
+  INSERT INTO notes_fts(rowid, title, content, properties) 
+  VALUES (new.internal_id, new.title, new.content, new.properties);
+END;
+
+CREATE TRIGGER notes_ad AFTER DELETE ON notes BEGIN
+  INSERT INTO notes_fts(notes_fts, rowid, title, content, properties) 
+  VALUES('delete', old.internal_id, old.title, old.content, old.properties);
+END;
+
+CREATE TRIGGER notes_au AFTER UPDATE ON notes BEGIN
+  INSERT INTO notes_fts(notes_fts, rowid, title, content, properties) 
+  VALUES('delete', old.internal_id, old.title, old.content, old.properties);
+  INSERT INTO notes_fts(rowid, title, content, properties) 
+  VALUES (new.internal_id, new.title, new.content, new.properties);
+END;
 ```
 
 ### Database Migrations

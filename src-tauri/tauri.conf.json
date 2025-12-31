@@ -1,0 +1,87 @@
+{
+    "build": {
+        "beforeDevCommand": "pnpm dev",
+        "beforeBuildCommand": "pnpm build",
+        "devPath": "http://localhost:5173",
+        "distDir": "../dist",
+        "withGlobalTauri": true
+    },
+    "package": {
+        "productName": "KnowledgeBase Pro",
+        "version": "2.0.0"
+    },
+    "tauri": {
+        "allowlist": {
+            "all": false,
+            "shell": {
+                "all": false,
+                "open": true
+            },
+            "dialog": {
+                "all": false,
+                "ask": true,
+                "confirm": true,
+                "message": true,
+                "open": true,
+                "save": true
+            },
+            "fs": {
+                "all": false,
+                "copyFile": true,
+                "createDir": true,
+                "exists": true,
+                "readDir": true,
+                "removeDir": true,
+                "removeFile": true,
+                "renameFile": true,
+                "scope": [
+                    "**"
+                ],
+                "writeFile": true
+            },
+            "path": {
+                "all": true
+            },
+            "protocol": {
+                "asset": true,
+                "assetScope": [
+                    "**"
+                ]
+            }
+        },
+        "bundle": {
+            "active": true,
+            "category": "Productivity",
+            "copyright": "© 2025 KnowledgeBase Pro Team",
+            "deb": {
+                "depends": []
+            },
+            "externalBin": [],
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ],
+            "identifier": "pro.knowledgebase.app",
+            "longDescription": "AI-powered desktop knowledge management application with modular plugin architecture",
+            "resources": [
+                "models/*"
+            ],
+            "shortDescription": "AI-powered knowledge management",
+            "targets": "all"
+        },
+        "security": {
+            "csp": null
+        },
+        "windows": [
+            {
+                "fullscreen": false,
+                "height": 720,
+                "resizable": true,
+                "title": "KnowledgeBase Pro",
+                "width": 1080
+            }
+        ]
+    }
+}
