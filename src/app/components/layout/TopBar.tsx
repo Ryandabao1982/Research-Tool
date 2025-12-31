@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, Bell, Download, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { RoleSwitcher } from '../../features/roles/RoleSwitcher';
+import { RoleSwitcher } from '../../../features/roles/RoleSwitcher';
 
 interface TopBarProps {
   title: string;

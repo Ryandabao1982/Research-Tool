@@ -1,4 +1,3 @@
-```
 import { Command } from 'cmdk';
 import { useState, useEffect } from 'react';
 import { Search, Brain, FileText, Sparkles, Loader2 } from 'lucide-react';

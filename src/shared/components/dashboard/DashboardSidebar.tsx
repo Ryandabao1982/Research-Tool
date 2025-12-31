@@ -4,7 +4,7 @@ import { OverviewItem } from './OverviewItem';
 import { NotificationCard } from './NotificationCard';
 import { motion } from 'framer-motion';
 
-import { useRoleStore } from '../../shared/stores/role-store';
+import { useRoleStore } from '../../stores/role-store';
 
 export const DashboardSidebar = () => {
   const { activeRole } = useRoleStore();

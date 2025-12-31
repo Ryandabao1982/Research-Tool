@@ -54,6 +54,12 @@ fn main() {
                 })
                 .expect("Failed to register global shortcut");
                 
+            // Initialize Background Worker (The Subconscious)
+            knowledge_base_pro::services::background::init(app.handle());
+
+            // Initialize Web Bridge (API Server)
+            knowledge_base_pro::services::server::init();
+
             Ok(())
         })
         .run(tauri::generate_context!())
