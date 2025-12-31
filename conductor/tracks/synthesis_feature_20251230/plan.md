@@ -1,7 +1,7 @@
 # Plan: NotebookLM-style Synthesis Feature
 
 ## Phase 1: Backend Service Layer
-- [ ] Task: Create `SynthesisService` in Rust for note bundling.
+- [x] Task: Create `SynthesisService` in Rust for note bundling. 7b71085
     - [ ] Write tests for note bundling logic (multiple notes to single text block).
     - [ ] Implement `bundle_notes_content` in `src-tauri/src/services/ai_service.rs` (or new service).
 - [ ] Task: Implement `synthesize_notes` Tauri command.
