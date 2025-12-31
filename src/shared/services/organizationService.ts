@@ -32,6 +32,10 @@ export const organizationService = {
         return await invoke<void>('link_tag_to_note', { noteId, tagId });
     },
 
+    unlinkTagFromNote: async (noteId: string, tagId: string): Promise<void> => {
+        return await invoke<void>('unlink_tag_from_note', { noteId, tagId });
+    },
+
     getNoteTags: async (noteId: string): Promise<Tag[]> => {
         return await invoke<Tag[]>('get_note_tags', { noteId });
     },

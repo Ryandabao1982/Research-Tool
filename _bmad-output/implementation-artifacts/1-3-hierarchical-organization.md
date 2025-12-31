@@ -19,18 +19,18 @@ so that I can structure my knowledge base effectively.
 
 ## Tasks / Subtasks
 
-- [ ] **Backend (Rust)**
-  - [ ] Implement `create_folder` command to insert into `folders` table.
-  - [ ] Implement `update_note_folder` command to update `folder_id` on a note.
-  - [ ] Implement `get_folders` command to list all folders with hierarchy support (if nested).
-  - [ ] Implement Tag management: `create_tag`, `link_tag_to_note`, `get_note_tags`.
-  - [ ] Update `db_service.rs` to include `folders` and `tags` (and join table `note_tags`) tables.
-- [ ] **Frontend (React)**
-  - [ ] Create `FolderTree` component in `src/shared/components/`.
-  - [ ] Update Sidebar to include "New Folder" action and render `FolderTree`.
-  - [ ] Implement drag-and-drop logic for moving notes into folders (use a library like `dnd-kit` or native browser DND).
-  - [ ] Create `TagInput` component for managing tags on a note.
-  - [ ] Integrate with `useNotesStore` to handle folder and tag state updates.
+- [x] **Backend (Rust)**
+  - [x] Implement `create_folder` command to insert into `folders` table.
+  - [x] Implement `update_note_folder` command to update `folder_id` on a note.
+  - [x] Implement `get_folders` command to list all folders with hierarchy support (if nested).
+  - [x] Implement Tag management: `create_tag`, `link_tag_to_note`, `get_note_tags`.
+  - [x] Update `db_service.rs` to include `folders` and `tags` (and join table `note_tags`) tables.
+- [x] **Frontend (React)**
+  - [x] Create `FolderTree` component in `src/shared/components/`.
+  - [x] Update Sidebar to include "New Folder" action and render `FolderTree`.
+  - [x] Implement drag-and-drop logic for moving notes into folders (use a library like `dnd-kit` or native browser DND).
+  - [x] Create `TagInput` component for managing tags on a note.
+  - [x] Integrate with `useNotesStore` to handle folder and tag state updates.
 
 ## Dev Notes
 
@@ -64,3 +64,15 @@ Antigravity (GPT-4o)
 ### Completion Notes List
 
 ### File List
+
+- [db_service.rs](file:///d:/Web%20Projects/secondbrain/src-tauri/src/services/db_service.rs)
+- [organization_service.rs](file:///d:/Web%20Projects/secondbrain/src-tauri/src/services/organization_service.rs)
+- [organization.rs](file:///d:/Web%20Projects/secondbrain/src-tauri/src/commands/organization.rs)
+- [main.rs](file:///d:/Web%20Projects/secondbrain/src-tauri/src/main.rs)
+- [organizationService.ts](file:///d:/Web%20Projects/secondbrain/src/shared/services/organizationService.ts)
+- [FolderTree.tsx](file:///d:/Web%20Projects/secondbrain/src/shared/components/organization/FolderTree.tsx)
+- [FolderItem.tsx](file:///d:/Web%20Projects/secondbrain/src/shared/components/organization/FolderItem.tsx)
+- [FolderSelect.tsx](file:///d:/Web%20Projects/secondbrain/src/shared/components/organization/FolderSelect.tsx)
+- [TagInput.tsx](file:///d:/Web%20Projects/secondbrain/src/shared/components/organization/TagInput.tsx)
+- [Sidebar.tsx](file:///d:/Web%20Projects/secondbrain/src/shared/components/layout/Sidebar.tsx)
+- [NoteForm.tsx](file:///d:/Web%20Projects/secondbrain/src/shared/components/NoteForm.tsx)

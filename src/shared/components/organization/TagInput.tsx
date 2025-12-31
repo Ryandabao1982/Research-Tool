@@ -30,6 +30,13 @@ export const TagInput: React.FC<TagInputProps> = ({ noteId }) => {
         },
     });
 
+    const deleteTagMutation = useMutation({
+        mutationFn: (tagId: string) => organizationService.unlinkTagFromNote(noteId, tagId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['note-tags', noteId] });
+        },
+    });
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && inputValue.trim()) {
             e.preventDefault();
@@ -51,7 +58,10 @@ export const TagInput: React.FC<TagInputProps> = ({ noteId }) => {
                         className="flex items-center gap-1.5 px-3 py-1 bg-brand-blue/10 border border-brand-blue/20 rounded-full group transition-colors"
                     >
                         <span className="text-[10px] font-bold text-brand-blue">#{tag.name}</span>
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => deleteTagMutation.mutate(tag.id)}
+                        >
                             <X className="w-2.5 h-2.5 text-brand-blue hover:text-white" />
                         </button>
                     </div>

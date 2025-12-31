@@ -57,3 +57,14 @@ pub async fn get_note_tags(
     let conn = state.0.lock().unwrap();
     organization_service::get_note_tags(&conn, &note_id).map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+pub async fn unlink_tag_from_note(
+    state: State<'_, db_service::DbState>,
+    note_id: String,
+    tag_id: String,
+) -> Result<(), String> {
+    let conn = state.0.lock().unwrap();
+    organization_service::unlink_tag_from_note(&conn, &note_id, &tag_id).map_err(|e| e.to_string())
+}
+

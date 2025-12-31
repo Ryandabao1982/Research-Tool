@@ -91,3 +91,12 @@ pub fn get_note_tags(conn: &Connection, note_id: &str) -> Result<Vec<Tag>> {
     }
     Ok(tags)
 }
+
+pub fn unlink_tag_from_note(conn: &Connection, note_id: &str, tag_id: &str) -> Result<()> {
+    conn.execute(
+        "DELETE FROM note_tags WHERE note_id = ? AND tag_id = ?",
+        params![note_id, tag_id],
+    )?;
+    Ok(())
+}
+
