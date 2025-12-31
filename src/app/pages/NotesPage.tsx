@@ -37,6 +37,7 @@ export function NotesPage() {
       return response;
     } catch (error) {
       console.error('Synthesis failed:', error);
+      return null;
     }
   };
 
@@ -57,17 +58,16 @@ export function NotesPage() {
             )}
           </div>
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={toggleSelectionMode}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isSelectionMode 
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30' 
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isSelectionMode
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30'
                   : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
-              }`}
+                }`}
             >
               {isSelectionMode ? 'Exit Selection' : 'Select Notes'}
             </button>
-            <button 
+            <button
               onClick={() => setSelectedNote({ id: '', title: '', content: '', createdAt: new Date(), updatedAt: new Date() })}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
             >
@@ -75,12 +75,12 @@ export function NotesPage() {
             </button>
           </div>
         </div>
-        
+
         <NoteList notes={notes} onNoteClick={handleEditNote} />
-        
+
         {selectedNote && (
           <div className="mt-6">
-            <NoteForm 
+            <NoteForm
               note={selectedNote}
               onSave={handleUpdateNote}
               onCancel={handleCancelEdit}

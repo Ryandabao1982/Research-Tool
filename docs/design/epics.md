@@ -17,18 +17,30 @@ This document outlines the high-level Epics for KnowledgeBase Pro, providing a s
 - [ ] **Contextual Sidebar**: An ambient AI panel that surfaces insights and related notes based on current editing context.
 - [ ] **Web-Augmented Research**: AI capabilities to pull external knowledge to augment local research.
 
-## 🕸️ Epic 3: Neural Linkage (Visualization)
-**Goal**: Visualize the "Second Brain" through relationship mapping.
+## 🧠 Epic 3: The Mental Pivot (Role-Based Contexts)
+**Goal**: Dynamic interface shifting based on user intent (Manager vs. Learner).
 
-- [ ] **Interactive Graph View**: A D3.js-powered visualization of bidirectional links between notes.
-- [ ] **Visual Discovery**: Navigation through concepts via graph nodes and force-directed layouts.
+- [ ] **Role Store**: State management for switching between 'Manager', 'Learner', and 'Peace' modes.
+- [ ] **Context-Aware Dashboard**: Dashboard widgets that change based on active role (e.g., Team Tasks vs. Study Queues).
+- [ ] **Thematic Shift**: Visual system (colors, density) adapts to the psychological state of the role.
 
 ## ⚡ Epic 4: Advanced Productivity (The "Pro" Layer)
 **Goal**: Polish the user experience for ultimate power-user efficiency.
 
 - [ ] **Atmosphere Design System**: Implement the cohesive "Atmospheric Glassmorphism" UI tokens (blur, depth, transparency).
+- [ ] **Dashboard Command Center**:
+    - [ ] **Activity Heatmap**: Real visual history of user activity.
+    - [ ] **Stats Aggregation**: Real-time counters for notes and tasks.
 - [ ] **Command Palette (⌘K)**: Fluid, keyboard-first navigation for search and common actions.
-- [ ] **Plugin Architecture**: Establish a stable API for first-party and third-party extensions.
+
+## 🕸️ Epic 5: Neural Linkage (Visualization)
+**Goal**: Visualize the "Second Brain" through relationship mapping.
+
+- [ ] **Interactive Graph View**: A D3.js-powered visualization of bidirectional links between notes.
+- [ ] **Visual Discovery**: Navigation through concepts via graph nodes and force-directed layouts.
+
+## 🔌 Epic 6: Plugin Architecture (Future)
+- [ ] **Plugin System**: API for extensions.
 
 ---
 *Last Updated: 2025-12-31*

@@ -1,0 +1,24 @@
+project: secondbrain
+project_type: brownfield
+project_level: intermediate
+field_type: brownfield
+workflow_path: d:/Web Projects/secondbrain/_bmad/bmm/workflows/workflow-status/paths/method-brownfield.yaml
+
+workflow_status:
+  document-project: d:/Web Projects/secondbrain/_bmad-output/project_knowledge/project-overview.md
+  prd: d:/Web Projects/secondbrain/docs/technical-specifications.md
+  create-architecture: d:/Web Projects/secondbrain/_bmad-output/project_knowledge/architecture.md
+  create-epics-and-stories:
+    status: complete
+    last_run: '2025-12-31'
+    output: _bmad-output/planning-artifacts/epics.md
+    validation_status: validing/optional/skipped
+  
+  # Status: pending/optional/skipped
+  brainstorm-project: skipped
+  research: skipped
+  product-brief: skipped
+  create-ux-design: recommended
+  test-design: optional
+  implementation-readiness: required
+  sprint-planning: required
