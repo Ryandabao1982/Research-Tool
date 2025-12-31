@@ -25,5 +25,8 @@ mod tests {
 }
 
 pub fn bundle_notes_content(notes: Vec<(&str, &str, &str)>) -> String {
-    String::new() // Implement this to pass
+    notes.into_iter()
+        .map(|(_id, title, content)| format!("Title: {}\nContent: {}\n", title, content))
+        .collect::<Vec<String>>()
+        .join("\n---\n\n")
 }
