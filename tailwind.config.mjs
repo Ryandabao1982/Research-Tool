@@ -15,7 +15,7 @@ export default {
           400: '#2a2a2a',
         },
         brand: {
-          blue: '#0070f3',
+          blue: 'var(--brand-primary)', // Dynamic based on role
           light: '#3291ff',
           dark: '#0025d2',
         },

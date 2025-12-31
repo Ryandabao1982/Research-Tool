@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --brand-primary: #0070f3; /* Default Manager Blue */
+  }
+
   body {
     @apply bg-[#0f0f0f] text-white;
   }

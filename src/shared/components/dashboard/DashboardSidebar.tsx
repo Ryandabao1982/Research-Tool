@@ -4,18 +4,22 @@ import { OverviewItem } from './OverviewItem';
 import { NotificationCard } from './NotificationCard';
 import { motion } from 'framer-motion';
 
+import { useRoleStore } from '../../shared/stores/role-store';
+
 export const DashboardSidebar = () => {
+  const { activeRole } = useRoleStore();
+
   return (
     <aside className="w-80 border-l border-white/5 p-8 space-y-10 overflow-y-auto hidden 2xl:block custom-scrollbar bg-[#0f0f0f]/50 backdrop-blur-3xl">
       {/* Active Notes */}
       <div className="space-y-5">
         <h3 className="text-lg font-bold text-white tracking-tight">Active Notes</h3>
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.02 }}
           className="relative group rounded-[2.5rem] overflow-hidden aspect-[4/3] bg-gradient-to-br from-white/5 to-white/10 border border-white/10 shadow-2xl cursor-pointer"
         >
-          <img 
-            src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=400" 
+          <img
+            src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=400"
             className="w-full h-full object-cover opacity-40 group-hover:scale-110 group-hover:opacity-60 transition-all duration-1000"
             alt="Active note background"
           />
@@ -55,14 +59,16 @@ export const DashboardSidebar = () => {
         </div>
       </div>
 
-      {/* Notifications */}
-      <div className="space-y-5 pt-4">
-        <h3 className="text-lg font-bold text-white tracking-tight">Notifications</h3>
-        <NotificationCard 
-          title="Your note has been updated!" 
-          description="For assistance, reach out to our support team." 
-        />
-      </div>
+      {/* Notifications - Manager Only */}
+      {activeRole === 'manager' && (
+        <div className="space-y-5 pt-4">
+          <h3 className="text-lg font-bold text-white tracking-tight">Notifications</h3>
+          <NotificationCard
+            title="Team Update: Q4 Goals"
+            description="3 new reports submitted for review."
+          />
+        </div>
+      )}
     </aside>
   );
 };

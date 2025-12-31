@@ -5,7 +5,7 @@ import { FeedbackModal } from '../../shared/components/modals/FeedbackModal';
 import { FeatureCard } from '../../shared/components/dashboard/FeatureCard';
 import { CalendarCell } from '../../shared/components/dashboard/CalendarCell';
 import { DashboardSidebar } from '../../shared/components/dashboard/DashboardSidebar';
-import { 
+import {
   PlusIcon,
   ChevronRightIcon,
   ChevronLeftIcon,
@@ -13,8 +13,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useRoleStore } from '../../shared/stores/role-store';
+
 export default function DashboardPage() {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const { activeRole } = useRoleStore();
 
   const handleFeedbackSave = (data: any) => {
     console.log('Feedback received:', data);
@@ -24,46 +27,60 @@ export default function DashboardPage() {
     <Layout>
       <div className="flex flex-col h-screen bg-[#0f0f0f]">
         <TopBar title="Dashboard" />
-        
+
         <div className="flex-1 flex overflow-hidden">
           {/* Main Content Area */}
           <main className="flex-1 overflow-y-auto px-8 pb-12 custom-scrollbar">
             <div className="max-w-6xl mx-auto space-y-12 py-8">
-              
-              {/* Feature Highlights Grid */}
+
+              {/* Feature Highlights Grid - Context Aware */}
               <section className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <FeatureCard 
-                  title="Note Management"
-                  description="Organize your thoughts efficiently"
-                  detail="Get started with your notes now!"
-                  progress={50}
-                  image="https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=300"
-                  onClick={() => setIsFeedbackOpen(true)}
-                />
-                <FeatureCard 
+                {/* Manager & Coach View */}
+                {(activeRole === 'manager' || activeRole === 'coach') && (
+                  <FeatureCard
+                    title="Team Tasks"
+                    description="Delegate and track progress"
+                    detail="3 Pending Reviews"
+                    progress={75}
+                    image="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=300"
+                    onClick={() => setIsFeedbackOpen(true)}
+                  />
+                )}
+
+                {/* Learner & Shared View */}
+                <FeatureCard
                   title="Personal Notes"
-                  description="How to categorize notes?"
-                  detail="Tuesday 10/5, 3 PM"
+                  description="Capture your daily thoughts"
+                  detail="Last edited 2m ago"
                   progress={40}
                   actionLabel="Add Note"
                   image="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300"
                   onClick={() => setIsFeedbackOpen(true)}
                 />
-                <FeatureCard 
-                  title="Favorites"
-                  description="Quick access to important notes"
-                  detail="Friday 15/5, 10 AM"
-                  actionLabel="View"
-                  image="https://images.unsplash.com/photo-1499193558835-260384501f67?auto=format&fit=crop&q=80&w=300"
-                  onClick={() => setIsFeedbackOpen(true)}
-                />
-                <FeatureCard 
-                  title="Task List"
-                  description="Manage your daily tasks"
-                  detail="Monday 19/5, 1 PM"
-                  image="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=300"
-                  onClick={() => setIsFeedbackOpen(true)}
-                />
+
+                {/* Learner Only */}
+                {activeRole === 'learner' && (
+                  <FeatureCard
+                    title="Study Queues"
+                    description="Active Recall Sessions"
+                    detail="Next session: 4 PM"
+                    progress={10}
+                    actionLabel="Start"
+                    image="https://images.unsplash.com/photo-1499193558835-260384501f67?auto=format&fit=crop&q=80&w=300"
+                    onClick={() => setIsFeedbackOpen(true)}
+                  />
+                )}
+
+                {/* Manager Only */}
+                {activeRole === 'manager' && (
+                  <FeatureCard
+                    title="Analytics"
+                    description="Knowledge Base Health"
+                    detail="+15% Growth"
+                    image="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=300"
+                    onClick={() => setIsFeedbackOpen(true)}
+                  />
+                )}
               </section>
 
               {/* Your Notes - Interactive Calendar */}
@@ -84,9 +101,9 @@ export default function DashboardPage() {
 
                 <div className="bg-[#1a1a1a] rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden grid grid-cols-7 border-collapse">
                   {[...Array(21)].map((_, i) => (
-                    <CalendarCell 
-                      key={i} 
-                      day={i + 1} 
+                    <CalendarCell
+                      key={i}
+                      day={i + 1}
                       note={i === 9 ? {
                         title: 'Personal Notes',
                         time: '10 AM',
@@ -117,9 +134,9 @@ export default function DashboardPage() {
           <DashboardSidebar />
         </div>
 
-        <FeedbackModal 
-          isOpen={isFeedbackOpen} 
-          onClose={() => setIsFeedbackOpen(false)} 
+        <FeedbackModal
+          isOpen={isFeedbackOpen}
+          onClose={() => setIsFeedbackOpen(false)}
           onSave={handleFeedbackSave}
         />
       </div>
