@@ -4,7 +4,7 @@
 - [x] Task: Create `SynthesisService` in Rust for note bundling. 7b71085
     - [ ] Write tests for note bundling logic (multiple notes to single text block).
     - [ ] Implement `bundle_notes_content` in `src-tauri/src/services/ai_service.rs` (or new service).
-- [~] Task: Implement `synthesize_notes` Tauri command.
+- [x] Task: Implement `synthesize_notes` Tauri command. 2f3acf0
     - [ ] Write tests for the command handler mocking the AI response.
     - [ ] Implement the command in `src-tauri/src/commands/ai.rs`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend Service Layer' (Protocol in workflow.md)
