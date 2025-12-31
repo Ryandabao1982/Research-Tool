@@ -1,0 +1,39 @@
+{
+    "workflow_version": "1.2.0",
+    "timestamps": {
+        "started": "2025-12-31T07:10:00Z",
+        "last_updated": "2025-12-31T07:10:00Z"
+    },
+    "mode": "initial_scan",
+    "scan_level": "deep",
+    "project_root": "d:/Web Projects/secondbrain",
+    "output_folder": "d:/Web Projects/secondbrain/_bmad-output/project_knowledge",
+    "completed_steps": [
+        {
+            "step": "step_1",
+            "status": "completed",
+            "timestamp": "2025-12-31T07:10:00Z",
+            "summary": "Classified as multi-part Tauri Desktop Application. Root (Web), src-tauri (Native Rust)."
+        }
+    ],
+    "current_step": "step_2",
+    "findings": {
+        "project_classification": "Multi-part Tauri Desktop Application. Frontend: React/Vite/TS. Backend: Rust.",
+        "project_types": [
+            {
+                "part_id": "root",
+                "project_type_id": "web",
+                "display_name": "Frontend"
+            },
+            {
+                "part_id": "src-tauri",
+                "project_type_id": "desktop",
+                "display_name": "Backend"
+            }
+        ]
+    },
+    "outputs_generated": [
+        "project-scan-report.json"
+    ],
+    "resume_instructions": "Starting from step 2: Discover existing documentation"
+}
