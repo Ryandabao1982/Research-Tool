@@ -8,9 +8,14 @@ pub struct SearchResult {
     pub snippet: String,
 }
 
-pub fn search_notes(conn: &Connection, query: &str) -> Result<Vec<SearchResult>> {
-    // We sanitize the query for FTS5 (basic approach: remove double quotes/special chars or encapsulate)
-    let sanitized_query = query.replace('\"', "").replace('\'', "");
+    // We sanitize the query for FTS5.
+    // We keep only alphanumeric characters and spaces to prevent query injection/errors.
+    let sanitized_query = query.chars()
+        .filter(|c| c.is_alphanumeric() || c.is_whitespace())
+        .collect::<String>()
+        .trim()
+        .to_string();
+
     if sanitized_query.is_empty() {
         return Ok(Vec::new());
     }
@@ -27,8 +32,9 @@ pub fn search_notes(conn: &Connection, query: &str) -> Result<Vec<SearchResult>>
          LIMIT 20"
     )?;
 
-    // We search across all columns by default
-    let fts_query = format!("*{}*", sanitized_query);
+    // We search across all columns by default. 
+    // SQLite FTS5 does not support leading wildcards (*term), only trailing (term*)
+    let fts_query = format!("{}*", sanitized_query);
     
     let results = stmt.query_map(params![fts_query], |row| {
         Ok(SearchResult {

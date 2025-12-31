@@ -6,15 +6,16 @@ import { useNotesStore } from '../../../shared/hooks/useNotesStore';
 import { useNavigate } from 'react-router-dom';
 
 interface SearchResult {
-    id: String;
-    title: String;
-    snippet: String;
+    id: string;
+    title: string;
+    snippet: string;
 }
 
 export const CommandPalette: React.FC = () => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const { setSelectedNoteId } = useNotesStore();
     const navigate = useNavigate();
 
@@ -38,16 +39,22 @@ export const CommandPalette: React.FC = () => {
             return;
         }
 
+        setIsLoading(true);
         const timer = setTimeout(async () => {
             try {
                 const searchResults = await invoke<SearchResult[]>('search_notes', { query });
                 setResults(searchResults);
             } catch (error) {
                 console.error('Search failed:', error);
+            } finally {
+                setIsLoading(false);
             }
-        }, 200);
+        }, 300);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            setIsLoading(false);
+        };
     }, [query]);
 
     const onSelect = useCallback((id: string) => {
@@ -71,6 +78,9 @@ export const CommandPalette: React.FC = () => {
                             className="w-full bg-transparent border-none outline-none py-4 text-sm font-sans text-zinc-900 dark:text-zinc-100 placeholder-zinc-500"
                             placeholder="Search notes or type '>' for commands..."
                         />
+                        {isLoading && (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-500 mr-2" />
+                        )}
                     </div>
 
                     <Command.List className="max-h-[50vh] overflow-y-auto p-2 font-sans overflow-x-hidden">
@@ -106,18 +116,18 @@ export const CommandPalette: React.FC = () => {
                             <Command.Group heading="RELEVANT NOTES" className="px-2 pb-2 text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
                                 {results.map((res) => (
                                     <Command.Item
-                                        key={res.id.toString()}
-                                        onSelect={() => onSelect(res.id.toString())}
-                                        className="flex flex-col gap-1 px-3 py-3 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 bg-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all cursor-pointer aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800 mb-1"
+                                        key={res.id}
+                                        onSelect={() => onSelect(res.id)}
+                                        className="flex flex-col gap-1 px-3 py-3 border border-transparent bg-transparent transition-all cursor-pointer aria-selected:bg-zinc-100 dark:aria-selected:bg-zinc-800 mb-1"
                                     >
                                         <div className="flex items-center gap-2">
                                             <FileText className="w-3 h-3 text-blue-500" />
                                             <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{res.title}</span>
-                                            <span className="ml-auto text-[9px] font-mono text-zinc-500">{res.id.toString().substring(0, 8)}</span>
+                                            <span className="ml-auto text-[9px] font-mono text-zinc-500">{res.id.substring(0, 8)}</span>
                                         </div>
                                         {res.snippet && (
                                             <div
-                                                dangerouslySetInnerHTML={{ __html: res.snippet.toString() }}
+                                                dangerouslySetInnerHTML={{ __html: res.snippet }}
                                                 className="text-[10px] font-mono text-zinc-500 pl-5 line-clamp-1 leading-relaxed"
                                             />
                                         )}

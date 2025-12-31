@@ -3,6 +3,7 @@ import { Layout } from './layout'
 import HomePage from './pages/index'
 import { NotesPage } from './pages/NotesPage'
 import DashboardPage from './pages/Dashboard'
+import SettingsPage from './pages/Settings'
 import { NeuralBar } from '../features/capture/NeuralBar'
 import { AskModal } from '../features/retrieval/AskModal'
 import { CommandPalette } from '../features/retrieval/components/CommandPalette'
@@ -102,7 +103,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/notes" element={<NotesPage />} />
+        <Route path="/notes/new" element={<NotesPage />} />
         <Route path="/capture" element={<NeuralBar />} />
       </Routes>
     </BrowserRouter>

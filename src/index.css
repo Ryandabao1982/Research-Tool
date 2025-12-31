@@ -8,11 +8,20 @@
   }
 
   body {
-    @apply bg-[#0f0f0f] text-white;
+    @apply bg-[#0f0f0f] text-zinc-100;
+    font-family: 'Inter', sans-serif;
+  }
+
+  mark {
+    @apply bg-transparent text-blue-500 underline decoration-2 underline-offset-2;
   }
 }
 
 @layer utilities {
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }

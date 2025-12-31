@@ -51,7 +51,7 @@ development_status:
   
   # Epic 2: Retrieval & Ambient Intelligence
   epic-2: in-progress  # Partially implemented
-  2-1-full-text-search-with-command-palette: in-progress  # FTS5 exists in DB, but no Command Palette UI
+  2-1-full-text-search-with-command-palette: done  # Verified and review findings resolved
   2-2-advanced-filtering-and-scoping: backlog  # No filter UI found
   2-3-multi-document-ai-synthesis: done  # SynthesisPanel.tsx exists
   2-4-contextual-sidebar-ambient-ai: backlog  # No contextual sidebar found
