@@ -1,0 +1,13 @@
+installation:
+  version: 6.0.0-alpha.22
+  installDate: 2025-12-31T02:12:32.753Z
+  lastUpdated: 2025-12-31T02:12:32.753Z
+modules:
+  - core
+  - bmb
+  - bmm
+ides:
+  - antigravity
+  - opencode
+  - gemini
+  - kilo
