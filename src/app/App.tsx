@@ -5,7 +5,9 @@ import { NotesPage } from './pages/NotesPage'
 import DashboardPage from './pages/Dashboard'
 import { NeuralBar } from '../features/capture/NeuralBar'
 import { AskModal } from '../features/retrieval/AskModal'
+import { CommandPalette } from '../features/retrieval/components/CommandPalette'
 import { useState, useEffect } from 'react'
+
 import { useRoleStore } from '../shared/stores/role-store'
 import { Sparkles } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -95,6 +97,8 @@ export default function App() {
       {/* Toast Overlay for Subconscious */}
       <SubconsciousToast />
       <AskModal isOpen={isAskOpen} setIsOpen={setIsAskOpen} />
+      <CommandPalette />
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />

@@ -3,16 +3,21 @@ import type { Note } from '../types';
 
 interface NotesStore {
   notes: Note[];
+  selectedNoteId: string | null;
   isLoading: boolean;
   addNote: (title: string, content: string) => Promise<Note>;
   updateNote: (id: string, updates: Partial<Note>) => Promise<Note>;
   deleteNote: (id: string) => Promise<void>;
   setNotes: (notes: Note[]) => void;
+  setSelectedNoteId: (id: string | null) => void;
 }
 
 export const useNotesStore = create<NotesStore>((set, get) => ({
   notes: [],
+  selectedNoteId: null,
   isLoading: false,
+  setSelectedNoteId: (id) => set({ selectedNoteId: id }),
+
   addNote: async (title, content) => {
     const newNote: Note = {
       id: crypto.randomUUID(),
@@ -26,7 +31,7 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
   },
   updateNote: async (id, updates) => {
     set((state) => ({
-      notes: state.notes.map((n) => 
+      notes: state.notes.map((n) =>
         n.id === id ? { ...n, ...updates, updatedAt: new Date() } : n
       ),
     }));

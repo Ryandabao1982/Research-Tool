@@ -9,27 +9,29 @@ import { aiService } from '../../shared/services/aiService';
 import { useNotesStore } from '../../shared/hooks/useNotesStore';
 
 export function NotesPage() {
-  const { notes, addNote, updateNote, deleteNote } = useNotesStore();
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const { notes, addNote, updateNote, deleteNote, selectedNoteId, setSelectedNoteId } = useNotesStore();
   const { isSelectionMode, toggleSelectionMode, selectedNoteIds } = useSelectionStore();
 
+  const selectedNote = notes.find((n) => n.id === selectedNoteId) || null;
+
   const handleCreateNote = async (title: string, content: string) => {
-    await addNote(title, content);
-    setSelectedNote(null);
+    const note = await addNote(title, content);
+    setSelectedNoteId(null);
   };
 
   const handleUpdateNote = async (note: Note) => {
     await updateNote(note.id, note);
-    setSelectedNote(null);
+    setSelectedNoteId(null);
   };
 
   const handleEditNote = (note: Note) => {
-    setSelectedNote(note);
+    setSelectedNoteId(note.id);
   };
 
   const handleCancelEdit = () => {
-    setSelectedNote(null);
+    setSelectedNoteId(null);
   };
+
 
   const handleSynthesize = async () => {
     try {
@@ -61,14 +63,17 @@ export function NotesPage() {
             <button
               onClick={toggleSelectionMode}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isSelectionMode
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30'
-                  : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30'
+                : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
                 }`}
             >
               {isSelectionMode ? 'Exit Selection' : 'Select Notes'}
             </button>
             <button
-              onClick={() => setSelectedNote({ id: '', title: '', content: '', createdAt: new Date(), updatedAt: new Date() })}
+              onClick={() => {
+                const newId = crypto.randomUUID();
+                setSelectedNoteId(newId);
+              }}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
             >
               New Note

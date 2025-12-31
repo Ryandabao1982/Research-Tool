@@ -31,7 +31,7 @@ export function AskModal({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
-            if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+            if (e.key === 'b' && (e.metaKey || e.ctrlKey) && e.altKey) {
                 e.preventDefault();
                 setIsOpen(!isOpen);
             }
@@ -39,6 +39,7 @@ export function AskModal({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v
                 setIsOpen(false);
             }
         }
+
 
         document.addEventListener('keydown', down);
         return () => document.removeEventListener('keydown', down);
