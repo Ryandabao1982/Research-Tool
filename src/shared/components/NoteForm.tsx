@@ -3,6 +3,9 @@ import type { Note } from '../types';
 import { motion } from 'framer-motion';
 import { Save, X, Type, AlignLeft } from 'lucide-react';
 import { cn } from '../utils';
+import { FolderSelect } from './organization/FolderSelect';
+import { TagInput } from './organization/TagInput';
+
 
 interface NoteFormProps {
   note?: Note;
@@ -13,6 +16,7 @@ interface NoteFormProps {
 export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
+  const [folderId, setFolderId] = useState<string | null>(note?.folderId || null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +25,7 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
         id: note?.id || crypto.randomUUID(),
         title: title.trim(),
         content: content.trim(),
+        folderId: folderId,
         createdAt: note?.createdAt || new Date(),
         updatedAt: new Date(),
       };
@@ -31,7 +36,7 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-4xl mx-auto p-10 rounded-[3rem] bg-[#1a1a1a] border border-white/5 shadow-2xl space-y-10"
@@ -45,7 +50,7 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
             {note?.id ? 'Edit Note' : 'Create New Note'}
           </h2>
         </div>
-        <button 
+        <button
           onClick={onCancel}
           className="p-3 rounded-2xl bg-white/5 border border-white/5 text-gray-500 hover:text-white hover:bg-white/10 transition-all"
         >
@@ -83,20 +88,22 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
               placeholder="Start capturing your research, thoughts, and connections..."
             />
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FolderSelect
+              selectedFolderId={folderId}
+              onSelect={setFolderId}
+            />
+            {note?.id && <TagInput noteId={note.id} />}
+          </div>
         </div>
 
         {/* Form Actions */}
         <div className="flex items-center justify-between pt-6 border-t border-white/5">
           <div className="flex items-center gap-4">
-             <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-[#1a1a1a] bg-brand-blue/10 flex items-center justify-center text-[10px] font-bold text-gray-400">
-                    #{i}
-                  </div>
-                ))}
-             </div>
-             <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Adding to "Project Ideas"</p>
+            {/* Context details can be added here if needed */}
           </div>
+
 
           <div className="flex gap-4">
             <button

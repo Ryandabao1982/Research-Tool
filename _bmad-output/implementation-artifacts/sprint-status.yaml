@@ -45,7 +45,7 @@ development_status:
   1-1-project-setup-and-data-sovereignty-utils: done  # DB, Import, Export, Backup complete
   1-2-core-note-management-crud: done  # useNotesStore implements CRUD
 
-  1-3-hierarchical-organization: backlog  # No folder/tag implementation found
+  1-3-hierarchical-organization: done  # Folders and tags implemented (Backend + Frontend)
   1-4-markdown-editor-with-live-preview: backlog  # No markdown editor found
   epic-1-retrospective: optional
   

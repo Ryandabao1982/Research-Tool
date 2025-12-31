@@ -1,17 +1,19 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Star, 
-  Users, 
-  Info, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileText,
+  Star,
+  Users,
+  Info,
+  Settings,
   LogOut,
   ChevronRight
 } from 'lucide-react';
 import { cn } from '../../../shared/utils';
 import { motion } from 'framer-motion';
+import { FolderTree } from '../organization/FolderTree';
+
 
 const mainNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
@@ -33,15 +35,15 @@ export function Sidebar() {
     <aside className="w-64 h-screen bg-surface-100 border-r border-white/5 flex flex-col fixed left-0 top-0 z-50">
       {/* User Profile Section */}
       <div className="p-8">
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.02 }}
           className="flex items-center gap-3 p-3 rounded-3xl bg-surface-200 border border-white/10 hover:bg-surface-300 transition-colors cursor-pointer group shadow-xl shadow-black/20"
         >
           <div className="w-10 h-10 rounded-2xl overflow-hidden bg-gradient-brand flex-shrink-0 relative">
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
-            <img 
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
-              alt="User" 
+            <img
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+              alt="User"
               className="w-full h-full object-cover"
             />
           </div>
@@ -72,7 +74,7 @@ export function Sidebar() {
                   )}
                 >
                   {isActive && (
-                    <motion.div 
+                    <motion.div
                       layoutId="active-nav"
                       className="absolute left-0 w-1 h-5 bg-brand-blue rounded-full shadow-glow-blue"
                     />
@@ -87,7 +89,12 @@ export function Sidebar() {
             })}
           </nav>
         </div>
+
+        <div className="pt-4 border-t border-white/5">
+          <FolderTree />
+        </div>
       </div>
+
 
       {/* Bottom Actions Section */}
       <div className="p-6 border-t border-white/5 space-y-1">

@@ -36,8 +36,15 @@ fn main() {
             knowledge_base_pro::commands::data::import_files,
             knowledge_base_pro::commands::data::export_notes,
             knowledge_base_pro::commands::data::create_backup,
-            knowledge_base_pro::commands::data::search_notes
+            knowledge_base_pro::commands::data::search_notes,
+            knowledge_base_pro::commands::organization::create_folder,
+            knowledge_base_pro::commands::organization::get_folders,
+            knowledge_base_pro::commands::organization::update_note_folder,
+            knowledge_base_pro::commands::organization::create_tag,
+            knowledge_base_pro::commands::organization::link_tag_to_note,
+            knowledge_base_pro::commands::organization::get_note_tags
         ])
+
 
 
         .setup(|app| {

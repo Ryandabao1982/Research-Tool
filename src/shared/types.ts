@@ -4,7 +4,9 @@ export interface Note {
   content: string;
   createdAt: Date;
   updatedAt: Date;
+  folderId?: string | null;
 }
+
 
 export interface LayoutProps {
   children: React.ReactNode;

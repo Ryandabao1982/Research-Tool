@@ -24,6 +24,41 @@ pub fn init_db() -> Result<Connection> {
         [],
     )?;
 
+    // Folders Table
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS folders (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            parent_id TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+        [],
+    )?;
+
+    // Tags Table
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS tags (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL UNIQUE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+        [],
+    )?;
+
+    // Note-Tags Join Table (Many-to-Many)
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS note_tags (
+            note_id TEXT NOT NULL,
+            tag_id TEXT NOT NULL,
+            PRIMARY KEY (note_id, tag_id),
+            FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE,
+            FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        )",
+        [],
+    )?;
+
+
     // FTS5 Virtual Table
     conn.execute(
         "CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
