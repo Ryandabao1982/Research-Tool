@@ -3,6 +3,8 @@ import { PlayCircleIcon, LayoutGridIcon, FileTextIcon, Edit3Icon } from 'lucide-
 import { OverviewItem } from './OverviewItem';
 import { NotificationCard } from './NotificationCard';
 import { motion } from 'framer-motion';
+import { DataManagement } from '../../../features/notes/components/DataManagement';
+
 
 import { useRoleStore } from '../../stores/role-store';
 
@@ -69,6 +71,10 @@ export const DashboardSidebar = () => {
           />
         </div>
       )}
+
+      {/* Data Management */}
+      <DataManagement />
     </aside>
+
   );
 };

@@ -12,8 +12,11 @@ rusqlite = { version = "0.31.0", features = ["bundled"] }
 uuid = { version = "1.7", features = ["v4", "serde"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 axum = "0.7"
-tokio = { version = "1.0", features = ["full"] }
 tower-http = { version = "0.5", features = ["cors"] }
+walkdir = "2.4"
+gray_matter = "0.2"
+chrono = { version = "0.4", features = ["serde"] }
+
 
 [lib]
 path = "src/lib.rs"

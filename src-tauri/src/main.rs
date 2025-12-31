@@ -32,8 +32,12 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             ai::synthesize_query,
             knowledge_base_pro::commands::cards::create_card,
-            knowledge_base_pro::commands::cards::search_cards
+            knowledge_base_pro::commands::cards::search_cards,
+            knowledge_base_pro::commands::data::import_files,
+            knowledge_base_pro::commands::data::export_notes,
+            knowledge_base_pro::commands::data::create_backup
         ])
+
         .setup(|app| {
             // Register Global Hotkey: Cmd+Shift+Space (or Ctrl+Shift+Space)
             // Note: In development, this might conflict if not handled carefully, but for production it's standard.
