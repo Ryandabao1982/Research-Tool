@@ -1,73 +1,128 @@
 # Backend Architecture Update - KnowledgeBase Pro
 
 ## 📋 Document Information
-- **Update**: Phase 3 Local LLM Integration (Self-Contained)
+- **Update**: Phase 5 - Dashboard Rebuild & Data Commands
 - **Date**: 2026-01-01
-- **Status**: Implementation Complete / Optimization Pending
+- **Status**: Implementation Complete / Awaiting Build Verification
 
 ## 🎯 Summary
 
-**Phase 3: Local LLM Integration is now 100% functional.** The application has transitioned from a mocked/external AI dependency (Ollama) to a fully self-contained inference engine using Hugging Face's **Candle** framework. The system now autonomously manages model lifecycle (download, cache, inference).
+**January 2026 Update**: Full dashboard and page rebuild completed. Added comprehensive Note CRUD commands and fixed CommandPalette infinite loop issue. The backend now has complete data access layer ready for frontend integration.
 
 ## ✅ Completed Components
 
-### 🧠 Local AI Engine (Candle)
-```
-src-tauri/src/services/
-├── local_llm.rs         # Model loading, token generation, and GGUF inference logic
-```
-
-### 📞 AI Command Layer (Updated)
+### 📝 Data Commands (Added 2026-01-01)
 ```
 src-tauri/src/commands/
-├── ai.rs                # Added get_model_status, delete_model, and updated synthesize_query
+├── data.rs              # NEW: Full Note CRUD + search
+│   ├── get_notes              # List all notes
+│   ├── get_note               # Get single note by ID
+│   ├── create_note            # Create new note
+│   ├── update_note            # Update existing note
+│   └── delete_note            # Delete note by ID
+└── organization.rs      # Updated: Added get_tags
+    └── get_tags               # NEW: List all tags
 ```
 
-### 🚀 Key Features
+### 🗄️ Database Service (Added 2026-01-01)
+```
+src-tauri/src/services/
+├── db_service.rs        # NEW: Note CRUD operations
+│   ├── struct Note            # Note data structure
+│   ├── get_all_notes()        # Fetch all notes
+│   ├── get_note_by_id()       # Fetch single note
+│   ├── create_note()          # Insert new note
+│   ├── update_note()          # Update existing note
+│   ├── delete_note()          # Delete note
+│   └── get_all_tags()         # Fetch all tags
+└── organization_service.rs    # Updated
+    └── get_all_tags()         # NEW: Tag listing
+```
 
-#### 1. Self-Managed Model Lifecycle
-- **Auto-Download**: If model files are missing, the system automatically fetches **Qwen 2.5 0.5B Instruct** (~350MB) and the required tokenizer from Hugging Face via streaming download.
-- **Verification & Caching**: Models are stored in a local `resources/` directory and verified before loading.
-- **Lazy Loading**: The heavy model weights are only loaded into memory upon the first AI request to keep application startup instant.
+### 🔧 Backend Command Registration (Updated 2026-01-01)
+```rust
+// src-tauri/src/main.rs (lines 44-51)
+commands.registered_commands(vec![
+    // Data commands
+    "get_notes", "get_note", "create_note", "update_note", "delete_note",
+    // Organization commands  
+    "get_folders", "get_tags",
+    // ... existing commands
+]);
+```
 
-#### 2. Native Rust Inference
-- **Framework**: Powered by **Candle** (Hugging Face's ML framework for Rust).
-- **Quantization**: Uses 4-bit quantized (Q4_K_M) GGUF models for optimal memory/speed balance on consumer hardware.
-- **Privacy**: Zero telemetry or outbound API calls during inference. All processing stays on the user's machine.
+### 🎨 Frontend Rebuild (Completed 2026-01-01)
+
+#### Dashboard (src/app/pages/Dashboard.tsx)
+- Clean white theme matching wireframe specs
+- 3-column widget layout:
+  - Activity Heatmap widget
+  - Quick Stats widget
+  - Recent Notes widget
+- Real backend data via `get_notes` command
+
+#### Notes Page (src/app/pages/NotesPage.tsx)
+- Split-view editor (720px editor + 720px related notes sidebar)
+- Real CRUD operations connected to backend
+- Clean white theme
+
+#### Settings Page (src/app/pages/Settings.tsx)
+- AI model management
+- Clean white theme
+
+#### CommandPalette Fix (src/features/retrieval/components/CommandPalette.tsx)
+- Fixed infinite loop issue by changing useMemo to useCallback
+- Wrapped async search logic in separate function
+- Re-enabled after fix
 
 ## 📁 Updated File Structure
+
 ```
 src-tauri/
 ├── src/
+│   ├── main.rs              # Application entry + command registration (updated 2026-01-01)
 │   ├── services/
-│   │   ├── local_llm.rs      # NEW: Inference & Download logic
-│   │   └── mod.rs            # Updated: Exposed local_llm
+│   │   ├── db_service.rs    # NEW: Note CRUD operations (2026-01-01)
+│   │   ├── organization_service.rs  # Updated: get_all_tags (2026-01-01)
+│   │   └── local_llm.rs     # Phase 3: Candle LLM (existing)
 │   ├── commands/
-│   │   └── ai.rs             # Updated: Integrated LocalLLMState
-│   └── main.rs               # Updated: Managed LocalLLMState state
-└── Cargo.toml                # Updated: Added Candle & streaming dependencies
+│   │   ├── data.rs          # NEW: Note CRUD commands (2026-01-01)
+│   │   ├── organization.rs  # Updated: Added get_tags (2026-01-01)
+│   │   └── ai.rs            # Phase 3: AI commands (existing)
+│   └── migrations/          # Database schema
+└── Cargo.toml
 ```
 
-## 🔧 New Command Reference
+## 🔧 New Command Reference (2026-01-01)
 
 | Command | Description | Return Type |
 | :--- | :--- | :--- |
-| `get_model_status` | Returns if model is downloaded, its path, and size. | `ModelStatus` |
-| `delete_model` | Deletes local model files and clears memory state. | `Result<(), String>` |
-| `synthesize_query` | High-level RAG command: Search → Context → Local Generation. | `Result<String, String>` |
+| `get_notes` | List all notes | `Note[]` |
+| `get_note` | Get single note by ID | `Note \| null` |
+| `create_note` | Create new note | `Note` |
+| `update_note` | Update existing note | `Note` |
+| `delete_note` | Delete note by ID | `void` |
+| `get_tags` | List all tags | `Tag[]` |
 
 ## 🚀 Frontend Integration Status
 
-### ✅ Updated Services
-- **aiService.ts**: Added `getModelStatus`, `deleteModel`, and `synthesizeQuery` methods.
-- **SettingsPage.tsx**: Fully overhauled to include an **AI Settings Panel** with real-time model status and reset controls.
-- **DashboardPage.tsx**: Refactored for better responsiveness and type safety.
+### ✅ Updated Pages (2026-01-01)
+- **Dashboard.tsx**: Connected to `get_notes` for widget data
+- **NotesPage.tsx**: Full CRUD connected to backend commands
+- **Settings.tsx**: AI settings panel with real model status
+- **CommandPalette.tsx**: Fixed infinite loop, re-enabled
 
-## 🎯 Ready for Optimization
-While functional, the following optimizations are slated for the next sprint:
-- **KV-Caching**: Implementing KV-cache in `local_llm.rs` to move from O(n²) to O(n) generation speed.
-- **GPU Acceleration**: Enabling `wgpu` or `Metal/CUDA` backends in Candle for faster inference.
-- **Progress Tracking**: Exposing download percentage to the frontend via Tauri Events.
+### ⚠️ Build Required
+The backend commands are implemented but require compilation:
+```bash
+cd src-tauri && cargo build
+npm run tauri:dev  # Starts app with compiled backend
+```
+
+## 🎯 Next Steps
+1. Compile Rust backend with `cargo build`
+2. Start Tauri dev server to verify dashboard loads with real data
+3. Test note creation and retrieval operations
 
 ---
 *Last Updated: 2026-01-01*

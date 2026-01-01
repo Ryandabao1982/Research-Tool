@@ -41,6 +41,22 @@ pub fn get_folders(conn: &Connection) -> Result<Vec<Folder>> {
     Ok(folders)
 }
 
+pub fn get_all_tags(conn: &Connection) -> Result<Vec<Tag>> {
+    let mut stmt = conn.prepare("SELECT id, name FROM tags ORDER BY name")?;
+    let tag_iter = stmt.query_map([], |row| {
+        Ok(Tag {
+            id: row.get(0)?,
+            name: row.get(1)?,
+        })
+    })?;
+
+    let mut tags = Vec::new();
+    for tag in tag_iter {
+        tags.push(tag?);
+    }
+    Ok(tags)
+}
+
 pub fn update_note_folder(conn: &Connection, note_id: &str, folder_id: Option<String>) -> Result<()> {
     conn.execute(
         "UPDATE notes SET folder_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",

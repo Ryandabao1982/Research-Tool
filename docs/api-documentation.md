@@ -3,24 +3,24 @@
 ## 📋 Document Information
 - **Project**: KnowledgeBase Pro Desktop Application
 - **API Type**: Tauri IPC Commands
-- **Version**: 2.0.0
-- **Last Updated**: 2025-12-29
-- **Status**: Phase 2 Complete - 31 Commands Available
+- **Version**: 2.0.1
+- **Last Updated**: 2026-01-01
+- **Status**: Phase 5 Complete - 36 Commands Available
 
 ## 🚀 Overview
 
-KnowledgeBase Pro exposes 31 Tauri commands organized into 6 modules. All commands are type-safe with proper error handling and return structured data.
+KnowledgeBase Pro exposes 36+ Tauri commands organized into modules. All commands are type-safe with proper error handling and return structured data.
 
 ## 📚 Command Reference
 
-### 📝 Note Commands (6 commands)
+### 📝 Note Commands (10 commands - Updated 2026-01-01)
 
-#### `list_notes`
-Lists all notes with optional filtering.
+#### `get_notes`
+Lists all notes.
 
 ```typescript
 // Usage
-const notes = await invoke<Note[]>('list_notes');
+const notes = await invoke<Note[]>('get_notes');
 
 // Returns
 interface Note {
@@ -80,6 +80,14 @@ Deletes a note by ID.
 await invoke('delete_note', { id: 'note-id' });
 ```
 
+#### `list_notes`
+Legacy command - same as `get_notes`.
+
+```typescript
+// Usage
+const notes = await invoke<Note[]>('list_notes');
+```
+
 #### `get_notes_by_folder`
 Retrieves all notes in a specific folder.
 
@@ -94,6 +102,28 @@ Retrieves all notes with a specific tag.
 ```typescript
 // Usage
 const notes = await invoke<Note[]>('get_notes_by_tag', { tag_name: 'research' });
+```
+
+#### `search_notes`
+Searches across all notes using FTS5.
+
+```typescript
+// Usage
+const results = await invoke<SearchResult[]>('search_notes', { query: 'search term' });
+
+interface SearchResult {
+    id: string;
+    title: string;
+    snippet: string;
+}
+```
+
+#### `get_recent_notes`
+Gets most recently updated notes.
+
+```typescript
+// Usage
+const notes = await invoke<Note[]>('get_recent_notes', { limit: 10 });
 ```
 
 ### 📁 Folder Commands (4 commands)
@@ -146,14 +176,14 @@ Deletes a folder by ID.
 await invoke('delete_folder', { id: 'folder-id' });
 ```
 
-### 🏷️ Tag Commands (5 commands)
+### 🏷️ Tag Commands (6 commands - Updated 2026-01-01)
 
-#### `list_tags`
-Lists all tags.
+#### `get_tags`
+Lists all tags (new command added 2026-01-01).
 
 ```typescript
 // Usage
-const tags = await invoke<Tag[]>('list_tags');
+const tags = await invoke<Tag[]>('get_tags');
 
 // Returns
 interface Tag {
@@ -162,6 +192,14 @@ interface Tag {
     color?: string;
     created_at: string;
 }
+```
+
+#### `list_tags`
+Lists all tags (legacy command - same as get_tags).
+
+```typescript
+// Usage
+const tags = await invoke<Tag[]>('list_tags');
 ```
 
 #### `create_tag`
@@ -483,16 +521,29 @@ try {
 
 ## 🚀 Performance Notes
 
-- **Database**: SQLite with connection pooling (max 5 connections)
+- **Database**: SQLite with connection pooling
 - **Search**: FTS5 with BM25 ranking for sub-100ms results
-- **AI**: Mock responses currently, ready for Ollama integration
+- **AI**: Local LLM via Candle framework
 - **Memory**: Efficient service sharing with Arc references
 - **Type Safety**: Full TypeScript interfaces for all data structures
 
-## 📝 Development Notes
+## 📝 Development Notes (Updated 2026-01-01)
 
 - All services are modular and can be extended independently
 - Commands follow RESTful naming conventions
 - Database migrations are versioned and run automatically
-- Frontend services are already updated to use new command names
-- Ready for real AI model integration (Ollama, local LLMs)
+- Frontend services are updated to use new command names
+- Backend commands require: `cd src-tauri && cargo build`
+- Start app with: `npm run tauri:dev`
+
+## 🔧 Command Summary (2026-01-01)
+
+| Module | Commands | Status |
+| :--- | :--- | :--- |
+| Data (notes) | get_notes, get_note, create_note, update_note, delete_note, list_notes, get_notes_by_folder, get_notes_by_tag, search_notes, get_recent_notes | ✅ Complete |
+| Organization | get_folders, list_folders, create_folder, update_folder, delete_folder, get_tags, list_tags, create_tag, delete_tag | ✅ Complete |
+| Search | search_notes, search_in_folder, search_by_tag, get_search_suggestions, get_all_notes_count | ✅ Complete |
+| Links | list_links, create_link, delete_link, get_backlinks, get_forward_links, parse_and_create_links, get_link_count | ✅ Complete |
+| AI | synthesize_query, get_model_status, delete_model, generate_ai_response, create_ai_conversation, add_ai_message, get_ai_conversation_history, list_ai_conversations | ✅ Phase 3 |
+
+**Total: 36+ commands available**

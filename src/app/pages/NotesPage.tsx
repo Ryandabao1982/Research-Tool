@@ -1,212 +1,393 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import Layout from '../layout';
-import type { Note } from '../../shared/types';
-import { NoteForm } from '../../shared/components/NoteForm';
-import { NoteList } from '../../features/notes/components/NoteList';
-import { useSelectionStore } from '../../shared/hooks/useSelectionStore';
-import { SynthesisPanel } from '../../features/ai/components/SynthesisPanel';
-import { aiService } from '../../shared/services/aiService';
-import { useNotesStore } from '../../shared/hooks/useNotesStore';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
-import ContextualSidebar from '../../features/retrieval/components/ContextualSidebar';
-import { useTypingPause } from '../../shared/hooks/useTypingPause';
+
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  updated_at: string;
+}
+
+interface RelatedNote {
+  id: string;
+  title: string;
+  updated_at: string;
+  tags: string[];
+}
 
 export function NotesPage() {
-  const { notes, addNote, updateNote, deleteNote, selectedNoteId, setSelectedNoteId } = useNotesStore();
-  const { isSelectionMode, toggleSelectionMode, selectedNoteIds } = useSelectionStore();
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [relatedNotes, setRelatedNotes] = useState<RelatedNote[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
-  // Determine if we are creating or editing
-  const isCreating = useMemo(() => {
-    return selectedNoteId && !notes.find(n => n.id === selectedNoteId);
-  }, [selectedNoteId, notes]);
-
-  const selectedNote = useMemo(() => {
-    return notes.find((n) => n.id === selectedNoteId) || null;
-  }, [selectedNoteId, notes]);
-
-  // Contextual Sidebar state
-  const [relatedNotes, setRelatedNotes] = useState<any[]>([]);
-  const [isRelatedLoading, setIsRelatedLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'single' | 'split'>('single');
-  const [isTyping, setIsTyping] = useState(false);
-
-  // Typing pause hook for sidebar updates - detects actual keyboard typing
-  const triggerRelatedSearch = useTypingPause(async () => {
-    setIsTyping(false);
-    if (selectedNote) {
-      setIsRelatedLoading(true);
-      try {
-        const notes = await invoke('get_related_notes', {
-          noteContent: selectedNote.content,
-          limit: 10,
-          currentNoteId: selectedNote.id, // Exclude current note
-        }) as any[];
-        setRelatedNotes(notes || []);
-      } catch (error) {
-        console.error('Failed to fetch related notes:', error);
-        setRelatedNotes([]);
-      } finally {
-        setIsRelatedLoading(false);
-      }
-    }
-  }, 2000);
-
-  // Track typing state via keyboard events on NoteForm
-  const handleTypingChange = useCallback(() => {
-    if (!isTyping) {
-      setIsTyping(true);
-    }
-    triggerRelatedSearch();
-  }, [isTyping, triggerRelatedSearch]);
-
-  // Trigger related search only when user stops typing (2-second pause detected)
   useEffect(() => {
-    // Only trigger if typing has paused (isTyping becomes false after debounce)
-    if (!isTyping && selectedNote?.content) {
-      triggerRelatedSearch();
-    }
-  }, [isTyping, selectedNote?.content, triggerRelatedSearch]);
+    loadNotes();
+  }, []);
 
-  const handleSaveNote = async (note: Note) => {
-    if (isCreating) {
-      await addNote(note.title, note.content);
+  useEffect(() => {
+    if (selectedNoteId) {
+      const note = notes.find(n => n.id === selectedNoteId);
+      if (note) {
+        setEditTitle(note.title);
+        setEditContent(note.content);
+        setIsEditing(true);
+        loadRelatedNotes(note.id, note.content);
+      }
     } else {
-      await updateNote(note.id, note);
+      setEditTitle('');
+      setEditContent('');
+      setIsEditing(false);
+      setRelatedNotes([]);
     }
-    setSelectedNoteId(null);
+  }, [selectedNoteId, notes]);
+
+  const loadNotes = async () => {
+    try {
+      const result = await invoke('get_notes') as any[];
+      setNotes(result || []);
+    } catch (error) {
+      console.error('Failed to load notes:', error);
+      setNotes([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleEditNote = (note: Note) => {
-    setSelectedNoteId(note.id);
+  const loadRelatedNotes = async (noteId: string, content: string) => {
+    try {
+      const result = await invoke('get_related_notes', {
+        noteContent: content,
+        limit: 10,
+        currentNoteId: noteId,
+      }) as any[];
+      setRelatedNotes(result || []);
+    } catch (error) {
+      console.error('Failed to load related notes:', error);
+      setRelatedNotes([]);
+    }
+  };
+
+  const handleCreateNote = () => {
+    const newId = crypto.randomUUID();
+    setEditTitle('');
+    setEditContent('');
+    setSelectedNoteId(newId);
+    setIsEditing(true);
+    setRelatedNotes([]);
+  };
+
+  const handleSaveNote = async () => {
+    if (!selectedNoteId) return;
+
+    const isNew = !notes.find(n => n.id === selectedNoteId);
+
+    try {
+      if (isNew) {
+        await invoke('create_note', {
+          title: editTitle || 'Untitled Note',
+          content: editContent,
+        });
+      } else {
+        await invoke('update_note', {
+          id: selectedNoteId,
+          title: editTitle,
+          content: editContent,
+        });
+      }
+      await loadNotes();
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to save note:', error);
+    }
   };
 
   const handleCancelEdit = () => {
     setSelectedNoteId(null);
-    setViewMode('single'); // Reset to single view when canceling
+    setIsEditing(false);
   };
 
-  const handleSynthesize = async () => {
+  const handleDeleteNote = async (noteId: string) => {
+    if (!confirm('Delete this note?')) return;
+
     try {
-      const response = await aiService.synthesizeNotes(selectedNoteIds, 'summary');
-      return response;
+      await invoke('delete_note', { id: noteId });
+      await loadNotes();
+      if (selectedNoteId === noteId) {
+        setSelectedNoteId(null);
+        setIsEditing(false);
+      }
     } catch (error) {
-      console.error('Synthesis failed:', error);
-      return; // Return undefined instead of null
+      console.error('Failed to delete note:', error);
     }
   };
 
-  const handleSaveSynthesis = async (content: string) => {
-    await addNote('AI Synthesis Result', content);
-  };
+  if (isLoading) {
+    return (
+      <div style={{ marginLeft: 240, minHeight: '100vh', backgroundColor: '#ffffff' }}>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+          Loading notes...
+        </div>
+      </div>
+    );
+  }
 
-  const handleRelatedNoteClick = (noteId: string) => {
-    if (viewMode === 'single') {
-      // Transition to split view with clicked note on right
-      setSelectedNoteId(noteId);
-      setViewMode('split');
-    } else {
-      // Replace right panel with clicked note
-      setSelectedNoteId(noteId);
-    }
-  };
+  const selectedNote = selectedNoteId ? notes.find(n => n.id === selectedNoteId) : null;
 
   return (
-    <Layout>
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight mb-1">My Knowledge Base</h1>
-          <p className="text-sm font-medium text-gray-400">
-            {isSelectionMode
-              ? `${selectedNoteIds.length} items selected for synthesis`
-              : 'Manage and organize your second brain'
-            }
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={toggleSelectionMode}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border ${isSelectionMode
-              ? 'bg-brand-blue/20 text-brand-blue border-brand-blue/30 shadow-glow-blue'
-              : 'bg-surface-100/50 text-gray-400 border-white/5 hover:bg-white/5 hover:text-white'
-              }`}
-          >
-            {isSelectionMode ? 'Cancel Selection' : 'Select'}
-          </button>
-          <button
-            onClick={() => {
-              const newId = crypto.randomUUID();
-              setSelectedNoteId(newId);
-            }}
-            className="bg-white text-black px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10"
-          >
-            + New Note
-          </button>
-        </div>
-      </div>
+    <div style={{ marginLeft: 240, minHeight: '100vh', backgroundColor: '#ffffff' }}>
+      {/* Header */}
+      <header style={{
+        height: 60,
+        backgroundColor: '#eeeeee',
+        borderBottom: '1px solid #ddd',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 20px',
+      }}>
+        <span style={{ fontSize: 18, fontWeight: 500, color: '#000' }}>
+          {selectedNoteId ? (selectedNote?.title || 'Untitled Note') : 'Notes'}
+        </span>
+        <span style={{ fontSize: 14, fontFamily: 'monospace', color: '#666' }}>
+          ⌘K Search
+        </span>
+      </header>
 
-      {/* Ambient Background - Neural Aura */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand-blue/10 blur-[100px] rounded-full mix-blend-screen opacity-40" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[50%] bg-purple-500/10 blur-[80px] rounded-full mix-blend-screen opacity-30" />
-      </div>
+      {/* Main Content - Split View */}
+      <div style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
+        {/* Left: Editor Pane */}
+        <div style={{
+          width: 720,
+          backgroundColor: '#ffffff',
+          borderRight: '1px solid #ddd',
+          padding: '20px 40px',
+          overflow: 'auto',
+        }}>
+          {isEditing ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {/* Title Input */}
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="Note title..."
+                style={{
+                  fontSize: 24,
+                  fontWeight: 500,
+                  border: 'none',
+                  outline: 'none',
+                  width: '100%',
+                  color: '#000',
+                }}
+              />
 
-      <div className="space-y-8 px-8 pt-8 pb-12 relative z-10 overflow-y-auto custom-scrollbar h-full">
-        {/* Main content area - adjusts based on view mode */}
-        <div className={`flex h-full ${viewMode === 'split' ? 'gap-0' : 'block'}`}>
-          {/* Left side - Editor or NoteList */}
-          <div className={`${viewMode === 'split' ? 'w-[60%]' : 'w-full'}`}>
-            <NoteList notes={notes} onNoteClick={handleEditNote} />
-          </div>
+              {/* Content Textarea */}
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="Start writing..."
+                style={{
+                  flex: 1,
+                  minHeight: 400,
+                  fontSize: 16,
+                  lineHeight: 1.6,
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'vertical',
+                  color: '#000',
+                }}
+              />
 
-          {/* Right side - ContextualSidebar or selected note */}
-          {viewMode === 'split' && selectedNoteId && (
-            <div className="w-[40%] h-full border-l border-white/10">
-              <div className="p-4">
-                <NoteForm
-                  note={notes.find(n => n.id === selectedNoteId) || undefined}
-                  onSave={handleSaveNote}
-                  onCancel={handleCancelEdit}
-                  onContentChange={handleTypingChange}
-                />
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                <button
+                  onClick={handleCancelEdit}
+                  style={{
+                    padding: '10px 20px',
+                    fontSize: 14,
+                    border: '1px solid #ddd',
+                    backgroundColor: '#fff',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveNote}
+                  style={{
+                    padding: '10px 20px',
+                    fontSize: 14,
+                    border: 'none',
+                    backgroundColor: '#0066FF',
+                    color: '#fff',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Save
+                </button>
               </div>
             </div>
-          )}
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Notes List */}
+              {notes.length === 0 ? (
+                <div style={{ color: '#999', textAlign: 'center', padding: '60px 0' }}>
+                  No notes yet. Create your first note.
+                </div>
+              ) : (
+                notes.map((note) => (
+                  <div
+                    key={note.id}
+                    style={{
+                      padding: '16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 4,
+                      cursor: 'pointer',
+                      backgroundColor: selectedNoteId === note.id ? '#f5f5f5' : '#fff',
+                    }}
+                    onClick={() => setSelectedNoteId(note.id)}
+                  >
+                    <div style={{
+                      fontSize: 16,
+                      fontWeight: 500,
+                      color: '#000',
+                      marginBottom: 4,
+                    }}>
+                      {note.title || 'Untitled'}
+                    </div>
+                    <div style={{
+                      fontSize: 12,
+                      color: '#999',
+                      marginBottom: 8,
+                    }}>
+                      {new Date(note.updated_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </div>
+                    <div style={{
+                      fontSize: 14,
+                      color: '#666',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {note.content?.substring(0, 100)}...
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteNote(note.id);
+                      }}
+                      style={{
+                        marginTop: 8,
+                        padding: '4px 8px',
+                        fontSize: 12,
+                        border: '1px solid #ff4444',
+                        backgroundColor: '#fff',
+                        color: '#ff4444',
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))
+              )}
 
-          {viewMode === 'single' && selectedNoteId && (
-            <div className="absolute right-4 top-4 w-[40%] z-20">
-              <ContextualSidebar
-                relatedNotes={relatedNotes}
-                isLoading={isRelatedLoading}
-                onNoteClick={handleRelatedNoteClick}
-              />
+              {/* New Note Button */}
+              <button
+                onClick={handleCreateNote}
+                style={{
+                  padding: '16px',
+                  fontSize: 16,
+                  border: '2px dashed #ddd',
+                  backgroundColor: '#fff',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  color: '#666',
+                }}
+              >
+                + New Note
+              </button>
             </div>
           )}
         </div>
 
-        {/* Editor Overlay or Inline */}
-        {viewMode === 'single' && (
-          <AnimatePresence>
-            {(selectedNoteId) && (
-              <motion.div
-                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                animate={{ opacity: 1, height: 'auto', marginBottom: 32 }}
-                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                className="overflow-hidden"
-              >
-                <NoteForm
-                  note={notes.find(n => n.id === selectedNoteId) || undefined}
-                  onSave={handleSaveNote}
-                  onCancel={handleCancelEdit}
-                  onContentChange={handleTypingChange}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
+        {/* Right: Related Notes Pane */}
+        <div style={{
+          width: 720,
+          backgroundColor: '#f5f5f5',
+          padding: '20px',
+          overflow: 'auto',
+        }}>
+          <div style={{
+            fontSize: 12,
+            fontWeight: 600,
+            color: '#666',
+            letterSpacing: '0.5px',
+            marginBottom: 20,
+          }}>
+            RELATED NOTES
+          </div>
 
-        <SynthesisPanel onSynthesize={handleSynthesize} onSave={handleSaveSynthesis} />
+          {!selectedNoteId ? (
+            <div style={{ color: '#999', fontSize: 14 }}>
+              Select or create a note to see related notes.
+            </div>
+          ) : relatedNotes.length === 0 ? (
+            <div style={{ color: '#999', fontSize: 14 }}>
+              No related notes found.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {relatedNotes.map((note) => (
+                <div
+                  key={note.id}
+                  style={{
+                    padding: '16px',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #ddd',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setSelectedNoteId(note.id)}
+                >
+                  <div style={{
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: '#000',
+                    marginBottom: 4,
+                  }}>
+                    {note.title || 'Untitled'}
+                  </div>
+                  <div style={{
+                    fontSize: 12,
+                    color: '#999',
+                  }}>
+                    {new Date(note.updated_at).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                    {note.tags && note.tags.length > 0 && ` | ${note.tags.map((t: string) => `#${t}`).join(' ')}`}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </Layout>
+    </div>
   );
 }
+
+export default NotesPage;

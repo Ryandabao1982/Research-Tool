@@ -1,183 +1,319 @@
-import React, { useState } from 'react';
-import Layout from '../layout';
-import { TopBar } from '../../shared/components/layout/TopBar';
-import { FeedbackModal } from '../../shared/components/modals/FeedbackModal';
-import { FeatureCard } from '../../shared/components/dashboard/FeatureCard';
-import { CalendarCell } from '../../shared/components/dashboard/CalendarCell';
-import { DashboardSidebar } from '../../shared/components/dashboard/DashboardSidebar';
-import {
-  ChevronRightIcon,
-  ChevronLeftIcon,
-  CalendarIcon
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/tauri';
 
-import { useRoleStore } from '../../shared/stores/role-store';
-import { useDashboardStats } from '../hooks/useDashboardStats';
-import { FeedbackData } from '../../shared/types/dashboard';
+interface Note {
+  id: string;
+  title: string;
+  updated_at: string;
+}
 
-// Constants for assets
-const ASSETS = {
-  TEAM_TASKS: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=300",
-  PERSONAL_NOTES: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300",
-  STUDY_QUEUES: "https://images.unsplash.com/photo-1499193558835-260384501f67?auto=format&fit=crop&q=80&w=300",
-  ANALYTICS: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=300"
-};
+interface DashboardStats {
+  totalNotes: number;
+  totalFolders: number;
+  totalTags: number;
+  recentNotes: Note[];
+}
 
 export default function DashboardPage() {
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
-  const { activeRole } = useRoleStore();
-  const { stats, isLoading } = useDashboardStats();
-  const navigate = useNavigate();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalNotes: 0,
+    totalFolders: 0,
+    totalTags: 0,
+    recentNotes: [],
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedRole, setSelectedRole] = useState('Manager');
 
-  const handleFeedbackSave = (data: FeedbackData) => {
-    // Replaced console.log with potential logic or comment
-    // TODO: Implement actual feedback submission
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const notes = await invoke('get_notes') as any[];
+      const folders = await invoke('get_folders') as any[];
+      const tags = await invoke('get_tags') as any[];
+
+      const recentNotes = (notes || [])
+        .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+        .slice(0, 5);
+
+      setStats({
+        totalNotes: notes?.length || 0,
+        totalFolders: folders?.length || 0,
+        totalTags: tags?.length || 0,
+        recentNotes: recentNotes.map(n => ({
+          id: n.id,
+          title: n.title || 'Untitled',
+          updated_at: n.updated_at || new Date().toISOString(),
+        })),
+      });
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+      setStats({
+        totalNotes: 0,
+        totalFolders: 0,
+        totalTags: 0,
+        recentNotes: [],
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (isLoading || !stats) {
+  if (isLoading) {
     return (
-      <Layout>
-        <div className="flex flex-col h-screen bg-background items-center justify-center">
-          <div className="text-white opacity-50">Loading Dashboard...</div>
+      <div style={{ marginLeft: 240, minHeight: '100vh', backgroundColor: '#ffffff' }}>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+          Loading...
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="flex flex-col h-screen bg-background relative overflow-hidden">
-        {/* Ambient Background - Neural Aura */}
-        {/* Using pointer-events-none to prevent z-index issues blocking interaction */}
-        <div className="fixed inset-0 pointer-events-none z-0">
-           <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-brand-blue/20 blur-3xl rounded-full mix-blend-screen opacity-60" />
-           <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-purple-500/10 blur-3xl rounded-full mix-blend-screen opacity-50" />
+    <div style={{ marginLeft: 240, minHeight: '100vh', backgroundColor: '#ffffff' }}>
+      {/* Header */}
+      <header style={{
+        height: 60,
+        backgroundColor: '#eeeeee',
+        borderBottom: '1px solid #ddd',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 20px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+      }}>
+        <span style={{ fontSize: 20, fontWeight: 500, color: '#000' }}>SecondBrain</span>
+
+        <select
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+          style={{
+            padding: '6px 12px',
+            fontSize: 14,
+            border: '1px solid #212121',
+            borderRadius: 4,
+            backgroundColor: '#ffffff',
+            cursor: 'pointer',
+          }}
+        >
+          <option value="Manager">Manager</option>
+          <option value="Learner">Learner</option>
+          <option value="Researcher">Researcher</option>
+        </select>
+      </header>
+
+      {/* Sidebar */}
+      <aside style={{
+        position: 'fixed',
+        left: 0,
+        top: 60,
+        width: 240,
+        height: 'calc(100vh - 60px)',
+        backgroundColor: '#f5f5f5',
+        borderRight: '1px solid #ddd',
+        padding: '20px',
+      }}>
+        <div style={{ marginBottom: 20 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#666', letterSpacing: '0.5px' }}>
+            FOLDERS
+          </span>
         </div>
 
-        <TopBar 
-            title="Dashboard" 
-            onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-            showMenuButton={true} // Assuming TopBar can support a menu trigger
-        />
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button style={{
+            padding: '8px 12px',
+            textAlign: 'left',
+            backgroundColor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 14,
+            color: '#000',
+            borderRadius: 4,
+          }}>
+            All Notes
+          </button>
+          <button style={{
+            padding: '8px 12px',
+            textAlign: 'left',
+            backgroundColor: '#e0e0e0',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 14,
+            color: '#000',
+            borderRadius: 4,
+          }}>
+            Recent
+          </button>
+          <button style={{
+            padding: '8px 12px',
+            textAlign: 'left',
+            backgroundColor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 14,
+            color: '#666',
+            borderRadius: 4,
+          }}>
+            Favorites
+          </button>
+        </nav>
+      </aside>
 
-        <div className="flex-1 flex overflow-hidden z-10 relative">
-          {/* Main Content Area */}
-          <main className="flex-1 overflow-y-auto px-4 md:px-8 pb-12 custom-scrollbar">
-            <div className="max-w-6xl mx-auto space-y-8 md:space-y-12 py-8">
+      {/* Main Content */}
+      <main style={{ padding: '40px 20px' }}>
+        <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap' }}>
+          {/* Widget 1: Activity Heatmap */}
+          <div style={{
+            width: 360,
+            minHeight: 280,
+            backgroundColor: '#ffffff',
+            border: '1px solid #212121',
+            borderRadius: 8,
+            padding: 20,
+          }}>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: 16, fontWeight: 500, color: '#000' }}>
+              Activity Heatmap
+            </h3>
+            <ActivityHeatmap />
+          </div>
 
-              {/* Feature Highlights Grid - Context Aware */}
-              {/* Improved responsiveness with md:grid-cols-2 */}
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                {/* Manager & Coach View */}
-                {(activeRole === 'manager' || activeRole === 'coach') && (
-                  <FeatureCard
-                    title="Team Tasks"
-                    description="Delegate and track progress"
-                    detail={`${stats.tasksPending} Pending Reviews`}
-                    progress={stats.tasksPending > 0 ? 75 : 100}
-                    image={ASSETS.TEAM_TASKS}
-                    onClick={() => setIsFeedbackOpen(true)}
-                  />
-                )}
+          {/* Widget 2: Quick Stats */}
+          <div style={{
+            width: 360,
+            minHeight: 280,
+            backgroundColor: '#ffffff',
+            border: '1px solid #212121',
+            borderRadius: 8,
+            padding: 20,
+          }}>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: 16, fontWeight: 500, color: '#000' }}>
+              Quick Stats
+            </h3>
+            <QuickStats stats={stats} />
+          </div>
 
-                {/* Learner & Shared View */}
-                <FeatureCard
-                  title="Personal Notes"
-                  description="Capture your daily thoughts"
-                  detail={`${stats.notesCount} notes total`}
-                  progress={40}
-                  actionLabel="Add Note"
-                  image={ASSETS.PERSONAL_NOTES}
-                  onClick={() => navigate('/notes')}
-                />
-
-                {/* Learner Only */}
-                {activeRole === 'learner' && (
-                  <FeatureCard
-                    title="Study Queues"
-                    description="Active Recall Sessions"
-                    detail={`Streak: ${stats.studyStreak} days`}
-                    progress={10}
-                    actionLabel="Start"
-                    image={ASSETS.STUDY_QUEUES}
-                    onClick={() => setIsFeedbackOpen(true)}
-                  />
-                )}
-
-                {/* Manager Only */}
-                {activeRole === 'manager' && (
-                  <FeatureCard
-                    title="Analytics"
-                    description="Knowledge Base Health"
-                    detail="+15% Growth"
-                    image={ASSETS.ANALYTICS}
-                    onClick={() => setIsFeedbackOpen(true)}
-                  />
-                )}
-              </section>
-
-              {/* Your Notes - Interactive Calendar */}
-              <section className="space-y-8">
-                <div className="flex items-center justify-between px-2">
-                  <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">Activity Heatmap</h2>
-                  <div className="flex items-center gap-4 md:gap-6">
-                    <div className="flex items-center gap-3 bg-surface-200 border border-white/5 rounded-full px-5 py-2 shadow-lg">
-                      <CalendarIcon className="w-4 h-4 text-brand-blue" />
-                      <span className="text-xs font-bold text-white tracking-wide">Last 21 Days</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        aria-label="Previous Period"
-                        className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-full transition-all"
-                      >
-                        <ChevronLeftIcon className="w-5 h-5" />
-                      </button>
-                      <button 
-                        aria-label="Next Period"
-                        className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-full transition-all"
-                      >
-                        <ChevronRightIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-surface-100/50 backdrop-blur-xl rounded-3xl border border-white/5 shadow-glass overflow-hidden grid grid-cols-7 border-collapse">
-                  {stats.activityHeatmap.map((day, i) => (
-                    <CalendarCell
-                      key={i}
-                      day={i + 1}
-                      note={day.note}
-                      isSelected={!!day.note}
-                    />
-                  ))}
-                </div>
-              </section>
-            </div>
-          </main>
-
-          {/* Contextual Right Sidebar */}
-          {/* Responsive Sidebar - hidden on mobile unless toggled (implementation of toggle visibility logic depends on Sidebar internals or wrapper) */}
-          <DashboardSidebar 
-             className={`${isSidebarOpen ? 'block fixed inset-y-0 right-0 z-50 bg-background w-80 shadow-2xl' : 'hidden'} 2xl:block relative`}
-          />
-          {/* Overlay for mobile sidebar */}
-          {isSidebarOpen && (
-              <div 
-                  className="fixed inset-0 bg-black/50 z-40 2xl:hidden"
-                  onClick={() => setIsSidebarOpen(false)}
-              />
-          )}
+          {/* Widget 3: Recent Notes */}
+          <div style={{
+            width: 360,
+            minHeight: 280,
+            backgroundColor: '#ffffff',
+            border: '1px solid #212121',
+            borderRadius: 8,
+            padding: 20,
+          }}>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: 16, fontWeight: 500, color: '#000' }}>
+              Recent Notes
+            </h3>
+            <RecentNotes notes={stats.recentNotes} />
+          </div>
         </div>
+      </main>
+    </div>
+  );
+}
 
-        <FeedbackModal
-          isOpen={isFeedbackOpen}
-          onClose={() => setIsFeedbackOpen(false)}
-          onSave={handleFeedbackSave}
+function ActivityHeatmap() {
+  const days = Array.from({ length: 28 }, (_, i) => ({
+    day: i + 1,
+    active: Math.random() > 0.5,
+    intensity: Math.random(),
+  }));
+
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(7, 1fr)',
+      gap: 4,
+      marginTop: 10,
+    }}>
+      {days.map((d) => (
+        <div
+          key={d.day}
+          style={{
+            aspectRatio: 1,
+            backgroundColor: d.active
+              ? `rgba(33, 150, 243, ${0.3 + d.intensity * 0.7})`
+              : '#f0f0f0',
+            border: '1px solid #e0e0e0',
+            borderRadius: 2,
+          }}
+          title={`Day ${d.day}: ${d.active ? 'Active' : 'No activity'}`}
         />
+      ))}
+    </div>
+  );
+}
+
+function QuickStats({ stats }: { stats: DashboardStats }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ textAlign: 'center', padding: '20px 0' }}>
+        <div style={{ fontSize: 48, fontWeight: 300, color: '#000' }}>
+          {stats.totalNotes.toLocaleString()}
+        </div>
+        <div style={{ fontSize: 16, color: '#666', marginTop: 4 }}>Notes</div>
       </div>
-    </Layout>
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+        borderTop: '1px solid #eee',
+        paddingTop: 16,
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 24, fontWeight: 300, color: '#000' }}>
+            {stats.totalFolders}
+          </div>
+          <div style={{ fontSize: 12, color: '#666' }}>Folders</div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 24, fontWeight: 300, color: '#000' }}>
+            {stats.totalTags}
+          </div>
+          <div style={{ fontSize: 12, color: '#666' }}>Tags</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RecentNotes({ notes }: { notes: Note[] }) {
+  if (notes.length === 0) {
+    return (
+      <div style={{ color: '#999', fontSize: 14, textAlign: 'center', padding: '40px 0' }}>
+        No notes yet. Create your first note to get started.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {notes.map((note) => (
+        <div
+          key={note.id}
+          style={{
+            padding: '12px 0',
+            borderBottom: '1px solid #f0f0f0',
+          }}
+        >
+          <div style={{ fontSize: 14, color: '#000', fontWeight: 400 }}>
+            {note.title}
+          </div>
+          <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
+            {new Date(note.updated_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

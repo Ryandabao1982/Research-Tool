@@ -7,7 +7,7 @@ edition = "2021"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.0", features = ["full"] }
-tauri = { version = "1.6.0", features = ["dialog-message", "dialog-save", "fs-exists", "fs-create-dir", "fs-remove-dir", "fs-copy-file", "dialog-confirm", "dialog-open", "fs-rename-file", "fs-read-dir", "path-all", "fs-write-file", "fs-remove-file", "dialog-ask", "protocol-asset", "shell-open", "global-tray", "global-shortcut"] }
+tauri = { version = "1.6.0", features = [ "system-tray", "dialog-message", "dialog-save", "fs-exists", "fs-create-dir", "fs-remove-dir", "fs-copy-file", "dialog-confirm", "dialog-open", "fs-rename-file", "fs-read-dir", "path-all", "fs-write-file", "fs-remove-file", "dialog-ask", "protocol-asset", "shell-open", "global-tray", "global-shortcut"] }
 rusqlite = { version = "0.31.0", features = ["bundled"] }
 uuid = { version = "1.7", features = ["v4", "serde"] }
 reqwest = { version = "0.11", features = ["json", "blocking", "stream"] }

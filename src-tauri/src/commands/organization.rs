@@ -21,6 +21,14 @@ pub async fn get_folders(
 }
 
 #[tauri::command]
+pub async fn get_tags(
+    state: State<'_, db_service::DbState>,
+) -> Result<Vec<Tag>, String> {
+    let conn = state.0.lock().unwrap();
+    organization_service::get_all_tags(&conn).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn update_note_folder(
     state: State<'_, db_service::DbState>,
     note_id: String,

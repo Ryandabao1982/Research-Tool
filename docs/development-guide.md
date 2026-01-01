@@ -4,9 +4,9 @@
 
 - **Project**: KnowledgeBase Pro Desktop Application
 - **Guide Type**: Complete Development Roadmap
-- **Version**: 2.0.0
-- **Last Updated**: 2025-12-29
-- **Status**: Production Ready (All Phases Complete)
+- **Version**: 2.0.1
+- **Last Updated**: 2026-01-01
+- **Status**: Phase 5 Complete - Dashboard Rebuild Done
 
 ## 🎯 Project Overview
 
@@ -87,24 +87,28 @@ knowledge-base-pro/
 │   ├── 📂 app/               # Application shell
 │   │   ├── layout.tsx       # Root layout wrapper
 │   │   └── 📂 pages/        # Page components
-│   │       ├── index.tsx    # Home page
-│   │       └── NotesPage.tsx # Notes management
+│   │       ├── Dashboard.tsx     # Dashboard with widgets (rebuilt 2026-01-01)
+│   │       ├── NotesPage.tsx     # Split-view editor (rebuilt 2026-01-01)
+│   │       └── Settings.tsx      # AI settings (rebuilt 2026-01-01)
+│   ├── 📂 features/         # Feature modules
+│   │   ├── retrieval/       # Search & CommandPalette (fixed 2026-01-01)
+│   │   └── ai/              # AI components
 │   ├── 📂 shared/           # Shared infrastructure
 │   │   ├── 📂 components/   # Reusable UI components
-│   │   │   ├── NoteForm.tsx # Note form
-│   │   │   └── index.ts     # Component exports
 │   │   ├── 📂 hooks/        # Custom React hooks
-│   │   │   └── useNotes.ts  # Notes state management
-│   │   ├── 📂 services/     # Business logic
-│   │   │   └── noteService.ts
+│   │   │   └── useNotesStore.ts  # Notes state management
+│   │   ├── 📂 services/     # Frontend services
 │   │   └── types.ts         # TypeScript interfaces
 │   └── main.tsx             # Application entry
 ├── src-tauri/               # Rust backend
 │   ├── src/
-│   │   ├── main.rs         # Application entry
+│   │   ├── main.rs         # Application entry + command registration
 │   │   ├── commands/       # Tauri command handlers
+│   │   │   ├── data.rs     # Note CRUD commands (added 2026-01-01)
+│   │   │   └── organization.rs  # Tags & folders (added get_tags 2026-01-01)
 │   │   ├── services/       # Business logic layer
-│   │   ├── models/         # Data models
+│   │   │   ├── db_service.rs     # Note CRUD (added 2026-01-01)
+│   │   │   └── organization_service.rs  # get_all_tags (added 2026-01-01)
 │   │   └── migrations/     # SQL migrations
 │   └── Cargo.toml
 ├── docs/                    # Documentation

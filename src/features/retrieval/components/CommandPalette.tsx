@@ -60,27 +60,26 @@ export const CommandPalette: React.FC = () => {
         };
     }, []);
 
-    // Build full query with filters
     const buildSearchQuery = useCallback((): string => {
         if (activeFilters.length === 0) return query;
-        
+
         const filterStrings = activeFilters.map(f => `${f.type}:${f.value}`);
         const searchTerms = query.split(/\s+/)
             .filter(term => !term.includes(':'));
-        
+
         return [...searchTerms, ...filterStrings].join(' ');
     }, [query, activeFilters]);
 
     // Debounced Search with Filters
     useEffect(() => {
-        if (query.trim().length === 0 && activeFilters.length === 0) {
-            setResults([]);
-            setActiveFilters([]);
-            return;
-        }
+        const performSearch = async () => {
+            if (query.trim().length === 0 && activeFilters.length === 0) {
+                setResults([]);
+                setActiveFilters([]);
+                return;
+            }
 
-        setIsLoading(true);
-        const timer = setTimeout(async () => {
+            setIsLoading(true);
             try {
                 const searchQuery = buildSearchQuery();
                 const searchResults = await invoke<SearchResult[]>('search_notes', { query: searchQuery });
@@ -90,8 +89,9 @@ export const CommandPalette: React.FC = () => {
             } finally {
                 setIsLoading(false);
             }
-        }, 300);
+        };
 
+        const timer = setTimeout(performSearch, 300);
         return () => {
             clearTimeout(timer);
             setIsLoading(false);

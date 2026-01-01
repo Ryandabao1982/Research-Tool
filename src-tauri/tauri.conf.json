@@ -13,7 +13,6 @@
     "tauri": {
         "systemTray": {
             "iconPath": "icons/icon.png",
-            "iconPathAsTemplate": true,
             "menuOnLeftClick": false
         },
         "allowlist": {
