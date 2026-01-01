@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
+import { motion } from 'framer-motion';
 
 interface ModelStatus {
   downloaded: boolean;
@@ -52,138 +53,134 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div style={{ marginLeft: 240, minHeight: '100vh', backgroundColor: '#ffffff' }}>
-        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="ml-60 min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center"
+      >
+        <motion.div
+          className="text-slate-300 text-center"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+        >
           Loading settings...
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   }
 
   return (
-    <div style={{ marginLeft: 240, minHeight: '100vh', backgroundColor: '#ffffff' }}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="ml-60 min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900"
+    >
       {/* Header */}
-      <header style={{
-        height: 60,
-        backgroundColor: '#eeeeee',
-        borderBottom: '1px solid #ddd',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 20px',
-      }}>
-        <span style={{ fontSize: 18, fontWeight: 500, color: '#000' }}>
+      <motion.header
+        initial={{ y: -60 }}
+        animate={{ y: 0 }}
+        className="h-15 bg-white/5 backdrop-blur-2xl border-b border-white/10 flex items-center px-6"
+      >
+        <motion.span
+          className="text-xl font-medium text-white"
+          whileHover={{ scale: 1.05 }}
+        >
           Settings
-        </span>
-      </header>
+        </motion.span>
+      </motion.header>
 
       {/* Main Content */}
-      <main style={{ padding: '40px 20px', maxWidth: 800 }}>
+      <motion.main
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-10 max-w-[800px]"
+      >
         {/* Intelligence Section */}
-        <section style={{ marginBottom: 40 }}>
-          <h2 style={{
-            fontSize: 20,
-            fontWeight: 600,
-            color: '#000',
-            marginBottom: 20,
-            paddingBottom: 10,
-            borderBottom: '1px solid #eee',
-          }}>
+        <motion.section
+          className="mb-10"
+          whileHover={{ scale: 1.01 }}
+        >
+          <motion.h2
+            className="text-xl font-bold text-white mb-5 pb-2.5 border-b border-white/10"
+            whileHover={{ scale: 1.05 }}
+          >
             Intelligence
-          </h2>
+          </motion.h2>
 
-          <div style={{
-            padding: 20,
-            border: '1px solid #ddd',
-            borderRadius: 8,
-            backgroundColor: '#fff',
-          }}>
-            <h3 style={{
-              fontSize: 16,
-              fontWeight: 500,
-              color: '#000',
-              marginBottom: 12,
-            }}>
+          <motion.div
+            className="p-5 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/20 transition-all"
+            whileHover={{ scale: 1.02, y: -5 }}
+          >
+            <motion.h3
+              className="text-lg font-medium text-white mb-3"
+              whileHover={{ scale: 1.05 }}
+            >
               Local AI Model
-            </h3>
+            </motion.h3>
 
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>
+            <div className="mb-4">
+              <div className="text-sm text-slate-300 mb-2">
                 Status: {
                   modelStatus.downloaded
-                    ? <span style={{ color: '#22c55e' }}>Downloaded</span>
-                    : <span style={{ color: '#666' }}>Not downloaded</span>
+                    ? <motion.span className="text-green-400" whileHover={{ scale: 1.1 }}>Downloaded</motion.span>
+                    : <motion.span className="text-slate-400" whileHover={{ scale: 1.1 }}>Not downloaded</motion.span>
                 }
               </div>
 
               {modelStatus.downloaded && (
-                <div style={{ fontSize: 12, color: '#999' }}>
+                <div className="text-xs text-slate-500">
                   Path: {modelStatus.modelPath || 'N/A'}
                   {modelStatus.modelSize && ` | Size: ${modelStatus.modelSize}`}
                 </div>
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: 12 }}>
+            <div className="flex gap-3">
               {!modelStatus.downloaded ? (
-                <button
+                <motion.button
                   onClick={handleDownloadModel}
-                  style={{
-                    padding: '10px 20px',
-                    fontSize: 14,
-                    border: 'none',
-                    backgroundColor: '#0066FF',
-                    color: '#fff',
-                    borderRadius: 4,
-                    cursor: 'pointer',
-                  }}
+                  className="px-5 py-2.5 text-sm bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 hover:scale-105 transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   Download Model
-                </button>
+                </motion.button>
               ) : (
-                <button
+                <motion.button
                   onClick={handleDeleteModel}
-                  style={{
-                    padding: '10px 20px',
-                    fontSize: 14,
-                    border: '1px solid #ff4444',
-                    backgroundColor: '#fff',
-                    color: '#ff4444',
-                    borderRadius: 4,
-                    cursor: 'pointer',
-                  }}
+                  className="px-5 py-2.5 text-sm border border-red-500 bg-transparent text-red-400 rounded-lg cursor-pointer hover:bg-red-500/10 hover:scale-105 transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   Delete Model
-                </button>
+                </motion.button>
               )}
             </div>
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
         {/* Data Management Section */}
-        <section style={{ opacity: 0.5 }}>
-          <h2 style={{
-            fontSize: 20,
-            fontWeight: 600,
-            color: '#000',
-            marginBottom: 20,
-            paddingBottom: 10,
-            borderBottom: '1px solid #eee',
-          }}>
+        <motion.section
+          className="opacity-50"
+          whileHover={{ scale: 1.01 }}
+        >
+          <motion.h2
+            className="text-xl font-bold text-white mb-5 pb-2.5 border-b border-white/10"
+            whileHover={{ scale: 1.05 }}
+          >
             Data Management
-          </h2>
+          </motion.h2>
 
-          <div style={{
-            padding: 20,
-            border: '1px solid #ddd',
-            borderRadius: 8,
-            backgroundColor: '#f9f9f9',
-          }}>
-            <p style={{ fontSize: 14, color: '#999' }}>
+          <motion.div
+            className="p-5 bg-slate-800/50 backdrop-blur-2xl border border-white/10 rounded-2xl"
+            whileHover={{ scale: 1.02 }}
+          >
+            <p className="text-sm text-slate-400">
               Backup & Restore features coming soon.
             </p>
-          </div>
-        </section>
-      </main>
-    </div>
+          </motion.div>
+        </motion.section>
+      </motion.main>
+    </motion.div>
   );
 }
