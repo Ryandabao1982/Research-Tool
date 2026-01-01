@@ -4,9 +4,10 @@ KnowledgeBase Pro is an AI-powered, local-first desktop knowledge management app
 
 ## Core Value Proposition
 
-- **Local-First Privacy**: All data and AI operations primarily occur on the user's machine using SQLite and local models.
+- **True Offline Intelligence**: Zero internet dependency for AI operations. Inference occurs natively in Rust via the Candle framework.
+- **Zero-Configuration**: Models are automatically managed, downloaded, and cached by the system on first run.
+- **Local-First Privacy**: All data and AI operations occur on the user's machine using SQLite and local models.
 - **Ambient Intelligence**: AI interactions are non-intrusive, living in collapsible sidebars and dedicated panels for synthesis and research.
-- **Focused Workspace**: A "Notion-like" block-based editor provides a flexible canvas for content creation.
 - **Neural Linkage**: Visual concept mapping using interactive D3.js graph visualizations.
 
 ## Technology Stack Summary
@@ -35,4 +36,4 @@ The project follows a multi-part architecture:
 - [AI Synthesis Feature](./docs/notebooklm-features-integration.md) (Existing)
 
 ---
-*Last Updated: 2025-12-31*
+*Last Updated: 2026-01-01*

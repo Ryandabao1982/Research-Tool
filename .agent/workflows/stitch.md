@@ -25,11 +25,12 @@ You have access to the full project context and the browser tools to interact wi
     - *Template*: "[Component/Page Name] for [App Name]. [Style: Dark mode, Glassmorphism, Neon]. [Features: X, Y, Z]. [Layout: Sidebar, Grid, etc]."
 3. **Execute in Browser**:
     - Check if a Stitch session is active. if not, navigate to `https://stitch.withgoogle.com/`.
+    - **Resume Work**: context: "search sidebar for previous generated ui" -> Click on the existing project in the left sidebar to continue improvement. Only start 'New' if no relevant project exists.
     - Ensure 'Web' platform is selected.
     - Input the prompt and generate.
     - Wait for generation.
     - **Capture**: Take a screenshot of the result.
-    - **Extract**: Try to get code/specs.
+    - **Extract**: Click the 'More' button (usually distinct from Preview, check top bar) -> Select 'Code' or 'Export'. Copy HTML/CSS/React if available.
 4. **Report**: Show the screenshot to the user and ask for feedback or approval to implement.
 
 ## Example Prompts for SecondBrain

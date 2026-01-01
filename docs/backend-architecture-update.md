@@ -1,106 +1,73 @@
 # Backend Architecture Update - KnowledgeBase Pro
 
 ## 📋 Document Information
-- **Update**: Phase 2 Modular Backend Complete
-- **Date**: 2025-12-29
-- **Status**: Production Ready
+- **Update**: Phase 3 Local LLM Integration (Self-Contained)
+- **Date**: 2026-01-01
+- **Status**: Implementation Complete / Optimization Pending
 
 ## 🎯 Summary
 
-**Phase 2: Modular Backend Architecture is now 100% complete.** The monolithic `main.rs` has been completely refactored into a clean, modular architecture with proper separation of concerns.
+**Phase 3: Local LLM Integration is now 100% functional.** The application has transitioned from a mocked/external AI dependency (Ollama) to a fully self-contained inference engine using Hugging Face's **Candle** framework. The system now autonomously manages model lifecycle (download, cache, inference).
 
 ## ✅ Completed Components
 
-### 🏗️ Service Layer (7 modules)
+### 🧠 Local AI Engine (Candle)
 ```
 src-tauri/src/services/
-├── note_service.rs      # Note CRUD with tag integration (42 lines)
-├── folder_service.rs    # Hierarchy management with path generation (115 lines)  
-├── tag_service.rs       # Tag operations with get_or_create optimization (109 lines)
-├── search_service.rs     # FTS5 search, suggestions, recent notes (98 lines)
-├── link_service.rs      # Bidirectional links with wikilink parsing (130 lines)
-├── link_parser.rs       # WikiLink regex parser with comprehensive tests (83 lines)
-└── ai_service.rs         # Source-grounded AI with mock responses (155 lines)
+├── local_llm.rs         # Model loading, token generation, and GGUF inference logic
 ```
 
-### 📞 Command Layer (6 modules)
+### 📞 AI Command Layer (Updated)
 ```
 src-tauri/src/commands/
-├── note.rs              # 6 commands: list, get, create, update, delete, by-folder, by-tag
-├── folder.rs            # 4 commands: list, create, update, delete
-├── tag.rs               # 5 commands: list, create, delete, update, add, remove
-├── search.rs            # 5 commands: search, in-folder, by-tag, suggestions, recent, count
-├── link.rs              # 6 commands: list, create, delete, backlinks, forward-links, parse, count
-└── ai.rs                # 5 commands: generate, create-conversation, add-message, history, list
+├── ai.rs                # Added get_model_status, delete_model, and updated synthesize_query
 ```
 
-### 🗄️ Database Schema (2 migrations)
+### 🚀 Key Features
+
+#### 1. Self-Managed Model Lifecycle
+- **Auto-Download**: If model files are missing, the system automatically fetches **Qwen 2.5 0.5B Instruct** (~350MB) and the required tokenizer from Hugging Face via streaming download.
+- **Verification & Caching**: Models are stored in a local `resources/` directory and verified before loading.
+- **Lazy Loading**: The heavy model weights are only loaded into memory upon the first AI request to keep application startup instant.
+
+#### 2. Native Rust Inference
+- **Framework**: Powered by **Candle** (Hugging Face's ML framework for Rust).
+- **Quantization**: Uses 4-bit quantized (Q4_K_M) GGUF models for optimal memory/speed balance on consumer hardware.
+- **Privacy**: Zero telemetry or outbound API calls during inference. All processing stays on the user's machine.
+
+## 📁 Updated File Structure
 ```
-src-tauri/migrations/
-├── 001_initial_schema.sql   # Core tables (notes, folders, tags, links, FTS5)
-└── 002_ai_features.sql       # AI tables (conversations, messages, concepts, relationships)
+src-tauri/
+├── src/
+│   ├── services/
+│   │   ├── local_llm.rs      # NEW: Inference & Download logic
+│   │   └── mod.rs            # Updated: Exposed local_llm
+│   ├── commands/
+│   │   └── ai.rs             # Updated: Integrated LocalLLMState
+│   └── main.rs               # Updated: Managed LocalLLMState state
+└── Cargo.toml                # Updated: Added Candle & streaming dependencies
 ```
 
-### 🔧 Core Infrastructure
-- **models.rs** - All data structures (75 lines)
-- **main.rs** - Modular app setup with 31 registered commands
-- **database/connection.rs** - Connection pool + migration system
-- **Cargo.toml** - Updated with regex dependency
+## 🔧 New Command Reference
 
-## 🚀 Key Improvements
+| Command | Description | Return Type |
+| :--- | :--- | :--- |
+| `get_model_status` | Returns if model is downloaded, its path, and size. | `ModelStatus` |
+| `delete_model` | Deletes local model files and clears memory state. | `Result<(), String>` |
+| `synthesize_query` | High-level RAG command: Search → Context → Local Generation. | `Result<String, String>` |
 
-### 📊 Performance
-- **Connection Pooling**: SQLite pool with max 5 connections
-- **Efficient Queries**: Optimized SQL with proper indexing
-- **Service Sharing**: Arc references prevent duplicate services
-- **Lazy Loading**: Services created once at startup
-
-### 🛡️ Type Safety
-- **Complete TypeScript**: All 31 commands properly typed
-- **Rust Compile-Time**: Zero `any` types, strict error handling
-- **Comprehensive Models**: 15 data structures with serialization
-- **SQLx Compile-Time**: Query validation at build time
-
-### 🔧 Maintainability
-- **Modular Design**: Each feature completely independent
-- **Clean Architecture**: Commands → Services → Database
-- **Service Isolation**: Each service handles one domain
-- **Easy Testing**: Each module can be unit tested independently
-
-### 🎨 Extensibility
-- **Plugin Ready**: Service layer ready for plugin hooks
-- **Command API**: 31 endpoints for frontend integration
-- **AI Foundation**: Mock service ready for real LLM integration
-- **Link Intelligence**: WikiLink parser for content relationships
-
-## 📈 Frontend Integration Status
+## 🚀 Frontend Integration Status
 
 ### ✅ Updated Services
-- **aiService.ts** - Updated to use new command names (generate_ai_response, create_ai_conversation, etc.)
-- **noteService.ts** - Ready to use new modular commands
-- **searchService.ts** - Ready to use enhanced search commands
-- **All other services** - Ready for integration
+- **aiService.ts**: Added `getModelStatus`, `deleteModel`, and `synthesizeQuery` methods.
+- **SettingsPage.tsx**: Fully overhauled to include an **AI Settings Panel** with real-time model status and reset controls.
+- **DashboardPage.tsx**: Refactored for better responsiveness and type safety.
 
-### 🔄 Next Steps for Frontend
-1. Update remaining services to use new command names
-2. Add TypeScript interfaces for all new data structures
-3. Test end-to-end functionality
-4. Implement error handling improvements
+## 🎯 Ready for Optimization
+While functional, the following optimizations are slated for the next sprint:
+- **KV-Caching**: Implementing KV-cache in `local_llm.rs` to move from O(n²) to O(n) generation speed.
+- **GPU Acceleration**: Enabling `wgpu` or `Metal/CUDA` backends in Candle for faster inference.
+- **Progress Tracking**: Exposing download percentage to the frontend via Tauri Events.
 
-## 🎯 Ready for Phase 3
-
-The modular backend is now production-ready for:
-- **Real AI Integration** - Replace mock responses with Ollama
-- **Advanced Features** - Audio overview, study guides, timelines
-- **Plugin System** - Core infrastructure ready
-- **Import/Export** - File system operations via Tauri
-
-## 📚 Documentation Updates
-
-All documentation has been updated to reflect the new modular architecture:
-- **Development Guide** - Phase 2 marked complete
-- **API Documentation** - Complete command reference (31 commands)
-- **README** - Backend architecture detailed
-- **Technical Specs** - Architecture section updated
-
-The codebase is now maintainable, testable, and ready for advanced feature development in Phase 3.
+---
+*Last Updated: 2026-01-01*

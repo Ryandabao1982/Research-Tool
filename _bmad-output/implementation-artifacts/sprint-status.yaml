@@ -54,7 +54,7 @@ development_status:
   2-1-full-text-search-with-command-palette: done  # Verified and review findings resolved
    2-2-advanced-filtering-and-scoping: review  # Filtering features implemented - ready for code review
   2-3-multi-document-ai-synthesis: done  # SynthesisPanel.tsx exists
-  2-4-contextual-sidebar-ambient-ai: backlog  # No contextual sidebar found
+  2-4-contextual-sidebar-ambient-ai: ready-for-dev  # Comprehensive story created with validation improvements
   epic-2-retrospective: optional
   
   # Epic 3: Adaptive Workflows (Role-Based Contexts)

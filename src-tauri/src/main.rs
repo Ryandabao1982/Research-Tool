@@ -1,4 +1,5 @@
 use knowledge_base_pro::services::db_service;
+use knowledge_base_pro::services::local_llm::LocalLLMState;
 use knowledge_base_pro::commands::ai;
 use std::sync::Mutex;
 
@@ -6,6 +7,9 @@ use tauri::{GlobalShortcutManager, Manager, SystemTray, SystemTrayEvent};
 
 fn main() {
     let conn = db_service::init_db().expect("Failed to initialize database");
+    
+    // Initialize Local LLM State (Lazy loading)
+    let llm_state = LocalLLMState::new();
     
     // Define the system tray
     let tray = SystemTray::new();
@@ -29,8 +33,11 @@ fn main() {
             _ => {}
         })
         .manage(db_service::DbState(Mutex::new(conn)))
+        .manage(llm_state) // Manage the LLM State
         .invoke_handler(tauri::generate_handler![
             ai::synthesize_query,
+            ai::get_model_status,
+            ai::delete_model,
             knowledge_base_pro::commands::cards::create_card,
             knowledge_base_pro::commands::cards::search_cards,
             knowledge_base_pro::commands::data::import_files,

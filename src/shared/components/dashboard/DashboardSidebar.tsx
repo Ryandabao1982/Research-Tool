@@ -5,25 +5,36 @@ import { NotificationCard } from './NotificationCard';
 import { motion } from 'framer-motion';
 import { DataManagement } from '../../../features/notes/components/DataManagement';
 
-
 import { useRoleStore } from '../../stores/role-store';
 
-export const DashboardSidebar = () => {
+interface DashboardSidebarProps {
+  className?: string;
+}
+
+export const DashboardSidebar = ({ className }: DashboardSidebarProps) => {
   const { activeRole } = useRoleStore();
 
+  // Define styles using semantic tailwind classes from config
+  const sidebarClasses = `
+    w-80 border-l border-white/5 p-8 space-y-10 overflow-y-auto 
+    custom-scrollbar bg-surface-100/30 backdrop-blur-3xl 
+    transition-all duration-300
+    ${className || ''}
+  `.trim();
+
   return (
-    <aside className="w-80 border-l border-white/5 p-8 space-y-10 overflow-y-auto hidden 2xl:block custom-scrollbar bg-surface-100/30 backdrop-blur-3xl">
-      {/* Active Notes */}
+    <aside className={sidebarClasses}>
+      {/* Active Notes - Example of refactoring towards data-driven UI */}
       <div className="space-y-5">
         <h3 className="text-lg font-bold text-white tracking-tight">Active Notes</h3>
         <motion.div
           whileHover={{ scale: 1.02 }}
-          className="relative group rounded-[2.5rem] overflow-hidden aspect-[4/3] bg-gradient-to-br from-white/5 to-white/10 border border-white/10 shadow-2xl cursor-pointer"
+          className="relative group rounded-5xl overflow-hidden aspect-[4/3] bg-gradient-to-br from-white/5 to-white/10 border border-white/10 shadow-2xl cursor-pointer"
         >
           <img
             src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=400"
             className="w-full h-full object-cover opacity-40 group-hover:scale-110 group-hover:opacity-60 transition-all duration-1000"
-            alt="Active note background"
+            alt="Daily Tasks Active Note"
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative">
@@ -33,19 +44,19 @@ export const DashboardSidebar = () => {
           </div>
           <div className="absolute bottom-6 left-6 right-6">
             <p className="text-sm font-bold text-white mb-1 drop-shadow-md">Daily Tasks</p>
-            <p className="text-[10px] text-gray-300 font-medium drop-shadow-md">(Ends in: 30 min.)</p>
+            <p className="text-[10px] text-text-secondary font-medium drop-shadow-md">(Ends in: 30 min.)</p>
           </div>
         </motion.div>
         <div className="flex justify-between items-center px-4">
           <div>
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1">Users active</p>
-            <p className="text-xs font-black text-white">15/20</p>
+            <p className="text-[10px] text-text-muted font-bold uppercase tracking-[0.2em] mb-1">Users active</p>
+            <p className="text-xs font-black text-text-primary">15/20</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1">Status</p>
+            <p className="text-[10px] text-text-muted font-bold uppercase tracking-[0.2em] mb-1">Status</p>
             <div className="flex items-center gap-2 justify-end">
               <div className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse" />
-              <p className="text-xs font-black text-white">In Progress</p>
+              <p className="text-xs font-black text-text-primary">In Progress</p>
             </div>
           </div>
         </div>
@@ -75,6 +86,5 @@ export const DashboardSidebar = () => {
       {/* Data Management */}
       <DataManagement />
     </aside>
-
   );
 };

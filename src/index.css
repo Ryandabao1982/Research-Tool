@@ -1,38 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'highlight.js/styles/github-dark.css';
 
 @layer base {
-  :root {
-    --brand-primary: #0070f3;
-    /* Default Manager Blue */
-  }
+    :root {
+        /* Glassmorphism Variables */
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-blur: 12px;
 
-  body {
-    @apply bg-[#0f0f0f] text-zinc-100;
-    font-family: 'Inter', sans-serif;
-  }
+        /* Neon Accents */
+        --neon-blue: #00f0ff;
+        --neon-purple: #bd00ff;
 
-  mark {
-    @apply bg-transparent text-blue-500 underline decoration-2 underline-offset-2;
-  }
+        /* Backgrounds */
+        --bg-dark: #0f111a;
+        --bg-card: #1a1d2d;
+    }
+
+    body {
+        @apply bg-[var(--bg-dark)] text-white antialiased;
+        background-image:
+            radial-gradient(circle at 10% 20%, rgba(189, 0, 255, 0.1) 0%, transparent 20%),
+            radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 20%);
+        background-attachment: fixed;
+    }
 }
 
-@layer utilities {
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
-  }
+@layer components {
+    .glass-panel {
+        @apply bg-[length:var(--glass-bg)] backdrop-blur-[length:var(--glass-blur)] border border-[color:var(--glass-border)];
+    }
 
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
+    .glass-card {
+        @apply glass-panel rounded-xl p-4 transition-all duration-300 hover:bg-white/10;
+    }
 
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
+    .glass-btn {
+        @apply px-4 py-2 rounded-lg bg-[color:var(--neon-blue)] text-black font-semibold hover:shadow-[0_0_15px_var(--neon-blue)] transition-all duration-200;
+    }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
-  }
+    .glass-input {
+        @apply bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[color:var(--neon-blue)] transition-colors;
+    }
 }

@@ -6,7 +6,7 @@ interface CalendarCellProps {
   day: number;
   note?: {
     title: string;
-    time: string;
+    time?: string;
     type?: string;
     hasAction?: boolean;
   } | null;
@@ -32,7 +32,7 @@ export const CalendarCell = ({ day, note, isSelected }: CalendarCellProps) => (
       >
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-[7px] font-black text-brand-blue uppercase tracking-[0.15em]">{note.type || 'Note'}</span>
-          <span className="text-[7px] font-bold text-gray-500">{note.time}</span>
+          <span className="text-[7px] font-bold text-gray-500">{note.time || ''}</span>
         </div>
         <h4 className="text-[10px] font-bold text-white leading-[1.3] mb-3 line-clamp-2 tracking-tight group-hover/note:text-brand-blue transition-colors">
           {note.title}

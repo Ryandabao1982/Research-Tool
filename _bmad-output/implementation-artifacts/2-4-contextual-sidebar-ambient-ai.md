@@ -21,11 +21,28 @@ so that I can rediscover relevant past ideas without searching.
 - [ ] **Task 1: Create ContextualSidebar Component** (AC: #1)
   - [ ] Subtask 1.1: Create `ContextualSidebar.tsx` in `src/features/retrieval/components/`
   - [ ] Subtask 1.2: Implement debounce hook (2-second delay) for typing pause detection
-  - [ ] Subtask 1.3: Create RelatedNotes list component with FTS5 snippet highlighting
+  - [ ] Subtask 1.3: Create RelatedNoteItem component with FTS5 snippet highlighting
+     ```tsx
+     // Render highlighted snippet using dangerouslySetInnerHTML
+     <div 
+       dangerouslySetInnerHTML={{ __html: note.snippet }}
+       className="text-gray-300 text-sm leading-relaxed"
+     />
+     ```
   - [ ] Subtask 1.4: Implement click handler for side-by-side view navigation
 - [ ] **Task 2: Backend - Related Notes Search** (AC: #1, #3)
   - [ ] Subtask 2.1: Create `get_related_notes` command in `src-tauri/src/commands/data.rs`
-  - [ ] Subtask 2.2: Use existing FTS5 search with keyword extraction from current note content
+  - [ ] Subtask 2.2: Extract keywords from current note content (split by spaces, remove special chars)
+     ```rust
+     // Simple extraction for MVP (FTS5 handles tokenization automatically)
+     let keywords = note_content
+         .split_whitespace()
+         .into_iter()
+         .filter(|k| !k.is_empty())
+         .take(5)
+         .map(|k| k.to_string())
+         .collect::<Vec<_>>();
+     ```
   - [ ] Subtask 2.3: Return top 5-10 related notes with snippet highlighting
   - [ ] Subtask 2.4: Ensure <500ms query performance (FTS5 is already optimized)
 - [ ] **Task 3: Integrate into NotesPage Layout** (AC: #1, #2)
@@ -57,12 +74,87 @@ so that I can rediscover relevant past ideas without searching.
 - **Command Location:** `src-tauri/src/commands/data.rs` or dedicated `src-tauri/src/commands/related_notes.rs`
 - **Service Layer:** Extend `search_service.rs` with `get_related_notes()` function
 - **Search Method:** Use existing FTS5 with `snippet()` for highlighting
-- **Performance Target:** <500ms query (FTS5 already optimized with indexes)
+- **Performance Target:** <500ms query (FTS5 is already optimized with indexes)
 
 **Integration Patterns:**
 - **Tauri IPC:** `invoke('get_related_notes', { note_content, limit: 10 })`
 - **NoteForm Integration:** Detect typing activity and trigger debounce hook
 - **Layout Integration:** Add ContextualSidebar to right side of NotesPage (similar to SynthesisPanel)
+
+### Component Structure & Interface Definitions
+
+```typescript
+// Interface for Related Note
+interface RelatedNote {
+  id: string;
+  title: string;
+  snippet: string;  // Highlighted excerpt from FTS5
+}
+
+// Props for ContextualSidebar
+interface ContextualSidebarProps {
+  relatedNotes: RelatedNote[];
+  isLoading: boolean;
+  onNoteClick: (noteId: string) => void;
+}
+```
+
+### Side-by-Side View Implementation
+
+**Design Decision:** Create split-screen layout for side-by-side view when user clicks related note.
+
+**Implementation Approach:**
+1. **State Management:** Use new local state in NotesPage to track `viewMode: 'single' | 'split'`
+2. **Layout Structure:** 
+   - Single view: Current editor + NoteList layout (existing)
+   - Split view: Editor on left (60%), selected note on right (40%)
+3. **Note Switching:** When clicking related note from sidebar:
+   - If currently single view → Transition to split view with new note on right
+   - If already split view → Replace right panel with clicked note
+4. **Responsive Design:** On mobile (<768px), collapse to single view or use stack
+
+**Expected Layout (Split View):**
+```tsx
+<div className="flex h-full">
+  <div className="w-[60%] h-full">{/* Editor + NoteList */}</div>
+  <div className="w-[40%] h-full border-l border-white/10">
+    <NoteForm note={selectedNote} />
+  </div>
+</div>
+```
+
+### Error Handling & Edge Cases
+
+**Error Scenarios to Handle:**
+
+1. **Empty Search Results:**
+   - Show UI message: "No related notes found"
+   - Prevent display of empty list component
+
+2. **FTS5 Search Failures:**
+   - Catch in Tauri command with try-catch
+   - Display error message in sidebar
+   - Log to console for debugging
+
+3. **IPC Communication Failures:**
+   - Add timeout handling (5 second max)
+   - Show retry button on failure
+   - Graceful degradation: Continue typing if sidebar fails
+
+4. **Empty Current Note:**
+   - Don't trigger related search if current note has no content
+   - Show placeholder in sidebar: "Type to see related notes"
+
+5. **Special Characters in Content:**
+   - Sanitize input before FTS5 query (use existing sanitize pattern)
+   - Handle markdown formatting characters (*, _, #)
+
+**Loading States:**
+```typescript
+const [relatedNotes, setRelatedNotes] = useState<RelatedNote[]>([]);
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
+```
 
 ### Source Tree Components to Touch
 
@@ -73,9 +165,65 @@ so that I can rediscover relevant past ideas without searching.
 - `src-tauri/src/services/search_service.rs` (add `get_related_notes()` function)
 
 **Modified Files:**
-- `src/app/pages/NotesPage.tsx` (add ContextualSidebar integration)
+- `src/app/pages/NotesPage.tsx` (add ContextualSidebar integration, view mode state)
 - `src/features/retrieval/components/NoteForm.tsx` (integrate typing pause detection)
 - `src-tauri/src/services/search_service.rs` (add related notes search function)
+
+### Backend Implementation Examples
+
+**Tauri Command Signature (related_notes.rs):**
+```rust
+#[tauri::command]
+pub async fn get_related_notes(
+    state: State<'_, DbState>,
+    note_content: String,
+    limit: usize,
+) -> Result<Vec<RelatedNote>, String>
+```
+
+**SQL Query for Related Notes (add to search_service.rs):**
+```sql
+SELECT 
+    n.id, 
+    n.title, 
+    snippet(notes_fts, 1, '<mark>', '</mark>', '...', 10) as snippet
+FROM notes n 
+JOIN notes_fts f ON n.internal_id = f.rowid 
+WHERE notes_fts MATCH ? 
+    AND n.id != ?  -- Exclude current note
+LIMIT ?
+```
+
+**Frontend Component Structure (ContextualSidebar.tsx):**
+```tsx
+export function ContextualSidebar({ 
+  relatedNotes, 
+  isLoading, 
+  onNoteClick 
+}: ContextualSidebarProps) {
+  
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return (
+    <div className="flex flex-col space-y-2">
+      <h2 className="text-white text-lg font-bold">Related Notes</h2>
+      {relatedNotes.length === 0 ? (
+        <p className="text-gray-400 text-sm">No related notes found</p>
+      ) : (
+        relatedNotes.map((note) => (
+          <RelatedNoteItem 
+            key={note.id} 
+            note={note} 
+            onClick={() => onNoteClick(note.id)} 
+          />
+        ))
+      )}
+    </div>
+  );
+}
+```
 
 ### Testing Standards Summary
 
@@ -84,6 +232,29 @@ so that I can rediscover relevant past ideas without searching.
 - **Performance Testing:** Measure FTS5 query times (<500ms requirement)
 - **UX Testing:** Test side-by-side view interaction and note switching
 - **Coverage Goal:** >90% for frontend logic (per project standards)
+
+### Test Scenarios
+
+**Edge Cases:**
+- **Empty search results:** Display "No related notes found" message
+- **Single character input:** Test with single keyword (should work via FTS5)
+- **Special characters:** Test with markdown syntax (*, _, #) - ensure sanitization handles
+- **Empty current note:** Don't trigger search if current note has no content
+- **Large database (10k+ notes):** Verify performance target (<500ms still met)
+- **Rapid typing:** Test debounce timing - ensure 2-second delay before triggering
+- **Content types:** Test with markdown, HTML tags, code blocks for snippet accuracy
+
+**Result States:**
+- No results: Show placeholder UI
+- Loading: Show spinner during <500ms query
+- Error: Display error message + retry button
+- Success: Display list with 5-10 related notes
+
+**UX Interaction Tests:**
+- Clicking related note → Transitions to split view
+- Note switching → Updates editor in split view
+- Close button → Returns to single view
+- View mode toggle → Persists preference
 
 ### Project Structure Notes
 
@@ -116,11 +287,3 @@ Claude 3.5 Sonnet (via Anthropic API)
 ### Debug Log References
 
 <!-- Add timestamps and notes during implementation -->
-
-### Completion Notes List
-
-<!-- Track what was completed, issues found, solutions applied -->
-
-### File List
-
-<!-- List all files created/modified during implementation -->

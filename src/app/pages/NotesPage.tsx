@@ -45,7 +45,7 @@ export function NotesPage() {
       return response;
     } catch (error) {
       console.error('Synthesis failed:', error);
-      return null;
+      return; // Return undefined instead of null
     }
   };
 
@@ -99,9 +99,9 @@ export function NotesPage() {
           <AnimatePresence>
             {(selectedNoteId) && (
               <motion.div
-                initial={{ opacity: 0, height: 0, mb: 0 }}
-                animate={{ opacity: 1, height: 'auto', mb: 32 }}
-                exit={{ opacity: 0, height: 0, mb: 0 }}
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginBottom: 32 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                 className="overflow-hidden"
               >
                 <NoteForm

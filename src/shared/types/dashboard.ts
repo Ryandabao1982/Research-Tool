@@ -1,3 +1,7 @@
+import { ReactNode } from 'react';
+
+// --- Core Data Models ---
+
 export interface Note {
   id: string;
   title: string;
@@ -10,6 +14,9 @@ export interface Note {
   readingTime?: number;
   isFavorite?: boolean;
   isDailyNote?: boolean;
+  time?: string; // For mock data/display purposes
+  type?: string; // For mock data/display purposes
+  hasAction?: boolean; // For mock data/display purposes
 }
 
 export type ActivityType = 'note_created' | 'note_updated' | 'note_deleted' | 'link_created' | 'ai_interaction';
@@ -29,24 +36,41 @@ export interface Tag {
   noteCount?: number;
 }
 
+// --- Dashboard Specific Models ---
+
+export interface HeatmapDataPoint {
+  date: string;
+  value: number;
+  hasAction?: boolean;
+  note?: Note | null;
+}
+
+export interface DashboardStats {
+  notesCount: number;
+  tasksPending: number;
+  studyStreak: number;
+  activityHeatmap: HeatmapDataPoint[];
+  recentNotes: Note[];
+  // Legacy fields (optional if needed for backward compat, or to be deprecated)
+  totalFolders?: number;
+  totalTags?: number;
+  totalWords?: number;
+  linksCreated?: number;
+}
+
+export interface FeedbackData {
+  type: string;
+  message: string;
+  rating?: number;
+}
+
 export interface QuickAction {
   id: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   action: string;
   shortcut?: string;
-}
-
-export interface DashboardStats {
-  totalNotes: number;
-  totalFolders: number;
-  totalTags: number;
-  recentNotesCount: number;
-  favoriteNotesCount: number;
-  dailyNotesCount: number;
-  totalWords: number;
-  linksCreated: number;
 }
 
 export interface RecentActivity {
@@ -74,8 +98,10 @@ export interface AIConversation {
   messageCount: number;
 }
 
+// --- Component Props ---
+
 export interface DashboardState {
-  stats: DashboardStats;
+  stats: DashboardStats | null;
   recentNotes: Note[];
   recentActivity: RecentActivity[];
   quickActions: QuickAction[];
@@ -86,11 +112,11 @@ export interface DashboardState {
 }
 
 export interface LayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   onClick?: () => void;
   hover?: boolean;

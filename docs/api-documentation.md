@@ -361,35 +361,49 @@ Gets total number of links (forward + backlinks) for a note.
 const count = await invoke<number>('get_link_count', { note_id: 'note-id' });
 ```
 
-### 🤖 AI Commands (5 commands)
+### 🤖 AI Commands (Updated Phase 3)
 
-#### `generate_ai_response`
-Generates AI response with source grounding.
+#### `synthesize_query`
+High-level RAG command. Searches for relevant cards using FTS5, bundles context, and generates a response using the internal Candle-based LLM.
+
+```typescript
+// Usage
+const response = await invoke<string>('synthesize_query', {
+    query: 'What are the main topics in my research notes?'
+});
+```
+
+#### `get_model_status`
+Returns the current status of the local LLM model (downloaded state, path, and size).
+
+```typescript
+// Usage
+const status = await invoke<ModelStatus>('get_model_status');
+
+interface ModelStatus {
+    downloaded: boolean;
+    model_path: string;
+    model_size: number;
+}
+```
+
+#### `delete_model`
+Deletes the local model files from the `resources/` directory and clears the in-memory state.
+
+```typescript
+// Usage
+await invoke('delete_model');
+```
+
+#### `generate_ai_response` (Legacy/Mock)
+*Note: This is currently being transitioned to use `synthesize_query` for local-first operations.*
 
 ```typescript
 // Usage
 const response = await invoke<AIResponse>('generate_ai_response', {
-    query: 'What are the main topics?',
-    context_documents: ['note-id-1', 'note-id-2'],
-    include_citations: true,
-    model_preference: 'phi3.1:mini' // optional
+    query: '...',
+    context_documents: ['...']
 });
-
-// Returns
-interface AIResponse {
-    answer: string;
-    citations: AICitation[];
-    confidence_score: number;
-    model_used: string;
-    processing_time: number;
-}
-
-interface AICitation {
-    document_id: string;
-    document_title: string;
-    relevant_excerpt: string;
-    confidence_score: number;
-}
 ```
 
 #### `create_ai_conversation`

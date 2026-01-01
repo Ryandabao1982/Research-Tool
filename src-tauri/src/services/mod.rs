@@ -10,6 +10,7 @@ pub mod export_service;
 pub mod backup_service;
 pub mod search_service;
 pub mod organization_service;
+pub mod local_llm;
 
 
 
