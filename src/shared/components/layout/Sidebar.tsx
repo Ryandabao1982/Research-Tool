@@ -48,7 +48,7 @@ export function Sidebar() {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-[11px] font-black text-white truncate tracking-tight uppercase">NoteMaster</h3>
+            <h3 className="text-[11px] font-black text-white truncate tracking-tight uppercase">Second Brain</h3>
             <p className="text-[9px] text-text-muted font-bold truncate tracking-widest uppercase">Pro Member</p>
           </div>
           <ChevronRight className="w-3 h-3 text-text-dim group-hover:text-text-secondary transition-colors" />

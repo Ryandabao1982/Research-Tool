@@ -12,6 +12,7 @@ import {
   CalendarIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 import { useRoleStore } from '../../shared/stores/role-store';
 
@@ -21,6 +22,7 @@ export default function DashboardPage() {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const { activeRole } = useRoleStore();
   const { stats, isLoading } = useDashboardStats();
+  const navigate = useNavigate();
 
   const handleFeedbackSave = (data: any) => {
     console.log('Feedback received:', data);
@@ -38,10 +40,16 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="flex flex-col h-screen bg-[#0f0f0f]">
+      <div className="flex flex-col h-screen bg-[#0f0f0f] relative overflow-hidden">
+        {/* Ambient Background - Neural Aura */}
+        <div className="fixed inset-0 pointer-events-none">
+           <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-brand-blue/20 blur-[120px] rounded-full mix-blend-screen opacity-60" />
+           <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-purple-500/10 blur-[100px] rounded-full mix-blend-screen opacity-50" />
+        </div>
+
         <TopBar title="Dashboard" />
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden z-10 relative">
           {/* Main Content Area */}
           <main className="flex-1 overflow-y-auto px-8 pb-12 custom-scrollbar">
             <div className="max-w-6xl mx-auto space-y-12 py-8">
@@ -68,7 +76,7 @@ export default function DashboardPage() {
                   progress={40}
                   actionLabel="Add Note"
                   image="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300"
-                  onClick={() => setIsFeedbackOpen(true)}
+                  onClick={() => navigate('/notes')}
                 />
 
                 {/* Learner Only */}
@@ -112,7 +120,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-[#1a1a1a] rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden grid grid-cols-7 border-collapse">
+                <div className="bg-surface-100/50 backdrop-blur-xl rounded-[3rem] border border-white/5 shadow-glass overflow-hidden grid grid-cols-7 border-collapse">
                   {stats.activityHeatmap.map((day, i) => (
                     <CalendarCell
                       key={i}

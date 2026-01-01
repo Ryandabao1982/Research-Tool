@@ -7,15 +7,14 @@ import { NoteList } from './NoteList';
 import type { Note } from '../../../shared/types';
 import * as useSelectionStoreModule from '../../../shared/hooks/useSelectionStore';
 
-// Mock the useSelectionStore
-vi.mock('../../../shared/hooks/useSelectionStore', () => ({
-  useSelectionStore: vi.fn(),
-}));
-
 const mockNotes: Note[] = [
   { id: '1', title: 'Note 1', content: 'Content 1', createdAt: new Date(), updatedAt: new Date() },
   { id: '2', title: 'Note 2', content: 'Content 2', createdAt: new Date(), updatedAt: new Date() },
 ];
+
+vi.mock('../../../shared/hooks/useSelectionStore', () => ({
+  useSelectionStore: vi.fn(),
+}));
 
 describe('NoteList', () => {
   it('should render notes', () => {
@@ -26,7 +25,7 @@ describe('NoteList', () => {
       toggleNoteSelection: vi.fn(),
     });
 
-    render(<NoteList notes={mockNotes} onNoteClick={() => {}} />);
+    render(<NoteList notes={mockNotes} onNoteClick={() => { }} />);
     expect(screen.getByText('Note 1')).toBeDefined();
     expect(screen.getByText('Note 2')).toBeDefined();
   });
@@ -39,7 +38,7 @@ describe('NoteList', () => {
       toggleNoteSelection: vi.fn(),
     });
 
-    render(<NoteList notes={mockNotes} onNoteClick={() => {}} />);
+    render(<NoteList notes={mockNotes} onNoteClick={() => { }} />);
     // Assuming we use checkboxes for selection
     const checkboxes = screen.getAllByRole('checkbox');
     expect(checkboxes.length).toBe(2);
@@ -53,7 +52,7 @@ describe('NoteList', () => {
       toggleNoteSelection: toggleNoteSelectionMock,
     });
 
-    render(<NoteList notes={mockNotes} onNoteClick={() => {}} />);
+    render(<NoteList notes={mockNotes} onNoteClick={() => { }} />);
     const checkboxes = screen.getAllByRole('checkbox');
     if (checkboxes[0]) {
       fireEvent.click(checkboxes[0]);

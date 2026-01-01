@@ -40,7 +40,7 @@ if (typeof window !== 'undefined' && !window.__TAURI_IPC__) {
     // Robust __TAURI_IPC__ mock
     (window as any).__TAURI_IPC__ = (message: any) => {
         const { cmd, callback, error } = message;
-        if (cmd \u0026\u0026 callback \u0026\u0026(window as any)[callback]) {
+        if (cmd && callback && (window as any)[callback]) {
             mockInvoke(cmd, message).then(data => {
                 const cb = (window as any)[callback];
                 if (typeof cb === 'function') {

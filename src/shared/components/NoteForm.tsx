@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import type { Note } from '../types';
 import { motion } from 'framer-motion';
-import { Save, X, Type, AlignLeft } from 'lucide-react';
+import { Save, X, Type, AlignLeft, Eye, Edit2 } from 'lucide-react';
 import { cn } from '../utils';
 import { FolderSelect } from './organization/FolderSelect';
 import { TagInput } from './organization/TagInput';
-
+import { MarkdownPreview } from '../../features/notes/components/MarkdownPreview';
 
 interface NoteFormProps {
   note?: Note;
@@ -17,6 +17,7 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
   const [folderId, setFolderId] = useState<string | null>(note?.folderId || null);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +40,10 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-4xl mx-auto p-10 rounded-[3rem] bg-[#1a1a1a] border border-white/5 shadow-2xl space-y-10"
+      className="max-w-5xl mx-auto p-10 rounded-[3rem] bg-surface-100/60 backdrop-blur-2xl border border-white/10 shadow-glass space-y-10 relative overflow-hidden"
     >
+      {/* Decorative Gradient */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/5 blur-[100px] rounded-full pointer-events-none -z-10" />
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
@@ -50,12 +53,28 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
             {note?.id ? 'Edit Note' : 'Create New Note'}
           </h2>
         </div>
-        <button
-          onClick={onCancel}
-          className="p-3 rounded-2xl bg-white/5 border border-white/5 text-gray-500 hover:text-white hover:bg-white/10 transition-all"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsPreviewMode(!isPreviewMode)}
+            title="Toggle Preview"
+            data-testid="toggle-preview"
+            className={cn(
+              "p-3 rounded-2xl border transition-all",
+              isPreviewMode
+                ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
+                : "bg-white/5 border-white/5 text-gray-500 hover:text-white hover:bg-white/10"
+            )}
+          >
+            {isPreviewMode ? <Edit2 className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </button>
+          <button
+            onClick={onCancel}
+            className="p-3 rounded-2xl bg-white/5 border border-white/5 text-gray-500 hover:text-white hover:bg-white/10 transition-all"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-10">
@@ -79,14 +98,23 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
           <div className="space-y-3 group">
             <div className="flex items-center gap-2 px-1">
               <AlignLeft className="w-3 h-3 text-gray-600 group-focus-within:text-brand-blue transition-colors" />
-              <label className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] group-focus-within:text-gray-400 transition-colors">Deep Insights</label>
+              <label className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] group-focus-within:text-gray-400 transition-colors">
+                {isPreviewMode ? 'Preview' : 'Deep Insights'}
+              </label>
             </div>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] px-6 py-6 text-base font-medium text-gray-300 placeholder:text-gray-700 focus:outline-none focus:bg-white/[0.05] focus:border-white/10 focus:ring-4 focus:ring-brand-blue/5 transition-all min-h-[300px] resize-none leading-relaxed"
-              placeholder="Start capturing your research, thoughts, and connections..."
-            />
+
+            {isPreviewMode ? (
+              <div className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] px-6 py-6 min-h-[300px]">
+                <MarkdownPreview content={content} />
+              </div>
+            ) : (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] px-6 py-6 text-base font-medium text-gray-300 placeholder:text-gray-700 focus:outline-none focus:bg-white/[0.05] focus:border-white/10 focus:ring-4 focus:ring-brand-blue/5 transition-all min-h-[300px] resize-none leading-relaxed font-mono"
+                placeholder="Start capturing your research, thoughts, and connections..."
+              />
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

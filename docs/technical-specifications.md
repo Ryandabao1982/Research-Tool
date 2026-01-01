@@ -49,7 +49,7 @@ Build a next-generation personal knowledge base that combines the best features 
 
 #### Frontend Components
 
-- **UI Layer**: React components with Tailwind CSS styling (NoteMaster Pro theme)
+- **UI Layer**: React components with Tailwind CSS styling (Neural Aura theme)
 - **Layout Engine**: Fixed left sidebar with multi-level navigation and contextual TopBar
 - **State Management**: Zustand for global UI state + TanStack Query for server state
 - **Editor**: Markdown editor with live preview

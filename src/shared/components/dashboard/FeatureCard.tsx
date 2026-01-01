@@ -29,7 +29,7 @@ export const FeatureCard = ({
     whileTap={{ scale: 0.99 }}
     onClick={onClick}
     className={cn(
-      "bg-[#1a1a1a] rounded-[2.5rem] p-6 border border-white/5 flex gap-6 group cursor-pointer transition-colors hover:border-white/10 shadow-lg hover:shadow-2xl hover:shadow-blue-500/5",
+      "bg-surface-100/40 backdrop-blur-2xl rounded-[2.5rem] p-6 border border-white/5 flex gap-6 group cursor-pointer transition-all duration-300 hover:border-white/20 shadow-glass hover:shadow-[0_0_40px_rgba(0,112,243,0.15)]",
       className
     )}
   >

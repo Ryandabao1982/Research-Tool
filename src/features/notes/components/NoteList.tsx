@@ -38,10 +38,10 @@ export function NoteList({ notes, onNoteClick }: NoteListProps) {
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className={cn(
-                  "relative p-6 rounded-[2.5rem] cursor-pointer transition-all duration-300 group overflow-hidden border shadow-2xl",
+                  "relative p-6 rounded-[2.5rem] cursor-pointer transition-all duration-500 group overflow-hidden border shadow-lg hover:shadow-2xl",
                   isSelected 
-                    ? "bg-white/[0.08] border-brand-blue/50 shadow-brand-blue/10" 
-                    : "bg-[#1a1a1a] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
+                    ? "bg-brand-blue/10 border-brand-blue/50 shadow-[0_0_30px_rgba(0,112,243,0.15)]" 
+                    : "bg-surface-100/40 backdrop-blur-xl border-white/5 hover:border-white/20 hover:bg-surface-100/60"
                 )}
                 onClick={() => {
                   if (isSelectionMode) {

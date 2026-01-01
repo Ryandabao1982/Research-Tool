@@ -12,7 +12,7 @@ export const DashboardSidebar = () => {
   const { activeRole } = useRoleStore();
 
   return (
-    <aside className="w-80 border-l border-white/5 p-8 space-y-10 overflow-y-auto hidden 2xl:block custom-scrollbar bg-[#0f0f0f]/50 backdrop-blur-3xl">
+    <aside className="w-80 border-l border-white/5 p-8 space-y-10 overflow-y-auto hidden 2xl:block custom-scrollbar bg-surface-100/30 backdrop-blur-3xl">
       {/* Active Notes */}
       <div className="space-y-5">
         <h3 className="text-lg font-bold text-white tracking-tight">Active Notes</h3>

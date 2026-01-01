@@ -28,7 +28,7 @@ export const CalendarCell = ({ day, note, isSelected }: CalendarCellProps) => (
         initial={{ opacity: 0, y: 5, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         whileHover={{ y: -2, scale: 1.02 }}
-        className="bg-[#252525] border border-white/10 rounded-[1.25rem] p-3.5 shadow-2xl relative z-10 cursor-pointer hover:border-white/20 transition-all hover:bg-[#2a2a2a] group/note"
+        className="bg-surface-200/80 backdrop-blur-md border border-white/10 rounded-[1.25rem] p-3.5 shadow-xl relative z-10 cursor-pointer hover:border-white/20 transition-all hover:bg-surface-300/80 group/note"
       >
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-[7px] font-black text-brand-blue uppercase tracking-[0.15em]">{note.type || 'Note'}</span>

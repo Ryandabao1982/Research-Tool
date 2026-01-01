@@ -1,10 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'highlight.js/styles/github-dark.css';
 
 @layer base {
   :root {
-    --brand-primary: #0070f3; /* Default Manager Blue */
+    --brand-primary: #0070f3;
+    /* Default Manager Blue */
   }
 
   body {
@@ -21,13 +23,15 @@
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
   }

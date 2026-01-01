@@ -37,13 +37,16 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="w-full max-w-2xl bg-[#2a2a2a] rounded-[3rem] border border-white/10 shadow-2xl pointer-events-auto overflow-hidden flex flex-col"
+              className="w-full max-w-2xl bg-surface-100/80 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-glass pointer-events-auto overflow-hidden flex flex-col"
             >
               {/* Header */}
-              <div className="p-10 pb-6">
+              <div className="p-10 pb-6 relative">
+                {/* Decorative Glow */}
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-brand-blue/10 blur-[80px] rounded-full pointer-events-none" />
+                
                 <div className="flex justify-between items-start mb-8">
-                  <h2 className="text-4xl font-bold text-white tracking-tight">
-                    NoteMaster Productivity Insights
+                  <h2 className="text-4xl font-bold text-white tracking-tight font-display">
+                    Second Brain Insights
                   </h2>
                   <button 
                     onClick={onClose}
@@ -55,11 +58,11 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
 
                 {/* Info Grid */}
                 <div className="grid grid-cols-[140px,1fr] gap-x-8 gap-y-6 mb-10">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Note Management</span>
-                  <p className="text-sm text-gray-300 font-medium">This survey assesses your note-taking efficiency.</p>
+                  <span className="text-[10px] font-black text-text-dim uppercase tracking-[0.25em]">Neural Link</span>
+                  <p className="text-sm text-text-secondary font-medium italic">Synchronizing your cognitive feedback loops.</p>
                   
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">User Feedback</span>
-                  <p className="text-sm text-gray-300 font-medium">All users</p>
+                  <span className="text-[10px] font-black text-text-dim uppercase tracking-[0.25em]">Session Data</span>
+                  <p className="text-sm text-text-secondary font-medium uppercase tracking-wider">Active Consciousness</p>
                 </div>
 
                 <div className="h-px bg-white/5 w-full mb-10" />
@@ -67,17 +70,20 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
                 {/* Questions */}
                 <div className="space-y-12">
                   <div className="space-y-4">
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Questions</span>
+                    <span className="text-[10px] font-black text-text-dim uppercase tracking-[0.25em]">Cognitive Flow</span>
                     <p className="text-sm text-white font-medium leading-relaxed">
-                      Q1: On a scale of 1 to 10, how satisfied are you with organizing your notes? What challenges do you face?
+                      How frictionless is your current organizational flow?
                     </p>
                     
                     {/* Range Slider */}
                     <div className="pt-6 pb-2 px-2">
-                      <div className="relative h-1 bg-white/10 rounded-full">
+                      <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
                         <div 
-                          className="absolute h-full bg-brand-blue rounded-full" 
-                          style={{ width: `${(satisfaction - 1) * 11.11}%` }} 
+                          className="absolute h-full bg-brand-blue shadow-[0_0_15px_rgba(0,112,243,0.5)] transition-all duration-300" 
+                          style={{ 
+                            width: `${(satisfaction - 1) * 11.11}%`,
+                            backgroundColor: 'var(--brand-primary)' 
+                          }} 
                         />
                         <input
                           type="range"
@@ -85,48 +91,40 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
                           max="10"
                           value={satisfaction}
                           onChange={(e) => setSatisfaction(parseInt(e.target.value))}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
-                        <div 
-                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-4 border-brand-blue rounded-full shadow-lg pointer-events-none transition-all"
-                          style={{ left: `${(satisfaction - 1) * 11.11}%`, transform: 'translate(-50%, -50%)' }}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         />
                       </div>
-                      <div className="flex justify-between mt-4 text-[10px] font-bold text-gray-500">
-                        <span>1</span>
-                        <span>10</span>
+                      <div className="flex justify-between mt-4 text-[10px] font-black text-text-dim tracking-widest">
+                        <span>ENTROPY</span>
+                        <span className="text-white bg-brand-blue/20 px-2 py-0.5 rounded-md" style={{ color: 'var(--brand-primary)' }}>{satisfaction}</span>
+                        <span>HARMONY</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-6">
                     <p className="text-sm text-white font-medium">
-                      Q2: Do you find it easy to access your favorite notes?
+                      Is your Second Brain surfaceing insights naturally?
                     </p>
                     
                     <div className="flex gap-4">
-                      <button
-                        onClick={() => setEasyAccess(true)}
-                        className={cn(
-                          "flex-1 aspect-[1.2/1] rounded-[2rem] text-sm font-bold transition-all",
-                          easyAccess === true 
-                            ? "bg-white text-[#1a1a1a] shadow-xl scale-105" 
-                            : "bg-white/5 text-white border border-white/5 hover:bg-white/10"
-                        )}
-                      >
-                        Yes
-                      </button>
-                      <button
-                        onClick={() => setEasyAccess(false)}
-                        className={cn(
-                          "flex-1 aspect-[1.2/1] rounded-[2rem] text-sm font-bold transition-all",
-                          easyAccess === false 
-                            ? "bg-brand-blue text-white shadow-xl scale-105 shadow-brand-blue/20" 
-                            : "bg-white/5 text-white border border-white/5 hover:bg-white/10"
-                        )}
-                      >
-                        No
-                      </button>
+                      {[
+                        { label: 'Yes', value: true },
+                        { label: 'No', value: false }
+                      ].map((opt) => (
+                        <button
+                          key={opt.label}
+                          onClick={() => setEasyAccess(opt.value)}
+                          className={cn(
+                            "flex-1 py-6 rounded-3xl text-sm font-bold transition-all duration-300 border",
+                            easyAccess === opt.value 
+                              ? "bg-white text-black shadow-xl scale-[1.02] border-white" 
+                              : "bg-surface-200/40 text-text-secondary border-white/5 hover:border-white/20 hover:bg-surface-200/60"
+                          )}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -136,9 +134,10 @@ export function FeedbackModal({ isOpen, onClose, onSave }: FeedbackModalProps) {
               <div className="p-10 pt-4 flex justify-center">
                 <button
                   onClick={handleSave}
-                  className="w-full max-w-xs py-4 bg-white text-[#1a1a1a] rounded-full text-sm font-bold hover:bg-gray-100 transition-all shadow-xl"
+                  className="w-full py-4 bg-white text-black rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-gray-100 transition-all shadow-glow-blue active:scale-95"
+                  style={{ boxShadow: '0 0 30px rgba(255, 255, 255, 0.1)' }}
                 >
-                  Save feedback
+                  Commit to Memory
                 </button>
               </div>
             </motion.div>

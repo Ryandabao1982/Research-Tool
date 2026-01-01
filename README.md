@@ -37,7 +37,7 @@ A revolutionary desktop knowledge management application combining best features
 
 - ✅ **Professional Layout Architecture**: Fixed left sidebar with multi-level navigation and contextual TopBar.
 - ✅ **High-Fidelity Dashboard**: Interactive calendar, feature highlights grid, and contextual status sidebar.
-- ✅ **NoteMaster Pro Theme**: Premium blue-centric design system with glassmorphism and motion.
+- ✅ **Neural Aura Theme**: Premium blue-centric design system with glassmorphism and motion.
 - ✅ **Modular Backend Architecture**: 7 service modules with clean separation of concerns.
 - ✅ **31 Tauri Commands**: Note, folder, tag, search, link, and AI operations.
 - ✅ **Complete AI Integration**: Multi-provider support with streaming responses.
@@ -95,7 +95,7 @@ knowledge-base-pro/
 │   │   └── services/             # Business logic layer
 │   └── Cargo.toml                # Rust dependencies
 ├── 📂 docs/                       # Documentation
-└── tailwind.config.mjs            # NoteMaster Pro design tokens
+└── tailwind.config.mjs            # Neural Aura design tokens
 ```
 
 ### Directory Purpose
@@ -413,7 +413,7 @@ npm run tauri:build
 
 ## 🎨 Design System
 
-### NoteMaster Pro Theme
+### Neural Aura Theme
 
 KnowledgeBase Pro features a premium, developer-focused "Pro" aesthetic:
 

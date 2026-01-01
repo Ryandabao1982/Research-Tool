@@ -46,7 +46,7 @@ development_status:
   1-2-core-note-management-crud: done  # useNotesStore implements CRUD
 
   1-3-hierarchical-organization: done  # Folders and tags implemented (Backend + Frontend)
-  1-4-markdown-editor-with-live-preview: backlog  # No markdown editor found
+  1-4-markdown-editor-with-live-preview: done  # Review complete, critical navigation issues fixed
   epic-1-retrospective: optional
   
   # Epic 2: Retrieval & Ambient Intelligence
