@@ -13,12 +13,12 @@ workflow_status:
     last_run: '2025-12-31'
     output: _bmad-output/planning-artifacts/epics.md
     validation_status: validing/optional/skipped
+  create-ux-design: _bmad-output/planning-artifacts/ux-design-specification.md
   
   # Status: pending/optional/skipped
   brainstorm-project: skipped
   research: skipped
   product-brief: skipped
-  create-ux-design: recommended
   test-design: optional
   implementation-readiness: required
   sprint-planning: required

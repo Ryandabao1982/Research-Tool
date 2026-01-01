@@ -1,6 +1,7 @@
 use knowledge_base_pro::services::db_service;
 use knowledge_base_pro::services::local_llm::LocalLLMState;
 use knowledge_base_pro::commands::ai;
+use knowledge_base_pro::commands::data_settings;
 use std::sync::Mutex;
 
 use tauri::{GlobalShortcutManager, Manager, SystemTray, SystemTrayEvent};
@@ -34,7 +35,7 @@ fn main() {
         })
         .manage(db_service::DbState(Mutex::new(conn)))
         .manage(llm_state) // Manage the LLM State
-        .invoke_handler(tauri::generate_handler![
+         .invoke_handler(tauri::generate_handler![
             ai::synthesize_query,
             ai::get_model_status,
             ai::delete_model,
@@ -50,8 +51,11 @@ fn main() {
             knowledge_base_pro::commands::organization::create_tag,
             knowledge_base_pro::commands::organization::link_tag_to_note,
             knowledge_base_pro::commands::organization::get_note_tags,
-            knowledge_base_pro::commands::organization::unlink_tag_from_note
-        ])
+            knowledge_base_pro::commands::organization::unlink_tag_from_note,
+            knowledge_base_pro::commands::related_notes::get_related_notes,
+            knowledge_base_pro::commands::data_settings::get_metadata,
+            knowledge_base_pro::commands::data_settings::set_metadata,
+         ])
 
 
 

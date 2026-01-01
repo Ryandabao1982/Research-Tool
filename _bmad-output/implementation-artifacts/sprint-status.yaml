@@ -52,9 +52,9 @@ development_status:
   # Epic 2: Retrieval & Ambient Intelligence
   epic-2: in-progress  # Partially implemented
   2-1-full-text-search-with-command-palette: done  # Verified and review findings resolved
-   2-2-advanced-filtering-and-scoping: review  # Filtering features implemented - ready for code review
+  2-2-advanced-filtering-and-scoping: review  # Filtering features implemented - ready for code review
   2-3-multi-document-ai-synthesis: done  # SynthesisPanel.tsx exists
-  2-4-contextual-sidebar-ambient-ai: ready-for-dev  # Comprehensive story created with validation improvements
+  2-4-contextual-sidebar-ambient-ai: done # Contextual sidebar implemented - code review complete, all issues fixed
   epic-2-retrospective: optional
   
   # Epic 3: Adaptive Workflows (Role-Based Contexts)

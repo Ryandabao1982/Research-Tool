@@ -11,9 +11,10 @@ interface NoteFormProps {
   note?: Note;
   onSave: (note: Note) => void;
   onCancel: () => void;
+  onContentChange?: (content: string) => void;
 }
 
-export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
+export function NoteForm({ note, onSave, onCancel, onContentChange }: NoteFormProps) {
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
   const [folderId, setFolderId] = useState<string | null>(note?.folderId || null);
@@ -112,7 +113,10 @@ export function NoteForm({ note, onSave, onCancel }: NoteFormProps) {
             ) : (
               <textarea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  onContentChange?.(e.target.value);
+                }}
                 className="w-full flex-1 bg-transparent border-none px-6 pt-12 pb-6 text-base font-normal text-gray-300 placeholder:text-gray-800 focus:outline-none focus:ring-0 focus:bg-white/[0.02] transition-colors resize-none leading-relaxed font-mono"
                 placeholder="Start typing..."
               />
