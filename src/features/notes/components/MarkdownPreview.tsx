@@ -2,9 +2,8 @@ import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import { Link } from 'react-router-dom';
 import { cn } from '../../../shared/utils';
-import { useNotesStore } from '../../../shared/hooks/useNotesStore';
+import { useWikiNavigation } from '../../../shared/hooks/useWikiNavigation';
 
 interface MarkdownPreviewProps {
     content: string;
@@ -12,6 +11,8 @@ interface MarkdownPreviewProps {
 }
 
 export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
+    const { handleWikiLinkClick } = useWikiNavigation();
+
     // Process WikiLinks: [[Title]] or [[Title|Alias]]
     const processedContent = useMemo(() => {
         return content.replace(/\[\[(.*?)\]\]/g, (match, capture) => {
@@ -35,11 +36,9 @@ export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
                 rehypePlugins={[rehypeHighlight]}
                 components={{
                     // Custom link handling
-                    // Custom link handling
                     a: ({ node, ...props }) => {
                         const href = props.href || '';
                         const isInternal = href.startsWith('/notes/');
-                        const { notes, setSelectedNoteId, addNote } = useNotesStore();
 
                         const handleClick = async (e: React.MouseEvent) => {
                             if (!isInternal) return;
@@ -47,16 +46,7 @@ export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
 
                             // Extract title from URL path
                             const title = decodeURIComponent(href.replace('/notes/', ''));
-                            const targetNote = notes.find(n => n.title.toLowerCase() === title.toLowerCase());
-
-                            if (targetNote) {
-                                setSelectedNoteId(targetNote.id);
-                            } else {
-                                if (window.confirm(`Note "${title}" does not exist. Create it?`)) {
-                                    const newNote = await addNote(title, '');
-                                    setSelectedNoteId(newNote.id);
-                                }
-                            }
+                            await handleWikiLinkClick(title);
                         };
 
                         if (isInternal) {

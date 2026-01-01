@@ -2,19 +2,14 @@
 
 **Story:** `1-4-markdown-editor-with-live-preview.md`
 **Git vs Story Discrepancies:** 1 found
-**Issues Found:** 2 High, 1 Medium, 2 Low
+**Issues Found:** 1 High, 2 Medium, 1 Low
 
 ## 🔴 CRITICAL ISSUES
-- **Broken Navigation (AC3 Failed)**: `MarkdownPreview.tsx` implements WikiLinks as React Router `<Link>`s to `/notes/Title`. However, `App.tsx` does NOT have a route for `/notes/:id` or `/notes/:title`. `NotesPage` uses `selectedNoteId` state to open notes, not URL parameters. Clicking a link will likely break the app or do nothing.
-- **Title vs UUID Mismatch**: WikiLinks rely on Titles (`[[My Note]]`), but the system uses UUIDs (`note.id`). There is no logic implemented to resolve a Title to a UUID to open the correct note.
-- **Missing "Prompt to Create" (AC3 Failed)**: Because the navigation is broken, the required logic to "prompt to create if it doesn't exist" is completely missing.
+- **UX/Styling Mismatch**: The Acceptance Criteria and Tasks explicitly call for "**Functional Precision**" styling with "**sharp edges**". `NoteForm.tsx` uses `rounded-[3rem]` and `rounded-2xl`, which creates a highly rounded aesthetic that directly contradicts the requirement.
 
 ## 🟡 MEDIUM ISSUES
-- **Story Discrepancy**: Story File List includes `useNotesStore.ts`, implying changes were needed (likely for Title->ID lookup), but `git status` shows this file was NOT modified. This confirms the missing logic.
-- **Regex Edge Cases**: The regex `\[\[(.*?)\]\]` is simplistic and may fail on complex nested structures, though likely acceptable for MVP.
+- **Undocumented File**: `src/shared/components/NoteForm.test.tsx` is present in the git changes but missing from the Story's "File List".
+- **Poor UX/Testability**: `MarkdownPreview.tsx` uses `window.confirm()` for creating missing notes. This is a blocking native alert that breaks the immersion of "Atmospheric Glassmorphism" and is hard to test/mock properly.
 
 ## 🟢 LOW ISSUES
-- **Styling**: Links have `border-b` which simulates underline, but Tailwind `underline` utility might be cleaner/more standard.
-- **Import Optimization**: `rehype-highlight` is used, but `index.css` manually imports `highlight.js` styles. This is fragile; better to modularize or document.
-
-This is a **BLOCKING** review. The Navigation feature (Task 2) is fundamentally broken due to architecture mismatch.
+- **Logic Coupling**: The Task list requested a `handleWikiLinkClick` function. This logic is currently implemented inline within `MarkdownPreview.tsx`. It works, but extracting it would improve maintainability and reuse.

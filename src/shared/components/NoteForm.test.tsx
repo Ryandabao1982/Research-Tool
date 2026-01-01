@@ -1,8 +1,8 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { NoteForm } from './NoteForm';
 import type { Note } from '../types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,6 +11,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 vi.mock('../../features/notes/components/MarkdownPreview', () => ({
     MarkdownPreview: () => <div data-testid="markdown-preview">Mock Preview</div>
 }));
+
+// Clean up after each test
+afterEach(() => {
+    cleanup();
+});
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -58,5 +63,23 @@ describe('NoteForm', () => {
 
         // Should show preview content
         expect(screen.getByTestId('markdown-preview')).toBeDefined();
+    });
+
+    it('should call onSave with correct data when submitted', () => {
+        renderWithProviders(<NoteForm onSave={mockOnSave} onCancel={mockOnCancel} />);
+
+        const titleInput = screen.getByPlaceholderText('UNTITLED NOTE...');
+        const contentInput = screen.getByPlaceholderText('Start typing...');
+        const submitButton = screen.getByText('Capture');
+
+        fireEvent.change(titleInput, { target: { value: 'New Note' } });
+        fireEvent.change(contentInput, { target: { value: 'New Content' } });
+        fireEvent.click(submitButton);
+
+        expect(mockOnSave).toHaveBeenCalledTimes(1);
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+            title: 'New Note',
+            content: 'New Content',
+        }));
     });
 });

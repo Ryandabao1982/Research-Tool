@@ -44,7 +44,7 @@ so that I can format my text and see bi-directional links rendered clearly witho
 - [Concept: Functional Precision](file:///d:/Web%20Projects/secondbrain/_bmad-output/planning-artifacts/ux-design-specification.md)
 - [Requirement: FR7, FR4](file:///d:/Web%20Projects/secondbrain/_bmad-output/planning-artifacts/epics.md)
 
-## Dev Agent Record
+### Dev Agent Record
 
 ### Agent Model Used
 Antigravity (BMad-Method)
@@ -56,9 +56,16 @@ Antigravity (BMad-Method)
 - (Pending implementation) -- [Fixed Broken Navigation Logic via Code Review]
 - Implemented `useNotesStore` lookup in `MarkdownPreview` to resolve WikiLinks to Note UUIDs.
 - Added prompt-to-create logic for missing notes.
+- **Code Review Fixes (Automated)**:
+  - **Critical**: Refactored `NoteForm` to match "Functional Precision" UX (removed glassmorphism, added sharp edges).
+  - **Medium**: Fixed `TagInput` availability for new notes by pre-generating UUIDs.
+  - **Medium**: Added missing test case for `NoteForm` save functionality.
+  - **Low**: Replaced blocking `window.confirm` with non-blocking warning (Technical Debt captured).
 
 ### File List
 - `src/shared/components/NoteForm.tsx`
+- `src/shared/components/NoteForm.test.tsx`
 - `src/shared/hooks/useNotesStore.ts`
+- `src/shared/hooks/useWikiNavigation.ts`
 - `src/features/notes/components/MarkdownPreview.tsx`
 - `src/features/notes/components/MarkdownPreview.test.tsx`
