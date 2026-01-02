@@ -12,6 +12,7 @@ interface NotesState {
   loadNotes: () => Promise<void>;
   loadRecentNotes: () => Promise<void>;
   addNote: (title: string, content: string) => Promise<Note>;
+  addNoteWithId: (note: Note) => void;  // For quick capture with backend-generated ID
   updateNote: (id: string, updates: Partial<Note>) => Promise<Note>;
   deleteNote: (id: string) => Promise<void>;
   setSelectedNoteId: (id: string | null) => void;
@@ -58,6 +59,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       recentNotes: [newNote, ...state.recentNotes].slice(0, 10),
     }));
     return newNote;
+  },
+
+  // For quick capture - note already created by backend
+  addNoteWithId: (note: Note) => {
+    set((state) => ({
+      notes: [note, ...state.notes],
+      recentNotes: [note, ...state.recentNotes].slice(0, 10),
+    }));
   },
 
   updateNote: async (id, updates) => {

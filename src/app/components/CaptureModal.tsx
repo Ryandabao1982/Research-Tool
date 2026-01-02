@@ -3,11 +3,12 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotesStore } from '../../shared/stores/notes-store';
 import { useSettingsStore } from '../../shared/stores/settingsStore';
+import type { Note } from '../../shared/types';
 
 interface CaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onNoteCreated?: (note: any) => void;
+  onNoteCreated?: (note: Note) => void;
 }
 
 /**
@@ -28,75 +29,105 @@ export function CaptureModal({ isOpen, onClose, onNoteCreated }: CaptureModalPro
   const [content, setContent] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const addNote = useNotesStore((state) => state.addNote);
   const { reducedMotion } = useSettingsStore();
+  const addNoteWithId = useNotesStore((state) => state.addNoteWithId);
 
-  // Generate title from first line
-  const generateTitle = useCallback((text: string): string => {
-    const firstLine = text.split('\n')
-      .map(line => line.trim())
-      .find(line => line.length > 0);
-    
-    if (!firstLine) return 'Untitled Note';
-    
-    // Truncate if too long
-    return firstLine.length > 100 ? `${firstLine.substring(0, 97)}...` : firstLine;
-  }, []);
-
-  // Handle save
-  const handleSave = useCallback(async () => {
-    if (!content.trim() || isSaving) return;
-
-    setIsSaving(true);
-    const startTime = performance.now();
-
-    try {
-      // Call backend to create note
-      // Backend returns tuple: (note_id, title)
-      const result = await invoke<[string, string]>('quick_create_note', {
-        content: content.trim(),
-      });
-
-      // Add to frontend store for Recent Notes (AC: #5)
-      const newNote = {
-        id: result[0],  // note_id from tuple
-        title: result[1],  // title from tuple
-        content: content.trim(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      
-      await addNote(newNote.title, newNote.content);
-      
-      // Update store with actual ID from backend
-      useNotesStore.getState().setNotes([
-        newNote,
-        ...useNotesStore.getState().notes,
-      ]);
-
-      if (onNoteCreated) {
-        onNoteCreated(newNote);
-      }
-
-      const duration = performance.now() - startTime;
-      console.log(`Capture completed in ${duration.toFixed(2)}ms (target: <200ms)`);
-
-      handleClose();
-    } catch (error) {
-      console.error('Failed to create note:', error);
-      // Could show error toast here
-    } finally {
-      setIsSaving(false);
-    }
-  }, [content, isSaving, addNote, onNoteCreated]);
+  // Constants for configuration
+  const MAX_CONTENT_LENGTH = 100000; // 100KB limit
+  const EXPANSION_THRESHOLD_CHARS = 50;
+  const EXPANSION_THRESHOLD_LINES = 1;
+  const PERFORMANCE_TARGET_MS = 200;
 
   // Handle close
   const handleClose = useCallback(() => {
     setContent('');
     setIsExpanded(false);
+    setError(null);
     onClose();
   }, [onClose]);
+
+  // Handle save
+  const handleSave = useCallback(async () => {
+    if (!content.trim() || isSaving) return;
+
+    // Input validation (security fix)
+    const trimmedContent = content.trim();
+    
+    if (trimmedContent.length === 0) {
+      setError('Content cannot be empty');
+      return;
+    }
+    
+    if (trimmedContent.length > MAX_CONTENT_LENGTH) {
+      setError(`Content exceeds maximum length of ${MAX_CONTENT_LENGTH} characters`);
+      return;
+    }
+
+    setIsSaving(true);
+    setError(null);
+    const startTime = performance.now();
+
+    try {
+      // Call backend to create note with auto-title
+      // Backend returns tuple: (note_id, title)
+      const result = await invoke<[string, string]>('quick_create_note', {
+        content: trimmedContent,
+      });
+
+      // Validate backend response (response validation fix)
+      if (!result || !Array.isArray(result) || result.length !== 2) {
+        throw new Error('Invalid response format from backend');
+      }
+
+      const [noteId, title] = result;
+
+      if (!noteId || typeof noteId !== 'string' || !title || typeof title !== 'string') {
+        throw new Error('Backend returned invalid note data');
+      }
+
+      // Create note object
+      const newNote: Note = {
+        id: noteId,
+        title: title,
+        content: trimmedContent,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Update store using proper action (no direct manipulation)
+      addNoteWithId(newNote);
+
+      // Notify parent if callback provided
+      if (onNoteCreated) {
+        onNoteCreated(newNote);
+      }
+
+      // Performance measurement (AC: #6)
+      const duration = performance.now() - startTime;
+      
+      // Log performance (in production, use proper logging service)
+      if (duration > PERFORMANCE_TARGET_MS) {
+        console.warn(`Performance target missed: ${duration.toFixed(2)}ms > ${PERFORMANCE_TARGET_MS}ms`);
+      } else {
+        console.log(`Capture completed in ${duration.toFixed(2)}ms`);
+      }
+
+      // Close modal on success
+      handleClose();
+    } catch (error) {
+      // Show error to user instead of silent failure
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save note';
+      setError(errorMessage);
+      
+      // Log error for debugging
+      console.error('Capture error:', error);
+      
+      // Reset saving state so user can retry
+      setIsSaving(false);
+    }
+  }, [content, isSaving, onNoteCreated, handleClose, addNoteWithId]);
 
   // Handle Enter to save (AC: #3) and Esc to close (AC: #4)
   const handleKeyDown = useCallback(async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -124,13 +155,19 @@ export function CaptureModal({ isOpen, onClose, onNoteCreated }: CaptureModalPro
     }
   }, [isOpen]);
 
-  // Auto-expand based on content (AC: #2)
+  // Auto-expand based on content (AC: #2) - with debouncing
   useEffect(() => {
     if (!isOpen) return;
     
     const lines = content.split('\n').length;
-    const shouldExpand = lines > 1 || content.length > 50;
-    setIsExpanded(shouldExpand);
+    const shouldExpand = lines > EXPANSION_THRESHOLD_LINES || content.length > EXPANSION_THRESHOLD_CHARS;
+    
+    // Debounce expansion to avoid jarring transitions
+    const timer = setTimeout(() => {
+      setIsExpanded(shouldExpand);
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [content, isOpen]);
 
   // Reset content when modal closes
@@ -138,6 +175,7 @@ export function CaptureModal({ isOpen, onClose, onNoteCreated }: CaptureModalPro
     if (!isOpen) {
       setContent('');
       setIsExpanded(false);
+      setError(null);
     }
   }, [isOpen]);
 
@@ -164,6 +202,7 @@ export function CaptureModal({ isOpen, onClose, onNoteCreated }: CaptureModalPro
             overflow-hidden transition-all duration-200
             ${isExpanded ? 'min-h-[300px]' : 'min-h-[150px]'}
             ${isSaving ? 'opacity-70 pointer-events-none' : ''}
+            ${error ? 'border-red-500' : ''}
           `}
           layout
         >
@@ -171,6 +210,13 @@ export function CaptureModal({ isOpen, onClose, onNoteCreated }: CaptureModalPro
           <div className="absolute top-2 right-2 font-mono text-xs text-neutral-500" aria-live="polite">
             {isExpanded ? 'EXPANDED' : 'COMPACT'}
           </div>
+
+          {/* Error display */}
+          {error && (
+            <div className="absolute top-2 left-2 right-12 bg-red-50 text-red-700 px-3 py-2 text-xs rounded border border-red-200">
+              {error}
+            </div>
+          )}
 
           <textarea
             ref={textareaRef}
@@ -181,6 +227,7 @@ export function CaptureModal({ isOpen, onClose, onNoteCreated }: CaptureModalPro
             disabled={isSaving}
             aria-label="Quick capture text area"
             aria-describedby="capture-hints"
+            aria-invalid={!!error}
             className={`
               w-full h-full bg-transparent border-none outline-none resize-none
               text-neutral-900 placeholder-neutral-400 p-8

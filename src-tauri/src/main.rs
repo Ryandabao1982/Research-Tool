@@ -97,49 +97,22 @@ fn main() {
 
 
 
-        .setup(|app| {
+         .setup(|app| {
             // Register Global Hotkey: Alt+Space for Rapid Capture
             // This works even when app is in background (AC: #7)
+            // Frontend handles modal display via useGlobalKeyboard hook
             let app_handle = app.handle();
             let mut shortcut = app.global_shortcut_manager();
             
             // Alt+Space for rapid capture modal
+            // Only emits event - frontend handles modal display
             shortcut
                 .register("Alt+Space", move || {
-                    // Get or create the capture window
-                    let window = app_handle.get_window("capture");
-                    if let Some(win) = window {
-                        // Window exists, just show and focus
-                        if !win.is_visible().unwrap() {
-                            win.show().unwrap();
-                        }
-                        win.set_focus().unwrap();
-                    } else {
-                        // Window doesn't exist yet, create it
-                        // This will be handled by the frontend when it registers the shortcut
-                        log::info!("Alt+Space pressed - frontend will handle modal opening");
-                    }
-                    
-                    // Also emit an event that frontend can listen to
+                    // Emit event that frontend can listen to
+                    // Frontend useGlobalKeyboard hook will open the modal
                     let _ = app_handle.emit_all("global-shortcut-pressed", "Alt+Space");
                 })
                 .expect("Failed to register Alt+Space global shortcut");
-                
-            // Keep existing Cmd/Ctrl+Shift+Space for backward compatibility
-            let app_handle_2 = app.handle();
-            shortcut
-                .register("CmdOrCtrl+Shift+Space", move || {
-                    let window = app_handle_2.get_window("capture");
-                    if let Some(win) = window {
-                        if win.is_visible().unwrap() {
-                            win.hide().unwrap();
-                        } else {
-                            win.show().unwrap();
-                            win.set_focus().unwrap();
-                        }
-                    }
-                })
-                .expect("Failed to register legacy shortcut");
                 
             // Initialize Background Worker (The Subconscious)
             knowledge_base_pro::services::background::init(app.handle());

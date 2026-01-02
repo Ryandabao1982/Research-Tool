@@ -12,21 +12,49 @@ use chrono::Local;
 /// 
 /// # Performance
 /// * Target: <150ms for complete note creation
+/// 
+/// # Security
+/// * Validates input length (max 100KB)
+/// * Sanitizes content
+/// * Validates UTF-8 encoding
 #[tauri::command]
 pub async fn quick_create_note(
     state: State<'_, db_service::DbState>,
     content: String,
 ) -> Result<(String, String), String> {
+    const MAX_CONTENT_LENGTH: usize = 100_000; // 100KB limit
+    
     let start = std::time::Instant::now();
     
+    // Input validation (Security fix)
+    if content.is_empty() {
+        return Err("Content cannot be empty".to_string());
+    }
+    
+    if content.len() > MAX_CONTENT_LENGTH {
+        return Err(format!("Content exceeds maximum length of {} bytes", MAX_CONTENT_LENGTH));
+    }
+    
+    // Validate UTF-8 (already guaranteed by Rust String type, but double-check)
+    if !content.is_utf8() {
+        return Err("Invalid character encoding".to_string());
+    }
+    
+    // Sanitize content - trim whitespace
+    let sanitized_content = content.trim();
+    
+    if sanitized_content.is_empty() {
+        return Err("Content cannot be empty after trimming".to_string());
+    }
+    
     // Auto-generate title from first line
-    let title = generate_title(&content);
+    let title = generate_title(sanitized_content);
     
     // Get connection and create note
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     
     // Use existing db_service function
-    let note_id = db_service::create_note(&conn, &title, &content)?;
+    let note_id = db_service::create_note(&conn, &title, sanitized_content)?;
     
     let duration = start.elapsed();
     log::info!("Quick create note completed in {:?} (target: <150ms)", duration);
