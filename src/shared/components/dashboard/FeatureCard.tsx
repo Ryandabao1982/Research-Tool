@@ -29,48 +29,48 @@ export const FeatureCard = ({
     whileTap={{ scale: 0.99 }}
     onClick={onClick}
     className={cn(
-      "bg-surface-100/40 backdrop-blur-2xl rounded-[2.5rem] p-6 border border-white/5 flex gap-6 group cursor-pointer transition-all duration-300 hover:border-white/20 shadow-glass hover:shadow-[0_0_40px_rgba(0,112,243,0.15)]",
+      "bg-white border border-neutral-200 p-8 flex gap-6 group cursor-pointer transition-all duration-300 hover:border-neutral-300 hover:bg-neutral-50",
       className
     )}
   >
-    <div className="w-32 h-32 rounded-3xl overflow-hidden bg-gradient-to-br from-white/5 to-white/10 flex-shrink-0 flex items-center justify-center relative">
-      <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+    <div className="w-32 h-32 border border-neutral-200 bg-neutral-50 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
+      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
       {image ? (
         <img src={image} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
       ) : (
-        <LayoutGridIcon className="w-10 h-10 text-white/20" />
+        <LayoutGridIcon className="w-10 h-10 text-neutral-400" />
       )}
     </div>
     <div className="flex-1 flex flex-col justify-between py-1">
       <div className="flex justify-between items-start">
         <div className="min-w-0 flex-1 pr-4">
-          <h3 className="text-xl font-bold text-white mb-1 truncate">{title}</h3>
-          <p className="text-sm text-gray-400 line-clamp-1">{description}</p>
+          <h3 className="text-xl font-sans font-bold text-neutral-900 mb-1 truncate">{title}</h3>
+          <p className="text-sm text-neutral-600 line-clamp-1">{description}</p>
         </div>
         {actionLabel && (
-          <button className="px-4 py-1.5 rounded-full bg-brand-blue text-white text-xs font-bold hover:bg-brand-light transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-brand-blue/20">
+          <button className="rg-btn rg-btn-primary text-xs font-bold px-4 py-1.5">
             {actionLabel}
           </button>
         )}
       </div>
       <div className="mt-auto">
-        <p className="text-xs font-medium text-white mb-2">{detail}</p>
+        <p className="text-xs font-sans font-medium text-neutral-900 mb-2">{detail}</p>
         {progress !== undefined ? (
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-neutral-200 border border-neutral-300 overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-gradient-brand" 
+                className="h-full bg-primary" 
               />
             </div>
-            <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">{progress}% completed</span>
+            <span className="font-mono text-[10px] font-bold text-neutral-600 whitespace-nowrap">{progress}% completed</span>
           </div>
         ) : (
-          <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+          <div className="flex justify-between items-center font-mono text-[10px] font-bold text-neutral-600 uppercase tracking-wider">
             <span>Status</span>
-            <span className="text-white">Ready for review...</span>
+            <span className="text-neutral-900">Ready for review...</span>
           </div>
         )}
       </div>
