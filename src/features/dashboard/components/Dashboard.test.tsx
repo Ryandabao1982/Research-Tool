@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Dashboard } from './Dashboard';
@@ -15,12 +18,12 @@ vi.mock('../../../shared/stores/role-store', () => ({
     useRoleStore: vi.fn(),
 }));
 
-// Mock framer-motion to avoid animation issues in tests
+// Mock framer-motion
 vi.mock('framer-motion', () => ({
     motion: {
-        div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+        div: ({ children, ...props }: any) => ({ children, ...props }),
     },
-    AnimatePresence: ({ children }: any) => <>{children}</>,
+    AnimatePresence: ({ children }: any) => children,
 }));
 
 describe('Dashboard', () => {

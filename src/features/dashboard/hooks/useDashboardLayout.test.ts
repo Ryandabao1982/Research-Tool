@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { renderHook, waitFor } from '@testing-library/react';
 import { useDashboardLayout } from './useDashboardLayout';
 import { invoke } from '@tauri-apps/api/tauri';
@@ -106,10 +109,17 @@ describe('useDashboardLayout', () => {
         });
 
         const newOrder = ['project-deadlines', 'tasks-padding'];
+        
+        // Get initial layout
+        const initialLayout = result.current.layout;
+        
+        // Trigger save
         result.current.saveLayout(newOrder);
 
-        // Should update optimistically
-        expect(result.current.layout?.widget_order).toEqual(newOrder);
+        // Should update optimistically (may have slight delay due to state update)
+        await waitFor(() => {
+            expect(result.current.layout?.widget_order).toEqual(newOrder);
+        });
 
         // Wait for debounce
         await new Promise(resolve => setTimeout(resolve, 350));
