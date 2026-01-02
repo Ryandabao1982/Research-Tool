@@ -1,10 +1,10 @@
 /**
  * @vitest-environment jsdom
  */
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { DraggableWidgetContainer } from './DraggableWidgetContainer';
-import { describe, it, expect, vi } from 'vitest';
 
 describe('DraggableWidgetContainer', () => {
     const defaultProps = {

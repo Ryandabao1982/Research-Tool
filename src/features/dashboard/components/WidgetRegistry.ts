@@ -88,6 +88,25 @@ export function getWidgetComponent(id: string): React.ComponentType<any> | null 
 }
 
 /**
+ * Get lazy import function for widget
+ * Used for code splitting
+ */
+export function getWidgetImport(id: string): (() => Promise<any>) | null {
+    switch (id) {
+        case 'tasks-padding':
+            return () => import('./manager-widgets/TasksPaddingWidget');
+        case 'project-deadlines':
+            return () => import('./manager-widgets/ProjectDeadlinesWidget');
+        case 'spaced-repetition':
+            return () => import('./learner-widgets/SpacedRepetitionWidget');
+        case 'reading-list':
+            return () => import('./learner-widgets/ReadingListWidget');
+        default:
+            return null;
+    }
+}
+
+/**
  * Check if a widget is available for a role
  */
 export function isWidgetAvailableForRole(widgetId: string, role: UserRole): boolean {

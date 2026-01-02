@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRoleStore } from '../../../shared/stores/role-store';
 import { useDashboardLayout } from '../hooks/useDashboardLayout';
 import {
     getWidgetComponent,
     validateLayoutForRole,
-    getAvailableWidgetIdsForRole
+    getAvailableWidgetIdsForRole,
+    getWidgetImport
 } from './WidgetRegistry';
 import DraggableWidgetContainer from './DraggableWidgetContainer';
+import { LazyWidgetWrapper } from './LazyWidgetWrapper';
+import { usePerformanceMonitor, globalPerformance } from '@/shared/hooks/usePerformanceMonitor';
 
 /**
  * Dashboard Component
@@ -18,11 +21,16 @@ import DraggableWidgetContainer from './DraggableWidgetContainer';
  * - Supports drag-and-drop reordering
  * - Auto-saves layout changes
  * - Validates widgets against current role
+ * - Framer Motion animations
  */
 export const Dashboard: React.FC = () => {
     const activeRole = useRoleStore((state) => state.activeRole);
     const setRole = useRoleStore((state) => state.setRole);
     
+    // Performance monitoring
+    const { trackApiCall, logSummary } = usePerformanceMonitor('Dashboard');
+    const loadStartTime = useRef(performance.now());
+
     const {
         layout,
         loading,
@@ -114,100 +122,196 @@ export const Dashboard: React.FC = () => {
         );
     }
 
+    // Track dashboard load time
+    useEffect(() => {
+        if (!loading && widgetOrder.length > 0) {
+            const loadTime = globalPerformance.trackDashboardLoad(loadStartTime.current);
+            trackApiCall(loadTime);
+            logSummary();
+        }
+    }, [loading, widgetOrder.length]);
+
+    // Memoized widget renderer with lazy loading
+    const renderWidget = useCallback((widgetId: string, index: number) => {
+        const importFn = getWidgetImport(widgetId);
+        if (!importFn) return null;
+
+        return (
+            <LazyWidgetWrapper
+                key={widgetId}
+                widgetName={widgetId}
+                importFn={importFn}
+            />
+        );
+    }, []);
+
+    // Memoized widget order to prevent unnecessary re-renders
+    const memoizedWidgetOrder = useMemo(() => widgetOrder, [widgetOrder]);
+
     return (
-        <div className="min-h-screen bg-neutral-50 p-6">
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen bg-neutral-50 p-6"
+        >
             {/* Header */}
-            <div className="mb-6">
+            <motion.div 
+                className="mb-6 bg-white rounded-lg border border-neutral-200 shadow-sm p-6"
+                whileHover={{ boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+            >
                 <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-neutral-900 font-sans">
-                            Dashboard
-                        </h1>
-                        <p className="text-sm text-neutral-600 mt-1">
-                            Role-based widget layout - {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)}
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <motion.div
+                            animate={{ rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                            className="text-2xl"
+                        >
+                            📊
+                        </motion.div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-neutral-900 font-sans">
+                                Dashboard
+                            </h2>
+                            <p className="text-sm text-neutral-600 mt-1">
+                                Role-based widget layout -{' '}
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 ml-1">
+                                    {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                     
                     {/* Role Switcher */}
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-neutral-600 mr-2">Switch Role:</span>
                         {(['manager', 'coach', 'learner'] as const).map((role) => (
-                            <button
+                            <motion.div
                                 key={role}
-                                onClick={() => handleRoleSwitch(role)}
-                                className={`px-3 py-1.5 text-sm font-sans font-medium rounded transition-colors ${
-                                    activeRole === role
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-white text-neutral-700 border border-neutral-300 hover:bg-neutral-50'
-                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                {role.charAt(0).toUpperCase() + role.slice(1)}
-                            </button>
+                                <button
+                                    onClick={() => handleRoleSwitch(role)}
+                                    className={`px-3 py-1.5 text-sm font-sans font-medium rounded transition-all ${
+                                        activeRole === role
+                                            ? 'bg-blue-600 text-white shadow-md'
+                                            : 'bg-white text-neutral-700 border border-neutral-300 hover:bg-neutral-50 hover:border-blue-300'
+                                    }`}
+                                >
+                                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                                </button>
+                            </motion.div>
                         ))}
                     </div>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
-                    <button
-                        onClick={handleRefresh}
-                        className="px-3 py-1.5 text-sm bg-white text-neutral-700 border border-neutral-300 rounded hover:bg-neutral-50 transition-colors"
-                    >
-                        🔄 Refresh
-                    </button>
-                    <button
-                        onClick={handleReset}
-                        className="px-3 py-1.5 text-sm bg-white text-red-600 border border-red-300 rounded hover:bg-red-50 transition-colors"
-                    >
-                        ↺ Reset to Default
-                    </button>
-                    {isSaving && (
-                        <span className="text-sm text-blue-600 animate-pulse">
-                            Saving...
-                        </span>
-                    )}
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <button
+                            onClick={handleRefresh}
+                            className="px-3 py-1.5 text-sm bg-white text-neutral-700 border border-neutral-300 rounded hover:bg-neutral-50 transition-all flex items-center gap-2"
+                        >
+                            <span>🔄</span> Refresh
+                        </button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <button
+                            onClick={handleReset}
+                            className="px-3 py-1.5 text-sm bg-white text-red-600 border border-red-300 rounded hover:bg-red-50 transition-all flex items-center gap-2"
+                        >
+                            <span>↺</span> Reset to Default
+                        </button>
+                    </motion.div>
+                    <AnimatePresence>
+                        {isSaving && (
+                            <motion.span
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                className="text-sm text-blue-600 flex items-center gap-1"
+                            >
+                                <motion.span
+                                    animate={{ opacity: [0.5, 1, 0.5] }}
+                                    transition={{ duration: 1, repeat: Infinity }}
+                                >
+                                    ●
+                                </motion.span>
+                                Saving...
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Role Indicator */}
             <AnimatePresence>
                 {showRoleIndicator && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="fixed top-20 right-6 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50"
+                        initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        className="fixed top-24 right-6 z-50"
                     >
-                        Switched to {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)} role
+                        <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
+                            ✓ Switched to {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)} role
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             {/* Error Display */}
-            {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
-                    ⚠️ {error}
-                </div>
-            )}
+            <AnimatePresence>
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-4 overflow-hidden"
+                    >
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700">
+                            ⚠️ {error}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Empty State */}
-            {widgetOrder.length === 0 && (
-                <div className="text-center py-12 bg-white border-2 border-dashed border-neutral-300 rounded-lg">
-                    <div className="text-4xl mb-2">📊</div>
-                    <h3 className="text-lg font-semibold text-neutral-800 mb-1">
-                        No Widgets Available
-                    </h3>
-                    <p className="text-sm text-neutral-600">
-                        This role has no widgets configured yet.
-                    </p>
-                    <button
-                        onClick={handleReset}
-                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            <AnimatePresence>
+                {widgetOrder.length === 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
                     >
-                        Load Default Layout
-                    </button>
-                </div>
-            )}
+                        <div className="border-2 border-dashed border-neutral-300 bg-white rounded-lg p-8 text-center">
+                            <motion.div
+                                animate={{ y: [0, -5, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                className="text-5xl mb-3"
+                            >
+                                📊
+                            </motion.div>
+                            <h3 className="text-lg font-semibold text-neutral-800 mb-1">
+                                No Widgets Available
+                            </h3>
+                            <p className="text-sm text-neutral-600 mb-4">
+                                This role has no widgets configured yet.
+                            </p>
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <button
+                                    onClick={handleReset}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-medium"
+                                >
+                                    Load Default Layout
+                                </button>
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Widget Grid */}
             <motion.div
@@ -215,9 +319,9 @@ export const Dashboard: React.FC = () => {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             >
                 <AnimatePresence mode="popLayout">
-                    {widgetOrder.map((widgetId, index) => {
-                        const WidgetComponent = getWidgetComponent(widgetId);
-                        if (!WidgetComponent) return null;
+                    {memoizedWidgetOrder.map((widgetId, index) => {
+                        const importFn = getWidgetImport(widgetId);
+                        if (!importFn) return null;
 
                         return (
                             <DraggableWidgetContainer
@@ -229,7 +333,10 @@ export const Dashboard: React.FC = () => {
                                 isDragging={draggedWidgetId === widgetId}
                                 className="w-full"
                             >
-                                <WidgetComponent />
+                                <LazyWidgetWrapper
+                                    widgetName={widgetId}
+                                    importFn={importFn}
+                                />
                             </DraggableWidgetContainer>
                         );
                     })}
@@ -237,27 +344,39 @@ export const Dashboard: React.FC = () => {
             </motion.div>
 
             {/* Available Widgets Info */}
-            {widgetOrder.length > 0 && (
-                <div className="mt-6 p-4 bg-white border border-neutral-200 rounded-lg">
-                    <h4 className="font-sans font-semibold text-sm text-neutral-800 mb-2">
-                        Available Widgets for {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)}:
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                        {getAvailableWidgetIdsForRole(activeRole).map((id) => (
-                            <span
-                                key={id}
-                                className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded font-mono"
-                            >
-                                {id}
-                            </span>
-                        ))}
-                    </div>
-                    <p className="text-xs text-neutral-500 mt-2">
-                        💡 Drag widgets to reorder. Changes auto-save to your role-specific layout.
-                    </p>
-                </div>
-            )}
-        </div>
+            <AnimatePresence>
+                {widgetOrder.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="mt-6"
+                    >
+                        <div className="bg-white border border-neutral-200 rounded-lg p-4">
+                            <h4 className="font-sans font-semibold text-sm text-neutral-800 mb-2">
+                                Available Widgets for {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)}:
+                            </h4>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {getAvailableWidgetIdsForRole(activeRole).map((id) => (
+                                    <motion.div
+                                        key={id}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <span className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded font-mono">
+                                            {id}
+                                        </span>
+                                    </motion.div>
+                                ))}
+                            </div>
+                            <p className="text-xs text-neutral-500">
+                                💡 Drag widgets to reorder. Changes auto-save to your role-specific layout.
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
     );
 };
 

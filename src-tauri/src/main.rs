@@ -90,7 +90,9 @@ fn main() {
             dashboard_commands::load_dashboard_layout,
             dashboard_commands::reset_dashboard_layout,
             dashboard_commands::get_all_dashboard_layouts,
-          ])
+            // Search commands
+            knowledge_base_pro::commands::search_commands::search_with_role,
+           ])
 
 
 

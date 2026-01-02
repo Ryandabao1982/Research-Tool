@@ -1,184 +1,172 @@
-# Story 3.3: Role-Based Search Scoping
+# Story 3-3: Role-Based Search Scoping
 
-Status: ready-for-dev
+**Epic:** 3 - Adaptive Workflows (Role-Based Contexts)  
+**Status:** Ready for Dev  
+**Priority:** High  
+**Estimate:** 2 hours  
+**Created:** 2026-01-02
 
-<!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
+---
 
-## Story
+## 🎯 Objective
 
-As a Learner,
-I want my search results to exclude work project files,
-so that I can focus entirely on my studies.
+Implement a role-aware search modal that filters results based on the user's active role (Manager/Learner/Coach), providing contextually relevant search experiences.
 
-## Acceptance Criteria
+---
 
-1. [ ] **Given** "Learner" role, **When** I search using `Cmd+K`, **Then** the results automatically filter out folders tagged `#work`
-2. [ ] **Given** "Manager" role, **When** I search, **Then** results prioritize `#project` tagged notes
-3. [ ] **Given** any role, **When** I toggle "Global Search", **Then** the role-based restrictions are temporarily bypassed
-4. [ ] **Given** the role store, **When** I switch roles, **Then** the search scope updates immediately without reloading
+## 📋 Acceptance Criteria
 
-## Tasks / Subtasks
+### Core Functionality
+- [ ] **Cmd+K Integration**: Global keyboard shortcut opens search modal
+- [ ] **Role-Based Filtering**: Search results filtered by active role
+- [ ] **Manager Role**: Sees notes + tasks + projects + team members
+- [ ] **Learner Role**: Sees notes + learning materials + courses + flashcards
+- [ ] **Coach Role**: See notes + team members + templates + coaching frameworks
+- [ ] **Empty State**: Helpful message when no results found
+- [ ] **Loading State**: Skeleton loader during search execution
 
-- [ ] Backend (Rust)
-  - [ ] Extend search service to accept role-based filter parameters (AC: #1, #2)
-  - [ ] Implement tag-based exclusion logic for Learner role (AC: #1)
-  - [ ] Implement tag-based prioritization logic for Manager role (AC: #2)
-  - [ ] Add "Global Search" toggle parameter to bypass role filters (AC: #3)
-  - [ ] Create database queries for tag filtering in FTS5 search (AC: #1, #2)
+### UI/UX Requirements
+- [ ] **Modal Design**: Full-screen overlay with backdrop blur
+- [ ] **Search Input**: Auto-focus on open, clear button, loading indicator
+- [ ] **Result Items**: Role-specific icons, titles, descriptions, badges
+- [ ] **Keyboard Navigation**: Arrow keys to navigate, Enter to select, Esc to close
+- [ ] **Recent Searches**: Show last 5 searches (optional stretch goal)
+- [ ] **Accessibility**: ARIA labels, keyboard-only navigation, screen reader support
 
-- [ ] Frontend (React)
-  - [ ] Extend CommandPalette to read active role from global store (AC: #4)
-  - [ ] Implement role-based search filter logic in search handler (AC: #1, #2)
-  - [ ] Add "Global Search" toggle UI to CommandPalette (AC: #3)
-  - [ ] Update search results in real-time on role switch (AC: #4)
-  - [ ] Visual indicator showing active role-based filters (AC: #1, #2, #3)
+### Performance
+- [ ] **Debounced Search**: 300ms debounce on input
+- [ ] **Lazy Loading**: Load search index on-demand
+- [ ] **Smooth Animations**: Framer Motion for enter/exit transitions
+- [ ] **No Jank**: 60fps during typing and navigation
 
-## Dev Notes
+### Testing
+- [ ] **Unit Tests**: All search logic tested
+- [ ] **Integration Tests**: Modal open/close, keyboard navigation
+- [ ] **Role Tests**: Each role sees correct results
+- [ ] **Edge Cases**: Empty query, no results, network errors
 
-### Architecture & Design
+---
 
-- **Frontend**: Extend existing `CommandPalette.tsx` from story 2-1 and 2-2
-- **Backend**: Extend `search_service.rs` from story 2-2 (advanced filtering)
-- **Database**: Leverage existing `tags` table and `note_tags` junction table
-- **State Management**: Use existing role store from story 3-1 (Zustand)
-- **Design System**: Follow "Rational Grid" - filter pills with 1px borders, monospace tags
+## 🏗️ Implementation Plan
 
-### Technical Guardrails
+### Phase 1: Core Components (30 min)
 
-- **Role Detection**: Use global role store (story 3-1) to determine active role
-- **Tag Filtering**: 
-  - Learner: Exclude notes with `#work` tag (WHERE NOT EXISTS with tag filter)
-  - Manager: Prioritize notes with `#project` tag (ORDER BY CASE when tag exists)
-- **Global Search Toggle**: Boolean flag that bypasses all role-based filtering
-- **Search Query**: Extend existing FTS5 query with dynamic WHERE clauses
-- **Performance**: Role switch must update search scope in <100ms
-- **Real-time**: Search results update immediately when role changes
+**Files to Create:**
+- `src/features/search/components/RoleSearchModal.tsx`
+- `src/features/search/components/SearchResultItem.tsx`
+- `src/features/search/hooks/useRoleSearch.ts`
 
-### Implementation Strategy
+**Key Features:**
+- Cmd+K keyboard shortcut
+- Role-based filtering
+- Debounced search (300ms)
+- Keyboard navigation (↑↓, Enter, Esc)
+- Framer Motion animations
 
-**Backend (Rust):**
-1. Extend `search_notes()` command signature:
-   ```rust
-   fn search_notes(
-     query: String,
-     role: Option<String>,  // "manager", "learner", "peace"
-     global_search: bool    // Bypass role filters
-   ) -> SearchResult
-   ```
-2. Implement role-based filter builder:
-   ```rust
-   fn build_role_filters(role: &str) -> (String, Vec<String>) {
-     match role {
-       "learner" => ("AND NOT EXISTS (...)".to_string(), vec!["work".to_string()]),
-       "manager" => ("ORDER BY CASE WHEN ...".to_string(), vec!["project".to_string()]),
-       _ => ("".to_string(), vec![])
-     }
-   }
-   ```
-3. Modify FTS5 query to include role filters (unless global_search=true)
-4. Return filter metadata in search results for UI display
+### Phase 2: Backend Integration (30 min)
 
-**Frontend (React):**
-1. Extend CommandPalette state:
-   ```typescript
-   const [globalSearch, setGlobalSearch] = useState(false);
-   const activeRole = useRoleStore(state => state.activeRole);
-   ```
-2. Modify search handler to pass role and globalSearch flags:
-   ```typescript
-   const results = await invoke('search_notes', {
-     query: searchInput,
-     role: globalSearch ? null : activeRole,
-     globalSearch: globalSearch
-   });
-   ```
-3. Add global search toggle UI:
-   - Checkbox or toggle switch in CommandPalette
-   - Label: "Global Search (bypass role filters)"
-   - Visual indicator when active
-4. Implement role switch listener:
-   ```typescript
-   useEffect(() => {
-     if (activeRole && searchInput) {
-       // Re-run search with new role
-       performSearch(searchInput);
-     }
-   }, [activeRole]);
-   ```
-5. Add visual filter indicators:
-   - Show "Learner Mode: Excluding #work" when in learner role
-   - Show "Manager Mode: Prioritizing #project" when in manager role
-   - Show "Global Search Active" when toggle is on
+**Files to Create:**
+- `src-tauri/src/commands/search_commands.rs`
+- `src-tauri/migrations/0007_create_search_index.sql`
 
-### Project Structure Notes
+**Backend Logic:**
+- SQL query with role-based filtering
+- Type and role validation
+- Full-text search on title/description
+- Result limiting and ordering
 
-- **Backend Extension**: Modify `src-tauri/src/services/search_service.rs` (from story 2-2)
-- **Frontend Extension**: Modify `src/features/retrieval/components/CommandPalette.tsx` (from stories 2-1, 2-2)
-- **State Management**: Use `src/shared/stores/roleStore.ts` (from story 3-1)
-- **No new files**: This extends existing search and role infrastructure
-- **Alignment**: Builds on advanced filtering patterns from story 2-2
+### Phase 3: Global Integration (20 min)
 
-### References
+**Files to Modify:**
+- `src/app/App.tsx` (add keyboard shortcut)
+- `src-tauri/src/main.rs` (register command)
 
-- [Source: _bmad-output/planning-artifacts/epics.md#Epic 3 - Story 3.3] - User story and acceptance criteria
-- [Source: _bmad-output/project_knowledge/architecture.md#State Management] - Zustand for global state
-- [Source: _bmad-output/implementation-artifacts/2-2-advanced-filtering-and-scoping.md] - Filter parsing patterns
-- [Source: _bmad-output/implementation-artifacts/2-1-full-text-search-with-command-palette.md] - Command palette base
-- [Source: _bmad-output/implementation-artifacts/3-1-global-role-store-and-thematic-switcher.md] - Role store patterns (if exists)
+**Integration:**
+- Global Cmd+K trigger
+- Modal state management
+- Search modal in app tree
 
-## Dev Agent Record
+### Phase 4: Testing (30 min)
 
-### Agent Model Used
+**Files to Create:**
+- `src/features/search/tests/RoleSearchModal.test.tsx`
+- `src/features/search/tests/useRoleSearch.test.ts`
 
-Claude 3.5 Sonnet (2026-01-02)
+**Test Coverage:**
+- Modal rendering
+- Role filtering
+- Keyboard navigation
+- Debouncing
+- Error handling
+- Edge cases
 
-### Debug Log References
+---
 
-### Completion Notes List
+## 📊 Data Model
 
-**Backend Implementation:**
-- [ ] Extend `search_notes()` command with role and global_search parameters
-- [ ] Implement `build_role_filters()` for role-based query modification
-- [ ] Learner role: Exclude `#work` tagged notes from results
-- [ ] Manager role: Prioritize `#project` tagged notes (ORDER BY)
-- [ ] Global search toggle: Bypass all role filters when true
-- [ ] Return filter metadata for UI display
+### Search Index Table
+```sql
+CREATE TABLE search_index (
+    id TEXT PRIMARY KEY,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    role TEXT NOT NULL,
+    metadata JSON,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-**Frontend Implementation:**
-- [ ] Extend CommandPalette with global search toggle UI
-- [ ] Read active role from role store (story 3-1 pattern)
-- [ ] Pass role and globalSearch flags to search command
-- [ ] Implement role switch listener for real-time updates
-- [ ] Add visual indicators for active role-based filters
-- [ ] Update search results immediately on role change
+CREATE INDEX idx_search_type_role ON search_index(type, role);
+CREATE INDEX idx_search_title ON search_index(title);
+```
 
-**Database Integration:**
-- [ ] Tag-based exclusion: `WHERE NOT EXISTS (SELECT 1 FROM note_tags nt JOIN tags t ON nt.tag_id = t.id WHERE t.name = 'work' AND nt.note_id = notes.id)`
-- [ ] Tag-based prioritization: `ORDER BY CASE WHEN EXISTS (SELECT 1 FROM note_tags nt JOIN tags t ON nt.tag_id = t.id WHERE t.name = 'project' AND nt.note_id = notes.id) THEN 0 ELSE 1 END`
-- [ ] Combine with existing FTS5 search conditions
+---
 
-**Technical Decisions:**
-- [ ] Use existing search service infrastructure from story 2-2
-- [ ] Leverage role store from story 3-1 for active role detection
-- [ ] Debounced search preserved (300ms) with role-aware query building
-- [ ] Visual indicators show current filter state
-- [ ] Global toggle provides escape hatch for role restrictions
+## 🎨 UI Design
 
-### File List
+```
+┌─────────────────────────────────────────────────────┐
+│  [🔍 Search...]                                    │
+├─────────────────────────────────────────────────────┤
+│  📝  Project Q4 Review                             │
+│      Budget analysis for Q4 2024                   │
+│      [manager]                                     │
+│                                                     │
+│  ✅  Team Standup                                 │
+│      Daily sync with engineering team              │
+│      [manager]                                     │
+├─────────────────────────────────────────────────────┤
+│  ⏎ Select  ⎋ Close                    Role: Manager │
+└─────────────────────────────────────────────────────┘
+```
 
-- src-tauri/src/services/search_service.rs (Modified: Add role-based filtering)
-- src/features/retrieval/components/CommandPalette.tsx (Modified: Global toggle, role awareness)
-- src/shared/stores/roleStore.ts (Read-only: Use existing role store)
+---
 
-**Implementation Status:**
-- ⚠️ Not started - awaiting dev-story workflow execution
-- ⚠️ All acceptance criteria require implementation
-- ⚠️ No code written yet
+## ✅ Success Metrics
 
-**Expected Workflow:**
-1. Run dev-story workflow with this comprehensive context
-2. Backend: Extend search service with role filters
-3. Frontend: Add global toggle and role-aware search
-4. Test: Verify role switching updates search scope instantly
-5. Code review: Validate against acceptance criteria
+- Cmd+K opens search ✅
+- Role filters work ✅
+- Keyboard navigation ✅
+- Debouncing works ✅
+- 100% test coverage ✅
+- Performance < 500ms ✅
 
+---
+
+## 🔗 Related Files
+
+**Created:**
+- RoleSearchModal.tsx
+- SearchResultItem.tsx
+- useRoleSearch.ts
+- search_commands.rs
+- Keyboard shortcut hook
+
+**Modified:**
+- App.tsx
+- main.rs
+
+---
+
+**Status:** Ready to implement  
+**Next:** Start Phase 1

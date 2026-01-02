@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface DraggableWidgetContainerProps {
@@ -126,4 +126,4 @@ export const DraggableWidgetContainer: React.FC<DraggableWidgetContainerProps> =
     );
 };
 
-export default DraggableWidgetContainer;
+export default memo(DraggableWidgetContainer);

@@ -1,12 +1,12 @@
 /**
  * @vitest-environment jsdom
  */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Dashboard } from './Dashboard';
 import { useRoleStore } from '../../../shared/stores/role-store';
 import { invoke } from '@tauri-apps/api/tauri';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock Tauri invoke
 vi.mock('@tauri-apps/api/tauri', () => ({

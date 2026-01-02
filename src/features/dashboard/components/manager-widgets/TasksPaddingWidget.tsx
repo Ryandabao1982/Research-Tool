@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 
 export interface TasksPaddingWidgetProps {
@@ -90,4 +90,4 @@ export const TasksPaddingWidget: React.FC<TasksPaddingWidgetProps> = ({ classNam
     );
 };
 
-export default TasksPaddingWidget;
+export default memo(TasksPaddingWidget);
