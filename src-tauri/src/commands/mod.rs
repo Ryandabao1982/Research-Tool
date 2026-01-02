@@ -9,4 +9,5 @@ pub mod encryption_commands;
 pub mod encryption_settings;
 pub mod dashboard_commands;
 pub mod search_commands;
+pub mod graph_commands;
 
