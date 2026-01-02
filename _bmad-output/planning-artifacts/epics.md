@@ -3,13 +3,11 @@ stepsCompleted:
   - step-01-validate-prerequisites
   - step-02-design-epics
   - step-03-create-stories
-stepsCompleted:
-  - step-01-validate-prerequisites
-  - step-02-design-epics
-  - step-03-create-stories
   - step-04-final-validation
-  - d:\Web Projects\secondbrain\docs\technical-specifications.md
-  - d:\Web Projects\secondbrain\_bmad-output\project_knowledge\architecture.md
+inputDocuments:
+  - "docs/technical-specifications.md"
+  - "_bmad-output/planning-artifacts/ux-design-specification.md"
+  - "_bmad-output/project_knowledge/architecture.md"
 ---
 
 # Epics and Stories: secondbrain
@@ -54,9 +52,10 @@ NFR10: Cross-platform support (Windows, macOS, Linux)
 - **Database**: SQLite with specific schema (Notes, Folders, Tags, Links, Blocks)
 - **Tauri IPC**: Specific command signatures defined for all core operations.
 - **Testing**: High coverage goals (>90% Frontend, >95% Backend).
-- **Design System**: "Atmospheric Glassmorphism" (Blur, Depth, Transparency) - *Implied UX*
-- **Role Switching**: Visual density and color palette shifts based on user role - *Implied UX*
-- **Graph Visualization**: D3.js force-directed interaction - *Implied UX*
+- **Design System**: "Rational Grid" (Neo-Brutalist/Swiss Minimalist hybrid) - 8px grid, Inter + JetBrains Mono typography, 1px borders, zero border-radius.
+- **Role Switching**: Visual density and layout changes based on user role (Manager/Learner) - not just color themes.
+- **Graph Visualization**: D3.js force-directed interaction.
+- **Keyboard Shortcuts**: Alt+Space (Capture), Cmd/Ctrl+K (Command Palette), Esc (Cancel/Escape).
 
 ---
 
@@ -66,6 +65,7 @@ NFR10: Cross-platform support (Windows, macOS, Linux)
 Users can create, organize, secure, and transfer their personal knowledge base.
 **Goal:** Users can create, organize, secure, and transfer their personal knowledge base.
 **FRs covered:** FR1, FR2, FR3, FR4, FR5, FR6, FR7, FR9
+**Stories:** 8
 
 ### Story 1.1: Project Setup and Data Sovereignty Utils
 **As a** Developer (Proxy for User Security),
@@ -77,6 +77,9 @@ Users can create, organize, secure, and transfer their personal knowledge base.
 *   **Given** a folder of Markdown files, **When** I run the `import_files` command, **Then** they are parsed and stored in the database.
 *   **Given** exiting notes, **When** I trigger `export_notes`, **Then** valid Markdown files are generated in the target directory.
 *   **Given** the database exists, **When** I trigger `create_backup`, **Then** an encrypted COPY of the `.db` file is saved to the backup location.
+*   **NFR:** Bulk import must process 1000+ files per minute.
+*   **NFR:** All user inputs must be sanitized before database insertion to prevent injection attacks.
+*   **NFR:** Application must support Windows, macOS, and Linux with consistent behavior.
 
 ### Story 1.2: Core Note Management (CRUD)
 **As a** User,
@@ -88,6 +91,9 @@ Users can create, organize, secure, and transfer their personal knowledge base.
 *   **Given** an open note, **When** I type content, **Then** it hits the `update_note` endpoint and saves to SQLite (auto-save).
 *   **Given** a note, **When** I click delete, **Then** it is marked as deleted (soft delete) or removed from the database based on settings.
 *   **Given** a saved note, **When** I restart the app, **Then** the content persists exactly as last saved.
+*   **NFR:** Note persistence must complete in <100ms from user input to database commit.
+*   **NFR:** The app must handle 100,000+ notes without performance degradation.
+*   **NFR:** Memory usage must stay under 100MB base, 500MB with 10k notes.
 
 ### Story 1.3: Hierarchical Organization
 **As a** User,
@@ -110,6 +116,59 @@ Users can create, organize, secure, and transfer their personal knowledge base.
 *   **Given** the editor, **When** I type `[[WikiLink]]`, **Then** it creates a bi-directional link to another note.
 *   **Given** a WikiLink, **When** I click it, **Then** the application navigates to the target note.
 
+### Story 1.5: Rapid Capture Modal (Alt+Space)
+**As a** User,
+**I want** to capture thoughts instantly from anywhere,
+**So that** I can offload ideas without interrupting my workflow.
+
+**Acceptance Criteria:**
+*   **Given** any application context, **When** I press `Alt+Space`, **Then** a frameless capture modal opens instantly (<50ms).
+*   **Given** the capture modal, **When** I type content, **Then** it auto-expands vertically to fit content.
+*   **Given** the capture modal, **When** I press `Enter`, **Then** the note is saved with a generated title and the modal closes.
+*   **Given** the capture modal, **When** I press `Esc`, **Then** the modal closes without saving.
+*   **Given** a note is saved, **When** I return to the app, **Then** the note appears in Recent Notes.
+*   **NFR:** The entire capture flow from keyboard shortcut to saved note must complete in <200ms.
+*   **NFR:** Modal must work even when app is running in background.
+
+### Story 1.6: Design System Foundation (Rational Grid)
+**As a** User,
+**I want** a consistent, visually clean interface,
+**So that** I can focus on my content without visual distractions.
+
+**Acceptance Criteria:**
+*   **Given** the application, **When** I examine any component, **Then** it follows the "Rational Grid" 8px spacing system.
+*   **Given** typography in the app, **When** I read long-form content, **Then** it uses Inter font at appropriate sizes.
+*   **Given** metadata (tags, timestamps, IDs), **When** I view them, **Then** they use JetBrains Mono font for clarity.
+*   **Given** buttons, **When** I interact with them, **Then** they follow the hierarchy: Primary (solid blue), Secondary (1px border), Tertiary (ghost).
+*   **Given** all UI elements, **When** I observe corners, **Then** they have zero border-radius (sharp edges).
+*   **Given** the color scheme, **When** I view the interface, **Then** it uses high-contrast black/white with Action Blue (#0066FF) accents.
+
+### Story 1.7: Accessibility Compliance (WCAG AAA)
+**As a** User with accessibility needs,
+**I want** full keyboard navigation and screen reader support,
+**So that** I can use the application effectively.
+
+**Acceptance Criteria:**
+*   **Given** any interactive element, **When** I tab to it, **Then** it has a visible 2px blue focus ring.
+*   **Given** screen reader users, **When** I encounter icons, **Then** they have descriptive aria-labels.
+*   **Given** the application, **When** I navigate with keyboard only, **Then** I can complete the full "Capture → Retrieve → Synthesize" loop without a mouse.
+*   **Given** high contrast mode users, **When** I enable system high contrast, **Then** the interface remains usable with proper contrast ratios.
+*   **Given** reduced motion users, **When** I have animations disabled, **Then** all decorative animations are disabled (functional transitions remain).
+*   **Given** all text, **When** I measure contrast, **Then** it meets WCAG AAA standards (7:1 ratio minimum).
+
+### Story 1.8: AES-256 Encryption (Optional)
+**As a** Security-conscious User,
+**I want** optional encryption for my notes,
+**So that** my sensitive data remains protected even if my device is compromised.
+
+**Acceptance Criteria:**
+*   **Given** the settings panel, **When** I enable encryption, **Then** I can set a passphrase.
+*   **Given** encryption is enabled, **When** I create or edit notes, **Then** content is encrypted with AES-256 before storage.
+*   **Given** encryption is enabled, **When** I search notes, **Then** the search operates on decrypted content transparently.
+*   **Given** I forget my passphrase, **When** I attempt recovery, **Then** I receive a warning that data cannot be recovered without the passphrase.
+*   **Given** backup creation, **When** encryption is enabled, **Then** backup files are also encrypted with the same passphrase.
+*   **NFR:** Encryption/decryption must not impact note persistence time (>100ms threshold).
+
 ### Epic 2: Retrieval & Ambient Intelligence
 
 **Goal:** Users can instantly retrieve specific notes and synthesize new insights via AI.
@@ -125,6 +184,8 @@ Users can create, organize, secure, and transfer their personal knowledge base.
 *   **Given** the palette, **When** I type "project", **Then** I see results from SQLite FTS5 including notes title and content.
 *   **Given** search results, **When** I press Down Arrow + Enter, **Then** I navigate to the selected note.
 *   **Given** the palette, **When** I type `>create`, **Then** I see commands like "Create New Note".
+*   **NFR:** Search results must appear in <100ms for queries against 10,000 notes.
+*   **NFR:** The application must maintain <100MB memory footprint during active search operations.
 
 ### Story 2.2: Advanced Filtering & Scoping
 **As a** Researcher,
@@ -162,6 +223,7 @@ Users can create, organize, secure, and transfer their personal knowledge base.
 **Goal:** Users can pivot the interface capabilities (Dashboard, Search Scope) to match their current mental state (Manager vs. Learner).
 **Implementation Note:** Includes Role-Based Search Scoping (e.g., search only 'Study' folders in Learner mode).
 **FRs covered:** FR8, FR17
+**Stories:** 4
 
 ### Story 3.1: Global Role Store & Thematic Switcher
 **As a** User,
@@ -192,6 +254,19 @@ Users can create, organize, secure, and transfer their personal knowledge base.
 *   **Given** "Learner" role, **When** I search using `Cmd+K`, **Then** the results automatically filter out folders tagged `#work`.
 *   **Given** "Manager" role, **When** I search, **Then** results prioritize `#project` tagged notes.
 *   **Given** any role, **When** I toggle "Global Search", **Then** the role-based restrictions are temporarily bypassed.
+*   **Given** the role store, **When** I switch roles, **Then** the search scope updates immediately without reloading.
+
+### Story 3.4: Performance & Cold Start Optimization
+**As a** User,
+**I want** the application to start quickly and stay responsive,
+**So that** I can access my knowledge base instantly when needed.
+
+**Acceptance Criteria:**
+*   **Given** the application is closed, **When** I launch it, **Then** the fully functional interface loads in <2 seconds (cold start).
+*   **Given** the application is running, **When** I switch between notes, **Then** the switch completes in <100ms.
+*   **Given** the application window, **When** I minimize and restore, **Then** it returns instantly without reloading content.
+*   **NFR:** Memory usage must not exceed 100MB base, 500MB with 10,000 notes.
+*   **NFR:** The app must remain responsive (no UI blocking) during AI synthesis operations.
 
 ### Epic 4: Visual Discovery (Graph)
 

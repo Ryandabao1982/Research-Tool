@@ -101,7 +101,7 @@ export default function App() {
       <CommandPalette />
 
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<DashboardPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/notes" element={<NotesPage />} />

@@ -19,7 +19,17 @@ if (typeof window !== 'undefined' && !window.__TAURI_IPC__) {
             case 'get_dashboard_stats':
                 return { total_notes: 142, recent_notes: 5, tags_count: 12 };
             case 'get_notes':
-                return [];
+                return [
+                    { id: '1', title: 'Welcome to SecondBrain', content: 'This is your first note', updated_at: new Date().toISOString() },
+                    { id: '2', title: 'Getting Started', content: 'Learn how to use the app', updated_at: new Date(Date.now() - 86400000).toISOString() },
+                    { id: '3', title: 'Project Ideas', content: 'Brainstorming session', updated_at: new Date(Date.now() - 172800000).toISOString() },
+                ];
+            case 'get_tags':
+                return [
+                    { id: '1', name: 'important' },
+                    { id: '2', name: 'work' },
+                    { id: '3', name: 'personal' },
+                ];
             case 'get_note_tags':
                 return [];
             default:
