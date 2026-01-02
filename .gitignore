@@ -51,3 +51,33 @@ opencode.json
 .claude/
 .gemini/
 .kilocodemodes
+.opencode/
+
+# Project-specific config files
+opencode.json
+project
+project-structure/
+
+# Firebase debug logs
+firebase-debug.log
+*.debug.log
+
+# Generated documentation/artifacts
+_bmad-output/
+
+# Screenshots and images (unless intentionally tracked)
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Test artifacts
+test_output.txt
+test-ai.sh
+test-graph-connection.*
+
+# Rustup installer
+rustup-init.exe
+
+# Data Connect
+dataconnect/.dataconnect/
