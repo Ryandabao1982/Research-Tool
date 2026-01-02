@@ -45,3 +45,9 @@ docs/node_modules/
 Thumbs.db
 desktop.ini
 opencode.json
+
+# Agent/Coder files
+.agent/
+.claude/
+.gemini/
+.kilocodemodes
