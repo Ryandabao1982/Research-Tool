@@ -53,14 +53,15 @@ export function CaptureModal({ isOpen, onClose, onNoteCreated }: CaptureModalPro
 
     try {
       // Call backend to create note
-      const result = await invoke<{ id: string; title: string }>('quick_create_note', {
+      // Backend returns tuple: (note_id, title)
+      const result = await invoke<[string, string]>('quick_create_note', {
         content: content.trim(),
       });
 
       // Add to frontend store for Recent Notes (AC: #5)
       const newNote = {
-        id: result.id,
-        title: result.title,
+        id: result[0],  // note_id from tuple
+        title: result[1],  // title from tuple
         content: content.trim(),
         createdAt: new Date(),
         updatedAt: new Date(),
