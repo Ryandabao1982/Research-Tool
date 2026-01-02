@@ -4,6 +4,7 @@ import HomePage from './pages/index'
 import { NotesPage } from './pages/NotesPage'
 import DashboardPage from './pages/Dashboard'
 import SettingsPage from './pages/Settings'
+import { GraphPage } from './pages/GraphPage'
 import { NeuralBar } from '../features/capture/NeuralBar'
 import { AskModal } from '../features/retrieval/AskModal'
 import { CommandPalette } from '../features/retrieval/components/CommandPalette'
@@ -128,6 +129,7 @@ export default function App() {
         <Route path="/notes" element={<NotesPage />} />
         <Route path="/notes/new" element={<NotesPage />} />
         <Route path="/capture" element={<NeuralBar />} />
+        <Route path="/graph" element={<GraphPage />} />
       </Routes>
     </BrowserRouter>
   )

@@ -15,6 +15,7 @@ pub mod encryption_service;
 pub mod passphrase_service;
 pub mod encrypted_note_service;
 pub mod role_service;
+pub mod graph_service;
 
 
 
