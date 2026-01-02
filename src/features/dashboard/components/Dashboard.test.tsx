@@ -1,4 +1,5 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Dashboard } from './Dashboard';
 import { useRoleStore } from '../../../shared/stores/role-store';
 import { invoke } from '@tauri-apps/api/tauri';
