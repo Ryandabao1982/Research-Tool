@@ -5,6 +5,7 @@ use knowledge_base_pro::commands::ai;
 use knowledge_base_pro::commands::data_settings;
 use knowledge_base_pro::commands::quick_commands;
 use knowledge_base_pro::commands::dashboard_commands;
+use knowledge_base_pro::commands::graph_commands;
 use std::sync::Mutex;
 
 use tauri::{GlobalShortcutManager, Manager, SystemTray, SystemTrayEvent};
@@ -92,6 +93,11 @@ fn main() {
             dashboard_commands::get_all_dashboard_layouts,
             // Search commands
             knowledge_base_pro::commands::search_commands::search_with_role,
+            // Graph commands
+            graph_commands::get_graph,
+            graph_commands::get_node_neighbors,
+            graph_commands::get_graph_incremental,
+            graph_commands::get_graph_metrics,
            ])
 
 
