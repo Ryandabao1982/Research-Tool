@@ -32,15 +32,14 @@ export function Sidebar() {
   const location = useLocation();
 
   return (
-    <aside className="w-64 h-screen bg-surface-100 border-r border-white/5 flex flex-col fixed left-0 top-0 z-50">
+    <aside className="w-64 h-screen bg-white border-r border-neutral-200 flex flex-col fixed left-0 top-0 z-50">
       {/* User Profile Section */}
       <div className="p-8">
         <motion.div
           whileHover={{ scale: 1.02 }}
-          className="flex items-center gap-3 p-3 rounded-3xl bg-surface-200 border border-white/10 hover:bg-surface-300 transition-colors cursor-pointer group shadow-xl shadow-black/20"
+          className="flex items-center gap-3 p-3 border rounded-none bg-neutral-50 border-neutral-200 hover:bg-neutral-100 transition-colors cursor-pointer group"
         >
-          <div className="w-10 h-10 rounded-2xl overflow-hidden bg-gradient-brand flex-shrink-0 relative">
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+          <div className="w-10 h-10 border border-neutral-200 overflow-hidden bg-neutral-200 flex-shrink-0 relative">
             <img
               src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
               alt="User"
@@ -48,17 +47,17 @@ export function Sidebar() {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-[11px] font-black text-white truncate tracking-tight uppercase">Second Brain</h3>
-            <p className="text-[9px] text-text-muted font-bold truncate tracking-widest uppercase">Pro Member</p>
+            <h3 className="font-sans text-[11px] font-black text-neutral-900 truncate tracking-tight uppercase">Second Brain</h3>
+            <p className="font-mono text-[9px] text-neutral-600 font-bold truncate tracking-widest uppercase">Pro Member</p>
           </div>
-          <ChevronRight className="w-3 h-3 text-text-dim group-hover:text-text-secondary transition-colors" />
+          <ChevronRight className="w-3 h-3 text-neutral-500 group-hover:text-neutral-700 transition-colors" />
         </motion.div>
       </div>
 
       {/* Navigation Section */}
-      <div className="flex-1 px-6 space-y-8 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 px-6 space-y-8 overflow-y-auto">
         <div>
-          <p className="px-4 text-[9px] font-black text-text-dim uppercase tracking-[0.25em] mb-5">Workspace</p>
+          <p className="px-4 font-mono text-[9px] font-black text-neutral-500 uppercase tracking-widest mb-5">Workspace</p>
           <nav className="space-y-1.5">
             {mainNavItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -67,49 +66,48 @@ export function Sidebar() {
                   key={item.label}
                   to={item.path}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all relative group",
+                    "flex items-center gap-3 px-4 py-3 border rounded-none text-sm font-bold transition-all relative group",
                     isActive
-                      ? "text-white bg-surface-200 shadow-xl shadow-black/40 border border-white/10"
-                      : "text-text-secondary hover:text-white hover:bg-white/[0.02]"
+                      ? "bg-primary text-white border-primary"
+                      : "text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50 border-neutral-200"
                   )}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="active-nav"
-                      className="absolute left-0 w-1 h-5 bg-brand-blue rounded-full shadow-glow-blue"
+                      className="absolute left-0 w-1 h-5 bg-white"
                     />
                   )}
                   <item.icon className={cn(
                     "w-5 h-5 transition-colors",
-                    isActive ? "text-brand-blue" : "group-hover:text-white"
+                    isActive ? "text-white" : "group-hover:text-neutral-900"
                   )} />
-                  <span className="tracking-tight">{item.label}</span>
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        <div className="pt-4 border-t border-white/5">
+        <div className="pt-4 border-t border-neutral-200">
           <FolderTree />
         </div>
       </div>
 
 
       {/* Bottom Actions Section */}
-      <div className="p-6 border-t border-white/5 space-y-1">
+      <div className="p-6 border-t border-neutral-200 space-y-1">
         {bottomNavItems.map((item) => (
           <Link
             key={item.label}
             to={item.path}
-            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-[13px] font-bold text-text-secondary hover:text-white hover:bg-white/[0.03] transition-all group"
+            className="flex items-center gap-3 px-4 py-3 border rounded-none text-[13px] font-bold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50 transition-colors group border-neutral-200"
           >
-            <item.icon className="w-5 h-5 group-hover:text-white transition-colors opacity-70 group-hover:opacity-100" />
-            <span className="tracking-tight">{item.label}</span>
+            <item.icon className="w-5 h-5 group-hover:text-neutral-900 transition-colors opacity-70 group-hover:opacity-100" />
+            <span>{item.label}</span>
           </Link>
         ))}
       </div>
     </aside>
   );
 }
-

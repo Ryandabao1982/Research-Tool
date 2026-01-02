@@ -35,17 +35,17 @@ export const FolderTree: React.FC = () => {
         }
     };
 
-    if (isLoading) return <div className="px-6 py-2 text-[10px] font-mono text-zinc-500 uppercase">Loading folders...</div>;
+    if (isLoading) return <div className="px-6 py-2 font-mono text-[10px] text-neutral-500 uppercase">Loading folders...</div>;
 
     const rootFolders = folders.filter(f => !f.parent_id);
 
     return (
         <div className="space-y-1">
             <div className="flex items-center justify-between px-4 mb-2">
-                <p className="text-[9px] font-black text-text-dim uppercase tracking-[0.25em]">Folders</p>
+                <p className="font-mono text-[9px] font-black text-neutral-500 uppercase tracking-widest">Folders</p>
                 <button
                     onClick={handleAddRootFolder}
-                    className="p-1 hover:bg-white/5 rounded transition-colors text-text-dim hover:text-white"
+                    className="p-1 hover:bg-neutral-200 border rounded-none transition-colors text-neutral-500 hover:text-neutral-900 border-transparent"
                 >
                     <FolderPlus className="w-3.5 h-3.5" />
                 </button>
@@ -64,11 +64,11 @@ export const FolderTree: React.FC = () => {
                 ))}
 
                 {rootFolders.length === 0 && (
-                    <div className="px-6 py-4 border border-dashed border-white/5 rounded-2xl text-center">
-                        <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider mb-2">No folders</p>
+                    <div className="px-6 py-4 border border-dashed border-neutral-200 text-center">
+                        <p className="font-mono text-[10px] text-neutral-500 font-bold uppercase tracking-wider mb-2">No folders</p>
                         <button
                             onClick={handleAddRootFolder}
-                            className="text-[9px] text-brand-blue font-black uppercase tracking-widest hover:underline"
+                            className="font-mono text-[9px] text-primary font-black uppercase tracking-widest hover:underline"
                         >
                             Create first folder
                         </button>

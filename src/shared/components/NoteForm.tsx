@@ -6,6 +6,8 @@ import { cn } from '../utils';
 import { FolderSelect } from './organization/FolderSelect';
 import { TagInput } from './organization/TagInput';
 import { MarkdownPreview } from '../../features/notes/components/MarkdownPreview';
+import { Button, IconButton } from './Button';
+import { Input, Textarea } from './Input';
 
 interface NoteFormProps {
   note?: Note;
@@ -44,55 +46,53 @@ export function NoteForm({ note, onSave, onCancel, onContentChange }: NoteFormPr
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-6xl mx-auto bg-black border border-white/20 shadow-none space-y-0 relative"
+      className="max-w-6xl mx-auto bg-white border border-neutral-200 space-y-0 relative"
+      role="region"
+      aria-label={note?.id ? 'Edit Note Form' : 'Create Note Form'}
     >
-      {/* Header */}
-      <div className="flex justify-between items-center p-4 border-b border-white/10 bg-white/5">
+      {/* Header - Rational Grid compliant */}
+      <div className="flex justify-between items-center p-8 border-b border-neutral-200 bg-neutral-50">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-2 py-1 bg-blue-600 text-white text-xs font-mono font-bold uppercase tracking-widest">
-            <Save className="w-3 h-3" />
+          <div className="flex items-center gap-2 px-3 py-1 bg-primary text-white text-xs font-mono font-bold uppercase tracking-widest border border-primary">
+            <Save className="w-3 h-3" aria-hidden="true" />
             <span>{note?.id ? 'EDIT MODE' : 'CAPTURE MODE'}</span>
           </div>
-          <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">ID: {noteId.slice(0, 8)}</span>
+          <span className="font-mono text-xs text-neutral-600 uppercase tracking-widest">ID: {noteId.slice(0, 8)}</span>
         </div>
-        <div className="flex items-center gap-px bg-white/10 border border-white/10">
-          <button
-            type="button"
+        <div className="flex items-center border border-neutral-200">
+          <IconButton
+            ariaLabel={isPreviewMode ? 'Switch to edit mode' : 'Switch to preview mode'}
             onClick={() => setIsPreviewMode(!isPreviewMode)}
-            title="Toggle Preview"
             data-testid="toggle-preview"
             className={cn(
-              "p-2 transition-none hover:bg-white/10",
-              isPreviewMode
-                ? "bg-blue-600 text-white"
-                : "text-gray-400"
+              "border-r border-neutral-200 rounded-none",
+              isPreviewMode ? "bg-primary text-white" : "text-neutral-600"
             )}
-          >
-            {isPreviewMode ? <Edit2 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
-          <div className="w-px h-8 bg-white/10" />
-          <button
+            icon={isPreviewMode ? <Edit2 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          />
+          <IconButton
+            ariaLabel="Discard note and close"
             onClick={onCancel}
-            className="p-2 text-gray-400 hover:text-white hover:bg-red-500/20 transition-none"
-          >
-            <X className="w-4 h-4" />
-          </button>
+            className="text-neutral-600 hover:text-white hover:bg-red-500 rounded-none"
+            icon={<X className="w-4 h-4" />}
+          />
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="divide-y divide-white/10">
-        <div className="grid grid-cols-1 divide-y divide-white/10">
+      <form onSubmit={handleSubmit} className="divide-y divide-neutral-200">
+        <div className="grid grid-cols-1 divide-y divide-neutral-200">
           {/* Title Input */}
           <div className="group relative">
             <div className="absolute top-4 left-6 flex items-center gap-2">
-              <Type className="w-3 h-3 text-blue-500" />
-              <label className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em]">Title</label>
+              <Type className="w-3 h-3 text-primary" aria-hidden="true" />
+              <label className="font-mono text-xs text-primary uppercase tracking-wider">Title</label>
             </div>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-transparent border-none px-6 pt-10 pb-4 text-xl font-bold text-white placeholder:text-gray-800 focus:outline-none focus:ring-0 focus:bg-white/[0.02] transition-colors font-sans"
+              aria-label="Note title"
+              className="w-full bg-transparent border-none px-6 pt-10 pb-4 text-xl font-bold text-neutral-900 placeholder:text-neutral-300 focus:outline-none focus:ring-0 focus:bg-neutral-50 transition-colors font-sans"
               placeholder="UNTITLED NOTE..."
             />
           </div>
@@ -100,14 +100,14 @@ export function NoteForm({ note, onSave, onCancel, onContentChange }: NoteFormPr
           {/* Content Area */}
           <div className="group relative min-h-[500px] flex flex-col">
             <div className="absolute top-4 left-6 flex items-center gap-2 z-10">
-              <AlignLeft className="w-3 h-3 text-gray-500" />
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">
+              <AlignLeft className="w-3 h-3 text-neutral-600" aria-hidden="true" />
+              <label className="font-mono text-xs text-neutral-600 uppercase tracking-wider">
                 {isPreviewMode ? 'Preview' : 'Content'}
               </label>
             </div>
 
             {isPreviewMode ? (
-              <div className="w-full flex-1 px-6 pt-12 pb-6 bg-white/[0.02]">
+              <div className="w-full flex-1 px-6 pt-12 pb-6 bg-neutral-50" role="region" aria-label="Note preview">
                 <MarkdownPreview content={content} />
               </div>
             ) : (
@@ -117,47 +117,46 @@ export function NoteForm({ note, onSave, onCancel, onContentChange }: NoteFormPr
                   setContent(e.target.value);
                   onContentChange?.(e.target.value);
                 }}
-                className="w-full flex-1 bg-transparent border-none px-6 pt-12 pb-6 text-base font-normal text-gray-300 placeholder:text-gray-800 focus:outline-none focus:ring-0 focus:bg-white/[0.02] transition-colors resize-none leading-relaxed font-mono"
+                aria-label="Note content"
+                className="w-full flex-1 bg-transparent border-none px-6 pt-12 pb-6 text-base font-normal text-neutral-700 placeholder:text-neutral-300 focus:outline-none focus:ring-0 focus:bg-neutral-50 transition-colors resize-none leading-relaxed font-mono"
                 placeholder="Start typing..."
               />
             )}
           </div>
           
           {/* Metadata Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10 bg-white/[0.02]">
-            <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-neutral-200 bg-neutral-50">
+             <div className="p-8">
                <FolderSelect
-                selectedFolderId={folderId}
-                onSelect={setFolderId}
-              />
-            </div>
-            <div className="p-6">
+                 selectedFolderId={folderId}
+                 onSelect={setFolderId}
+               />
+             </div>
+             <div className="p-8">
                <TagInput noteId={noteId} />
-            </div>
+             </div>
           </div>
         </div>
 
         {/* Form Actions */}
-        <div className="flex items-center justify-end p-4 bg-white/5 gap-4">
-            <button
+        <div className="flex items-center justify-end p-8 gap-4 bg-neutral-50">
+            <Button
               type="button"
+              variant="ghost"
+              ariaLabel="Discard note"
               onClick={onCancel}
-              className="px-6 py-2 text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-white hover:bg-white/5 transition-colors"
+              className="text-xs font-bold uppercase tracking-widest"
             >
               Discard
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              ariaLabel={note?.id ? 'Update note' : 'Capture note'}
               disabled={!title.trim() || !content.trim()}
-              className={cn(
-                "px-8 py-2 text-xs font-bold uppercase tracking-widest border border-blue-500/50 transition-all",
-                !title.trim() || !content.trim()
-                  ? "text-gray-600 border-gray-800 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.3)]"
-              )}
+              className="text-xs font-bold uppercase tracking-widest"
             >
               {note?.id ? 'Update' : 'Capture'}
-            </button>
+            </Button>
         </div>
       </form>
     </motion.div>

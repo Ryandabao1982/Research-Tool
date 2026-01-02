@@ -61,11 +61,16 @@ development_status:
   # Epic 3: Adaptive Workflows (Role-Based Contexts)
   epic-3: in-progress  # Partially implemented
   3-1-global-role-store-and-thematic-switcher: done  # RoleSwitcher.tsx exists
-  3-2-context-aware-dashboard-configuration: ready-for-dev  # Story file created with comprehensive context
-  3-3-role-based-search-scoping: backlog  # No role-based search found
+  3-2-context-aware-dashboard-configuration: review  # Implementation complete - ready for code review
+  3-3-role-based-search-scoping: ready-for-dev  # Story file created with comprehensive context
+  1-5-rapid-capture-modal-alt-space: ready-for-dev  # Story file created with comprehensive context
+  1-6-design-system-foundation-rational-grid: ready-for-dev  # Story file created with comprehensive context
+  1-7-accessibility-compliance-wcag-aaa: ready-for-dev  # Story file created with comprehensive context
+  1-8-aes-256-encryption-optional: ready-for-dev  # Story file created with comprehensive context
+  3-4-performance-cold-start-optimization: ready-for-dev  # Story file created with comprehensive context
   epic-3-retrospective: optional
 
   # Epic 4: Visual Discovery (Graph)
   epic-4: backlog
-  4-1-interactive-force-directed-graph: backlog  # No graph visualization found
+  4-1-interactive-force-directed-graph: ready-for-dev  # Story file created with comprehensive context
   epic-4-retrospective: optional

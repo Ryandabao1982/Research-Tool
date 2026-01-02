@@ -20,24 +20,24 @@ export const FolderSelect: React.FC<FolderSelectProps> = ({ selectedFolderId, on
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-2 px-1">
-                <FolderIcon className="w-3 h-3 text-gray-600" />
-                <label className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em]">Folder</label>
+                <FolderIcon className="w-3 h-3 text-neutral-600" />
+                <label className="font-mono text-xs text-neutral-600 uppercase tracking-wider">Folder</label>
             </div>
 
             <div className="relative group">
                 <select
                     value={selectedFolderId || ''}
                     onChange={(e) => onSelect(e.target.value || null)}
-                    className="w-full appearance-none bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-white focus:outline-none focus:bg-white/[0.05] focus:border-white/10 transition-all cursor-pointer"
+                    className="w-full appearance-none bg-white border border-neutral-200 px-6 py-4 text-sm font-bold text-neutral-900 focus:outline-none focus:bg-neutral-50 focus:border-primary transition-all cursor-pointer"
                 >
-                    <option value="" className="bg-zinc-900">General Notes</option>
+                    <option value="" className="bg-white">General Notes</option>
                     {folders.map(folder => (
-                        <option key={folder.id} value={folder.id} className="bg-zinc-900">
+                        <option key={folder.id} value={folder.id} className="bg-white">
                             {folder.name}
                         </option>
                     ))}
                 </select>
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">
                     <ChevronDown className="w-4 h-4" />
                 </div>
             </div>

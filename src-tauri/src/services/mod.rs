@@ -11,6 +11,10 @@ pub mod backup_service;
 pub mod search_service;
 pub mod organization_service;
 pub mod local_llm;
+pub mod encryption_service;
+pub mod passphrase_service;
+pub mod encrypted_note_service;
+pub mod role_service;
 
 
 

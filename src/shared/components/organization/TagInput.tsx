@@ -47,22 +47,22 @@ export const TagInput: React.FC<TagInputProps> = ({ noteId }) => {
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-2 px-1">
-                <TagIcon className="w-3 h-3 text-gray-600" />
-                <label className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em]">Tags</label>
+                <TagIcon className="w-3 h-3 text-neutral-600" />
+                <label className="font-mono text-xs text-neutral-600 uppercase tracking-wider">Tags</label>
             </div>
 
-            <div className="flex flex-wrap gap-2 min-h-[44px] p-2 bg-white/[0.03] border border-white/5 rounded-2xl">
+            <div className="flex flex-wrap gap-2 min-h-[44px] p-2 bg-neutral-50 border border-neutral-200">
                 {noteTags.map((tag) => (
                     <div
                         key={tag.id}
-                        className="flex items-center gap-1.5 px-3 py-1 bg-brand-blue/10 border border-brand-blue/20 rounded-full group transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1 border rounded-none bg-primary/10 border-primary/20 group transition-colors"
                     >
-                        <span className="text-[10px] font-bold text-brand-blue">#{tag.name}</span>
+                        <span className="font-mono text-xs font-bold text-primary">#{tag.name}</span>
                         <button
                             className="opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={() => deleteTagMutation.mutate(tag.id)}
                         >
-                            <X className="w-2.5 h-2.5 text-brand-blue hover:text-white" />
+                            <X className="w-2.5 h-2.5 text-primary hover:text-neutral-900" />
                         </button>
                     </div>
                 ))}
@@ -73,7 +73,7 @@ export const TagInput: React.FC<TagInputProps> = ({ noteId }) => {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Add tag..."
-                    className="flex-1 bg-transparent border-none outline-none text-[10px] font-bold text-gray-400 placeholder:text-gray-700 min-w-[80px] py-1"
+                    className="flex-1 bg-transparent border-none outline-none font-mono text-xs font-bold text-neutral-500 placeholder:text-neutral-300 min-w-[80px] py-1"
                 />
             </div>
         </div>

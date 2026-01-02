@@ -12,6 +12,8 @@ import { useState, useEffect } from 'react'
 import { useRoleStore } from '../shared/stores/role-store'
 import { Sparkles } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { CaptureModal } from './components/CaptureModal'
+import { useCaptureModal } from '../shared/hooks/useCaptureModal'
 
 function SubconsciousToast() {
   const [insight, setInsight] = useState<string | null>(null);
@@ -32,14 +34,14 @@ function SubconsciousToast() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-purple-500/30 p-4 rounded-xl shadow-2xl flex items-start gap-3 w-80"
+          className="fixed bottom-6 right-6 z-50 bg-neutral-950 border border-primary p-4 rounded-none shadow-xl flex items-start gap-3 w-80"
         >
-          <div className="p-2 bg-purple-500/10 rounded-lg">
-            <Sparkles className="w-5 h-5 text-purple-400" />
+          <div className="p-2 bg-primary/10 border border-primary/20 rounded-none">
+            <Sparkles className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white">Subconscious Connection</h4>
-            <p className="text-xs text-slate-300 mt-1">{insight}</p>
+            <h4 className="font-sans text-sm font-bold text-white">Subconscious Connection</h4>
+            <p className="font-mono text-xs text-neutral-300 mt-1">{insight}</p>
           </div>
         </motion.div>
       )}
@@ -50,6 +52,7 @@ function SubconsciousToast() {
 export default function App() {
   const [isAskOpen, setIsAskOpen] = useState(false);
   const { activeRole } = useRoleStore();
+  const { isOpen, openModal, closeModal, registerShortcut } = useCaptureModal();
 
   // Story 3.3: Thematic Visual Shift
   useEffect(() => {
@@ -93,13 +96,22 @@ export default function App() {
     };
   }, []);
 
+  // Story 1.5: Rapid Capture Modal - Register Alt+Space shortcut
+  useEffect(() => {
+    registerShortcut();
+  }, [registerShortcut]);
+
   return (
     <BrowserRouter>
       {/* Toast Overlay for Subconscious */}
       <SubconsciousToast />
       <AskModal isOpen={isAskOpen} setIsOpen={setIsAskOpen} />
       <CommandPalette />
+      
+      {/* Story 1.5: Rapid Capture Modal */}
+      <CaptureModal isOpen={isOpen} onClose={closeModal} />
 
+      {/* Semantic HTML: Main application landmark */}
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />

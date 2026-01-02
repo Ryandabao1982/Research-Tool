@@ -597,21 +597,26 @@ invoke("list_notes", {
 ### Search
 
 ```typescript
-// Full-text search
+// Full-text search with role-based filtering
 invoke("search_notes", {
   query: "search term",
-  options: {
-    limit: 20,
-    fuzzy: true,
-  },
+  role: "learner",        // Optional: "learner", "manager", "coach"
+  globalSearch: false,    // Optional: bypass role filters
 });
 
-// Advanced search
-invoke("advanced_search", {
-  filters: {
-    tags: ["research"],
-    dateRange: { start: "2024-01-01", end: "2024-12-31" },
-  },
+// Returns: SearchResultWithMetadata
+// {
+//   results: [...],
+//   role_filter_applied: boolean,
+//   role_filter_type: string | null,
+//   global_search_active: boolean
+// }
+
+// Advanced search with filters
+invoke("search_notes", {
+  query: "important tag:work created:week",
+  role: "manager",
+  globalSearch: false,
 });
 ```
 

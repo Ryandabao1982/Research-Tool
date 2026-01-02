@@ -48,11 +48,11 @@ export function AskModal({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-2xl bg-slate-900 border border-slate-700/50 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-top-4 duration-200">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-neutral-950/80 animate-in fade-in duration-200">
+            <div className="w-full max-w-2xl bg-white border border-neutral-200 overflow-hidden animate-in zoom-in-95 slide-in-from-top-4 duration-200">
                 <Command label="Ask Brain" className="w-full">
-                    <div className="flex items-center border-b border-slate-700 px-3" cmdk-input-wrapper="">
-                        <Sparkles className="w-5 h-5 text-blue-400 mr-2 animate-pulse" />
+                    <div className="flex items-center border-b border-neutral-200 px-3" cmdk-input-wrapper="">
+                        <Sparkles className="w-5 h-5 text-primary mr-2 animate-pulse" />
                         <Command.Input
                             value={query}
                             onValueChange={setQuery}
@@ -62,13 +62,13 @@ export function AskModal({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v
                                     handleAskAI();
                                 }
                             }}
-                            className="w-full bg-transparent border-none outline-none py-4 text-lg text-white placeholder-slate-400 font-medium"
+                            className="w-full bg-transparent border-none outline-none py-4 text-lg text-neutral-900 placeholder-neutral-400 font-medium"
                             placeholder="Ask your brain anything..."
                         />
                     </div>
 
-                    <Command.List className="max-h-[60vh] overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <Command.Empty className="py-6 text-center text-slate-500 text-sm">
+                    <Command.List className="max-h-[60vh] overflow-y-auto p-2">
+                        <Command.Empty className="py-6 text-center text-neutral-500 text-sm">
                             {query.length > 0 ? "No results found. Press Enter to ask AI." : "Start typing to search..."}
                         </Command.Empty>
 
@@ -76,36 +76,36 @@ export function AskModal({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (v
                             <Command.Group heading="Actions">
                                 <Command.Item
                                     onSelect={handleAskAI}
-                                    className="flex items-center gap-2 px-3 py-3 rounded-lg text-slate-200 hover:bg-slate-800 cursor-pointer aria-selected:bg-blue-600/20 aria-selected:text-blue-100 transition-colors"
+                                    className="flex items-center gap-2 px-3 py-3 border rounded-none text-neutral-900 hover:bg-neutral-50 cursor-pointer aria-selected:bg-primary/10 aria-selected:text-primary transition-colors border-neutral-200"
                                 >
-                                    <Brain className="w-4 h-4 text-purple-400" />
+                                    <Brain className="w-4 h-4 text-primary" />
                                     <span>Ask AI: "{query}"</span>
                                 </Command.Item>
                             </Command.Group>
                         )}
 
                         {isLoading && (
-                            <div className="p-8 flex flex-col items-center justify-center text-slate-400 space-y-3">
-                                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                            <div className="p-8 flex flex-col items-center justify-center text-neutral-600 space-y-3">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
                                 <p className="text-sm font-medium animate-pulse">Synthesizing neural connections...</p>
                             </div>
                         )}
 
                         {response && (
-                            <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700 mx-2 mt-2">
-                                <div className="prose prose-invert prose-sm max-w-none">
+                            <div className="p-4 bg-neutral-50 border border-neutral-200 mx-2 mt-2">
+                                <div className="prose prose-sm max-w-none">
                                     <ReactMarkdown>{response}</ReactMarkdown>
                                 </div>
                             </div>
                         )}
 
-                        <Command.Group heading="Recent Cards" className="mt-2 text-xs font-semibold text-slate-500 uppercase tracking-wider px-2">
-                            <Command.Item className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 cursor-pointer aria-selected:bg-slate-800 transition-colors text-sm font-normal normal-case">
-                                <FileText className="w-4 h-4 text-slate-500" />
+                        <Command.Group heading="Recent Cards" className="mt-2 text-xs font-mono font-semibold text-neutral-500 uppercase tracking-wider px-2">
+                            <Command.Item className="flex items-center gap-2 px-3 py-2 border rounded-none text-neutral-700 hover:bg-neutral-50 cursor-pointer aria-selected:bg-neutral-100 transition-colors text-sm font-sans font-normal normal-case border-neutral-200">
+                                <FileText className="w-4 h-4 text-neutral-500" />
                                 <span>Project Phoenix Methodology</span>
                             </Command.Item>
-                            <Command.Item className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 cursor-pointer aria-selected:bg-slate-800 transition-colors text-sm font-normal normal-case">
-                                <FileText className="w-4 h-4 text-slate-500" />
+                            <Command.Item className="flex items-center gap-2 px-3 py-2 border rounded-none text-neutral-700 hover:bg-neutral-50 cursor-pointer aria-selected:bg-neutral-100 transition-colors text-sm font-sans font-normal normal-case border-neutral-200">
+                                <FileText className="w-4 h-4 text-neutral-500" />
                                 <span>Q4 Marketing Strategy</span>
                             </Command.Item>
                         </Command.Group>

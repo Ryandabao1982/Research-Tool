@@ -32,46 +32,51 @@ export const AISettingsPanel = () => {
         }
     };
 
-    if (!status) return <div className="text-gray-500 text-sm">Loading AI Status...</div>;
+    if (!status) return <div className="font-sans text-neutral-600 text-sm">Loading AI Status...</div>;
 
     return (
-        <div className="bg-surface-100 border border-white/10 rounded-3xl p-8 space-y-6">
+        <div className="space-y-6">
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-brand-blue/10 rounded-2xl flex items-center justify-center border border-brand-blue/20">
-                        <Sparkles className="w-6 h-6 text-brand-blue" />
+                    <div className="w-12 h-12 bg-primary/10 border border-primary/20 flex items-center justify-center">
+                        <Sparkles className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h2 className="font-bold text-white text-lg tracking-tight">Local Intelligence Engine</h2>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Qwen 2.5 0.5B Instruct (Quantized)</p>
+                        <h2 className="font-sans font-bold text-neutral-900 text-lg">Local Intelligence Engine</h2>
+                        <p className="font-mono text-xs font-medium text-neutral-600 uppercase tracking-wider">Qwen 2.5 0.5B Instruct (Quantized)</p>
                     </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full border ${status.downloaded ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'} text-xs font-bold uppercase tracking-wider flex items-center gap-2`}>
-                   {status.downloaded ? <CheckCircle2 className="w-3 h-3" /> : <RefreshCw className="w-3 h-3 animate-spin" />}
-                   {status.downloaded ? 'Ready' : 'Missing'}
+                <div className={`
+                    px-3 py-1 border rounded-none text-xs font-bold uppercase tracking-wider flex items-center gap-2
+                    ${status.downloaded 
+                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600' 
+                        : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-600'}
+                `}>
+                    {status.downloaded ? <CheckCircle2 className="w-3 h-3" /> : <RefreshCw className="w-3 h-3 animate-spin" />}
+                    {status.downloaded ? 'Ready' : 'Missing'}
                 </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                    <div className="flex items-center gap-2 text-gray-400 mb-2">
+                <div className="bg-neutral-50 border border-neutral-200 p-4">
+                    <div className="flex items-center gap-2 text-neutral-600 mb-2">
                         <HardDrive className="w-4 h-4" />
-                        <span className="text-xs font-bold uppercase tracking-wider">Disk Usage</span>
+                        <span className="font-mono text-xs font-bold uppercase tracking-wider">Disk Usage</span>
                     </div>
-                    <p className="text-2xl font-black text-white">{(status.model_size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p className="font-sans text-2xl font-bold text-neutral-900">{(status.model_size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-center items-start">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Location</p>
-                    <p className="text-xs font-mono text-gray-300 break-all">{status.model_path}</p>
+                <div className="bg-neutral-50 border border-neutral-200 p-4 flex flex-col justify-center items-start">
+                    <p className="font-mono text-xs font-bold text-neutral-600 uppercase tracking-wider mb-2">Location</p>
+                    <p className="font-mono text-xs text-neutral-700 break-all">{status.model_path}</p>
                 </div>
             </div>
 
-            <div className="pt-4 border-t border-white/5 flex justify-end gap-3">
+            <div className="pt-4 border-t border-neutral-200 flex justify-end gap-3">
                  {status.downloaded && (
                     <button 
                         onClick={handleDelete}
                         disabled={isLoading}
-                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-red-500/20 transition-all flex items-center gap-2"
+                        className="rg-btn rg-btn-secondary text-red-600 hover:text-red-700 flex items-center gap-2"
                     >
                         <Trash2 className="w-4 h-4" />
                         Reset / Delete Model

@@ -1,12 +1,90 @@
 use rusqlite::{Connection, Result};
 use std::sync::Mutex;
+use std::fs;
+use std::path::Path;
 
 pub struct DbState(pub Mutex<Connection>);
+
+/// Run database migrations from the migrations directory
+fn run_migrations(conn: &Connection) -> Result<(), String> {
+    let migrations_dir = Path::new("src-tauri/migrations");
+    
+    if !migrations_dir.exists() {
+        return Ok(());
+    }
+    
+    // Get all .sql files and sort them
+    let mut migrations: Vec<String> = fs::read_dir(migrations_dir)
+        .map_err(|e| format!("Failed to read migrations directory: {}", e))?
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            let path = entry.path();
+            if path.extension()? == "sql" {
+                Some(path.to_string_lossy().to_string())
+            } else {
+                None
+            }
+        })
+        .collect();
+    
+    migrations.sort();
+    
+    // Track which migrations have been applied
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS migrations (
+            id INTEGER PRIMARY KEY,
+            name TEXT UNIQUE NOT NULL,
+            applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+        [],
+    ).map_err(|e| format!("Failed to create migrations table: {}", e))?;
+    
+    // Apply each migration
+    for migration_path in migrations {
+        let migration_name = Path::new(&migration_path)
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .to_string();
+        
+        // Check if already applied
+        let already_applied: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM migrations WHERE name = ?)",
+            [&migration_name],
+            |row| row.get(0)
+        ).unwrap_or(false);
+        
+        if !already_applied {
+            log::info!("Applying migration: {}", migration_name);
+            
+            let sql = fs::read_to_string(&migration_path)
+                .map_err(|e| format!("Failed to read migration {}: {}", migration_name, e))?;
+            
+            conn.execute_batch(&sql)
+                .map_err(|e| format!("Failed to apply migration {}: {}", migration_name, e))?;
+            
+            conn.execute(
+                "INSERT INTO migrations (name) VALUES (?)",
+                [&migration_name],
+            ).map_err(|e| format!("Failed to record migration {}: {}", migration_name, e))?;
+            
+            log::info!("Migration applied successfully: {}", migration_name);
+        }
+    }
+    
+    Ok(())
+}
 
 pub fn init_db() -> Result<Connection> {
     let conn = Connection::open("knowledge_base.db")?;
     
-    // Core Tables
+    // Run migrations first
+    if let Err(e) = run_migrations(&conn) {
+        log::error!("Migration error: {}", e);
+        // Don't fail DB init on migration errors - they might be expected
+    }
+    
+    // Core Tables (only create if not exists - migrations handle schema updates)
     conn.execute(
         "CREATE TABLE IF NOT EXISTS notes (
             internal_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,8 +97,28 @@ pub fn init_db() -> Result<Connection> {
             is_daily_note BOOLEAN DEFAULT FALSE,
             properties TEXT,
             word_count INTEGER DEFAULT 0,
-            reading_time INTEGER DEFAULT 0
+            reading_time INTEGER DEFAULT 0,
+            content_encrypted BLOB,
+            nonce BLOB,
+            content_plaintext TEXT
         )",
+        [],
+    )?;
+    
+    // Create settings table if not exists
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            encryption_enabled BOOLEAN DEFAULT FALSE,
+            encryption_passphrase_hash TEXT,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+        [],
+    )?;
+    
+    // Ensure default settings row exists
+    conn.execute(
+        "INSERT OR IGNORE INTO settings (id, encryption_enabled) VALUES (1, FALSE)",
         [],
     )?;
 
@@ -58,7 +156,6 @@ pub fn init_db() -> Result<Connection> {
         [],
     )?;
 
-
     // FTS5 Virtual Table
     conn.execute(
         "CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
@@ -72,23 +169,23 @@ pub fn init_db() -> Result<Connection> {
         [],
     )?;
 
-    // Synchronization Triggers
+    // Synchronization Triggers (Updated to handle encrypted content)
     conn.execute_batch("
         CREATE TRIGGER IF NOT EXISTS notes_ai AFTER INSERT ON notes BEGIN
           INSERT INTO notes_fts(rowid, title, content, properties) 
-          VALUES (new.internal_id, new.title, new.content, new.properties);
+          VALUES (new.internal_id, new.title, COALESCE(new.content_plaintext, new.content), new.properties);
         END;
 
         CREATE TRIGGER IF NOT EXISTS notes_ad AFTER DELETE ON notes BEGIN
           INSERT INTO notes_fts(notes_fts, rowid, title, content, properties) 
-          VALUES('delete', old.internal_id, old.title, old.content, old.properties);
+          VALUES('delete', old.internal_id, old.title, COALESCE(old.content_plaintext, old.content), old.properties);
         END;
 
         CREATE TRIGGER IF NOT EXISTS notes_au AFTER UPDATE ON notes BEGIN
           INSERT INTO notes_fts(notes_fts, rowid, title, content, properties) 
-          VALUES('delete', old.internal_id, old.title, old.content, old.properties);
+          VALUES('delete', old.internal_id, old.title, COALESCE(old.content_plaintext, old.content), old.properties);
           INSERT INTO notes_fts(rowid, title, content, properties) 
-          VALUES (new.internal_id, new.title, new.content, new.properties);
+          VALUES (new.internal_id, new.title, COALESCE(new.content_plaintext, new.content), new.properties);
         END;
     ")?;
 
@@ -107,14 +204,16 @@ pub struct Note {
     pub created_at: String,
     pub updated_at: String,
     pub folder_id: Option<String>,
+    pub is_encrypted: bool, // Whether this note is encrypted
 }
 
 pub fn get_all_notes(conn: &Connection) -> Result<Vec<Note>, String> {
     let mut stmt = conn.prepare(
-        "SELECT id, title, content, created_at, updated_at, folder_id FROM notes ORDER BY updated_at DESC"
+        "SELECT id, title, content, created_at, updated_at, folder_id, content_encrypted FROM notes ORDER BY updated_at DESC"
     ).map_err(|e| e.to_string())?;
     
     let notes = stmt.query_map([], |row| {
+        let content_encrypted: Option<Vec<u8>> = row.get(6)?;
         Ok(Note {
             id: row.get(0)?,
             title: row.get(1)?,
@@ -122,6 +221,7 @@ pub fn get_all_notes(conn: &Connection) -> Result<Vec<Note>, String> {
             created_at: row.get(3)?,
             updated_at: row.get(4)?,
             folder_id: row.get(5)?,
+            is_encrypted: content_encrypted.is_some(),
         })
     }).map_err(|e| e.to_string())?;
     
@@ -134,10 +234,11 @@ pub fn get_all_notes(conn: &Connection) -> Result<Vec<Note>, String> {
 
 pub fn get_note_by_id(conn: &Connection, id: &str) -> Result<Option<Note>, String> {
     let mut stmt = conn.prepare(
-        "SELECT id, title, content, created_at, updated_at, folder_id FROM notes WHERE id = ?"
+        "SELECT id, title, content, created_at, updated_at, folder_id, content_encrypted FROM notes WHERE id = ?"
     ).map_err(|e| e.to_string())?;
     
     let note = stmt.query_row([id], |row| {
+        let content_encrypted: Option<Vec<u8>> = row.get(6)?;
         Ok(Note {
             id: row.get(0)?,
             title: row.get(1)?,
@@ -145,6 +246,7 @@ pub fn get_note_by_id(conn: &Connection, id: &str) -> Result<Option<Note>, Strin
             created_at: row.get(3)?,
             updated_at: row.get(4)?,
             folder_id: row.get(5)?,
+            is_encrypted: content_encrypted.is_some(),
         })
     }).optional().map_err(|e| e.to_string())?;
     

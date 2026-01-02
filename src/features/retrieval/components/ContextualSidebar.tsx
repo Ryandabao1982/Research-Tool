@@ -39,7 +39,7 @@ export default function ContextualSidebar({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="w-8 h-8 border-4 border-blue-500/50 border-t-transparent animate-spin" />
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -47,14 +47,14 @@ export default function ContextualSidebar({
   if (relatedNotes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
-        <p className="text-gray-400 text-sm">No related notes found</p>
+        <p className="font-sans text-neutral-600 text-sm">No related notes found</p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col space-y-2 p-4">
-      <h2 className="text-white text-lg font-bold">Related Notes</h2>
+      <h2 className="font-sans text-neutral-900 text-lg font-bold">Related Notes</h2>
       {relatedNotes.map((note) => (
         <RelatedNoteItem
           key={note.id}
@@ -76,14 +76,14 @@ function RelatedNoteItem({ note, onClick }: RelatedNoteItemProps) {
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer p-3 rounded-lg bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all duration-200 hover:scale-105"
+      className="cursor-pointer p-3 border rounded-none bg-white hover:bg-neutral-50 hover:border-neutral-300 transition-all duration-200"
     >
-      <h3 className="text-white text-base font-semibold mb-2">
+      <h3 className="font-sans text-neutral-900 text-base font-semibold mb-2">
         {note.title}
       </h3>
       <div
         dangerouslySetInnerHTML={{ __html: sanitizedSnippet }}
-        className="text-gray-300 text-sm leading-relaxed"
+        className="font-sans text-neutral-700 text-sm leading-relaxed"
       />
     </div>
   );

@@ -1,311 +1,124 @@
-import React, { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/utils';
-
-interface Note {
-  id: string;
-  title: string;
-  updated_at: string;
-}
-
-interface DashboardStats {
-  totalNotes: number;
-  totalFolders: number;
-  totalTags: number;
-  recentNotes: Note[];
-}
+import { TopBar } from '../../shared/components/layout/TopBar';
+import { Card, StatCard, QuickActionCard, SectionHeader } from '../../shared/components/dashboard/Card';
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardPage() {
-  console.log('DashboardPage rendering');
+  const navigate = useNavigate();
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900"
+      className="min-h-screen bg-neutral-50"
     >
-      {/* Header */}
-      <motion.header
-        initial={{ y: -60 }}
-        animate={{ y: 0 }}
-        className="h-15 bg-white/5 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-6 sticky top-0 z-50"
-      >
-        <motion.span
-          className="text-2xl font-semibold text-white"
-          whileHover={{ scale: 1.05 }}
-        >
-          SecondBrain
-        </motion.span>
-        <motion.span
-          className="text-slate-300"
-          whileHover={{ scale: 1.05 }}
-        >
-          Dashboard
-        </motion.span>
-      </motion.header>
-
-      {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -240 }}
-        animate={{ x: 0 }}
-        className="fixed left-0 top-15 w-60 h-[calc(100vh-60px)] bg-white/5 backdrop-blur-2xl border-r border-white/10 p-5"
-      >
-        <motion.div
-          className="mb-5"
-          whileHover={{ scale: 1.02 }}
-        >
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            FOLDERS
-          </span>
-        </motion.div>
-
-        <nav className="flex flex-col gap-2">
-          <motion.button
-            className="px-3 py-2 text-left bg-transparent border-none cursor-pointer text-sm text-white rounded-lg hover:bg-white/10 hover:scale-105 transition-all"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            All Notes
-          </motion.button>
-          <motion.button
-            className="px-3 py-2 text-left bg-white/10 border-none cursor-pointer text-sm text-white rounded-lg hover:bg-white/20 hover:scale-105 transition-all"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Recent
-          </motion.button>
-          <motion.button
-            className="px-3 py-2 text-left bg-transparent border-none cursor-pointer text-sm text-slate-400 rounded-lg hover:bg-white/10 hover:scale-105 hover:text-white transition-all"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Favorites
-          </motion.button>
-        </nav>
-      </motion.aside>
-
-      {/* Main Content */}
-      <motion.main
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="ml-60 p-10"
-      >
-        <div className="flex gap-10 flex-wrap">
-          {/* Widget 1: Activity Heatmap */}
-          <motion.div
-            className="w-90 min-h-70 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 hover:shadow-2xl hover:shadow-blue-500/20 transition-all"
-            whileHover={{ scale: 1.02, y: -5 }}
-          >
-            <motion.h3
-              className="mb-5 text-lg font-medium text-white"
-              whileHover={{ scale: 1.05 }}
-            >
-              Activity Heatmap
-            </motion.h3>
-            <ActivityHeatmap />
-          </motion.div>
-
-          {/* Widget 2: Quick Stats */}
-          <motion.div
-            className="w-90 min-h-70 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 hover:shadow-2xl hover:shadow-green-500/20 transition-all"
-            whileHover={{ scale: 1.02, y: -5 }}
-          >
-            <motion.h3
-              className="mb-5 text-lg font-medium text-white"
-              whileHover={{ scale: 1.05 }}
-            >
-              Quick Stats
-            </motion.h3>
-            <div className="flex flex-col gap-4">
-              <div className="text-center py-5">
-                <motion.div
-                  className="text-5xl font-light text-white"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  3
-                </motion.div>
-                <div className="text-base text-slate-300 mt-1">Notes</div>
-              </div>
-              <div className="flex justify-around border-t border-white/10 pt-4">
-                <div className="text-center">
-                  <motion.div
-                    className="text-2xl font-light text-white"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    3
-                  </motion.div>
-                  <div className="text-xs text-slate-300">Folders</div>
-                </div>
-                <div className="text-center">
-                  <motion.div
-                    className="text-2xl font-light text-white"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    3
-                  </motion.div>
-                  <div className="text-xs text-slate-300">Tags</div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Widget 3: Recent Notes */}
-          <motion.div
-            className="w-90 min-h-70 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 hover:shadow-2xl hover:shadow-purple-500/20 transition-all"
-            whileHover={{ scale: 1.02, y: -5 }}
-          >
-            <motion.h3
-              className="mb-5 text-lg font-medium text-white"
-              whileHover={{ scale: 1.05 }}
-            >
-              Recent Notes
-            </motion.h3>
-            <div className="flex flex-col gap-3">
-              <motion.div
-                className="py-3 border-b border-white/10"
-                whileHover={{ scale: 1.02 }}
-              >
-                <div className="text-sm text-white font-normal">
-                  Welcome to SecondBrain
-                </div>
-                <div className="text-xs text-slate-400 mt-1">
-                  Just now
-                </div>
-              </motion.div>
-              <motion.div
-                className="py-3 border-b border-white/10"
-                whileHover={{ scale: 1.02 }}
-              >
-                <div className="text-sm text-white font-normal">
-                  Getting Started
-                </div>
-                <div className="text-xs text-slate-400 mt-1">
-                  1 day ago
-                </div>
-              </motion.div>
-              <motion.div
-                className="py-3"
-                whileHover={{ scale: 1.02 }}
-              >
-                <div className="text-sm text-white font-normal">
-                  Project Ideas
-                </div>
-                <div className="text-xs text-slate-400 mt-1">
-                  2 days ago
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </motion.main>
-    </motion.div>
-  );
-}
-
-function ActivityHeatmap() {
-  const days = Array.from({ length: 28 }, (_, i) => ({
-    day: i + 1,
-    active: Math.random() > 0.5,
-    intensity: Math.random(),
-  }));
-
-  return (
-    <motion.div
-      className="grid grid-cols-7 gap-1 mt-2.5"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.2 }}
-    >
-      {days.map((d) => (
-        <motion.div
-          key={d.day}
-          className={cn(
-            "aspect-square border border-slate-600 rounded-sm",
-            d.active
-              ? `bg-blue-500/${Math.round((0.3 + d.intensity * 0.7) * 100)}`
-              : 'bg-slate-700'
-          )}
-          whileHover={{ scale: 1.2 }}
-          title={`Day ${d.day}: ${d.active ? 'Active' : 'No activity'}`}
+      <TopBar title="Dashboard" />
+      
+      <main className="p-8 max-w-7xl mx-auto space-y-8">
+        {/* Quick Actions */}
+        <SectionHeader 
+          title="Quick Actions" 
+          action={{ label: 'View All Notes', onClick: () => navigate('/notes') }}
         />
-      ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <QuickActionCard
+            action={{
+              id: 'new-note',
+              title: 'New Note',
+              description: 'Create a knowledge note',
+              icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>,
+              shortcut: 'Ctrl+N'
+            }}
+            onClick={() => navigate('/notes/new')}
+          />
+          <QuickActionCard
+            action={{
+              id: 'capture',
+              title: 'Quick Capture',
+              description: 'Rapid thought capture',
+              icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
+              shortcut: 'Alt+Space'
+            }}
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', altKey: true }))}
+          />
+          <QuickActionCard
+            action={{
+              id: 'ask-ai',
+              title: 'Ask AI',
+              description: 'Synthesize insights',
+              icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>,
+              shortcut: 'Ctrl+B'
+            }}
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, altKey: true }))}
+          />
+        </div>
+
+        {/* Stats */}
+        <SectionHeader title="Overview" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard
+            title="Total Notes"
+            value={42}
+            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+            trend={{ value: 12, label: 'this month' }}
+            color="blue"
+          />
+          <StatCard
+            title="Active Folders"
+            value={8}
+            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>}
+            color="green"
+          />
+          <StatCard
+            title="Tags"
+            value={15}
+            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>}
+            color="orange"
+          />
+        </div>
+
+        {/* Recent Notes */}
+        <SectionHeader title="Recent Notes" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card hover onClick={() => navigate('/notes')}>
+            <div className="space-y-2">
+              <h3 className="font-sans font-bold text-lg">Project Architecture</h3>
+              <p className="font-sans text-sm text-neutral-600 line-clamp-2">
+                Design system implementation for Rational Grid with 8px spacing...
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-neutral-500">ID: abc123</span>
+                <span className="font-mono text-xs text-neutral-500">2h ago</span>
+              </div>
+            </div>
+          </Card>
+          <Card hover onClick={() => navigate('/notes')}>
+            <div className="space-y-2">
+              <h3 className="font-sans font-bold text-lg">Meeting Notes</h3>
+              <p className="font-sans text-sm text-neutral-600 line-clamp-2">
+                Q4 planning session with team leads and stakeholders...
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-neutral-500">ID: def456</span>
+                <span className="font-mono text-xs text-neutral-500">5h ago</span>
+              </div>
+            </div>
+          </Card>
+          <Card hover onClick={() => navigate('/notes')}>
+            <div className="space-y-2">
+              <h3 className="font-sans font-bold text-lg">Research Ideas</h3>
+              <p className="font-sans text-sm text-neutral-600 line-clamp-2">
+                Exploring new approaches to knowledge management...
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-neutral-500">ID: ghi789</span>
+                <span className="font-mono text-xs text-neutral-500">1d ago</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </main>
     </motion.div>
-  );
-}
-
-function QuickStats({ stats }: { stats: DashboardStats }) {
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="text-center py-5">
-        <motion.div
-          className="text-5xl font-light text-white"
-          whileHover={{ scale: 1.1 }}
-        >
-          {stats.totalNotes.toLocaleString()}
-        </motion.div>
-        <div className="text-base text-slate-300 mt-1">Notes</div>
-      </div>
-
-      <div className="flex justify-around border-t border-white/10 pt-4">
-        <div className="text-center">
-          <motion.div
-            className="text-2xl font-light text-white"
-            whileHover={{ scale: 1.1 }}
-          >
-            {stats.totalFolders}
-          </motion.div>
-          <div className="text-xs text-slate-300">Folders</div>
-        </div>
-        <div className="text-center">
-          <motion.div
-            className="text-2xl font-light text-white"
-            whileHover={{ scale: 1.1 }}
-          >
-            {stats.totalTags}
-          </motion.div>
-          <div className="text-xs text-slate-300">Tags</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RecentNotes({ notes }: { notes: Note[] }) {
-  if (notes.length === 0) {
-    return (
-      <motion.div
-        className="text-slate-400 text-sm text-center py-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        No notes yet. Create your first note to get started.
-      </motion.div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-3">
-      {notes.map((note) => (
-        <motion.div
-          key={note.id}
-          className="py-3 border-b border-white/10"
-          whileHover={{ scale: 1.02 }}
-        >
-          <div className="text-sm text-white font-normal">
-            {note.title}
-          </div>
-          <div className="text-xs text-slate-400 mt-1">
-            {new Date(note.updated_at).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </div>
-        </motion.div>
-      ))}
-    </div>
   );
 }

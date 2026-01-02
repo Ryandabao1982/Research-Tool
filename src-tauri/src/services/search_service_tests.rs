@@ -194,10 +194,12 @@ mod tests {
         // Wait for FTS trigger
         std::thread::sleep(std::time::Duration::from_millis(100));
         
-        // Search with tag filter
-        let results = search_notes(&conn, "tag:work").unwrap();
-        assert_eq!(results.len(), 1, "Should find 1 note with 'work' tag");
-        assert_eq!(results[0].id, "note1");
+        // Search with tag filter (no role, global search)
+        let result = search_notes(&conn, "tag:work", None, true).unwrap();
+        assert_eq!(result.results.len(), 1, "Should find 1 note with 'work' tag");
+        assert_eq!(result.results[0].id, "note1");
+        assert!(!result.role_filter_applied, "No role filter should be applied");
+        assert!(!result.global_search_active, "Global search should be active");
     }
 
     #[test]
@@ -235,9 +237,114 @@ mod tests {
         // Wait for FTS trigger
         std::thread::sleep(std::time::Duration::from_millis(100));
         
-        // Search with tag + created filters
-        let results = search_notes(&conn, "tag:work created:week").unwrap();
-        assert_eq!(results.len(), 1, "Should find 1 recent note with 'work' tag");
-        assert_eq!(results[0].id, "note1");
+        // Search with tag + created filters (no role, global search)
+        let result = search_notes(&conn, "tag:work created:week", None, true).unwrap();
+        assert_eq!(result.results.len(), 1, "Should find 1 recent note with 'work' tag");
+        assert_eq!(result.results[0].id, "note1");
+    }
+
+    #[test]
+    fn test_search_notes_learner_role_excludes_work() {
+        let conn = setup_test_db();
+        
+        // Create note with 'work' tag
+        conn.execute(
+            "INSERT INTO notes (id, title, content) VALUES (?1, ?2, ?3)",
+            ["note1", "Work Note", "Content 1"]
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO tags (id, name) VALUES (?1, ?2)",
+            ["tag1", "work"]
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO note_tags (note_id, tag_id) VALUES (?1, ?2)",
+            ["note1", "tag1"]
+        ).unwrap();
+        
+        // Create note without 'work' tag
+        conn.execute(
+            "INSERT INTO notes (id, title, content) VALUES (?1, ?2, ?3)",
+            ["note2", "Personal Note", "Content 2"]
+        ).unwrap();
+        
+        // Wait for FTS trigger
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        
+        // Search with learner role
+        let result = search_notes(&conn, "", Some("learner"), false).unwrap();
+        // Empty query with no filters returns empty
+        assert_eq!(result.results.len(), 0);
+        
+        // Now search with content
+        let result = search_notes(&conn, "Content", Some("learner"), false).unwrap();
+        assert_eq!(result.results.len(), 1, "Should find only 1 note (excluding work)");
+        assert_eq!(result.results[0].id, "note2");
+        assert!(result.role_filter_applied, "Learner role filter should be applied");
+        assert_eq!(result.role_filter_type, Some("learner".to_string()));
+    }
+
+    #[test]
+    fn test_search_notes_manager_prioritizes_project() {
+        let conn = setup_test_db();
+        
+        // Create note with 'project' tag
+        conn.execute(
+            "INSERT INTO notes (id, title, content) VALUES (?1, ?2, ?3)",
+            ["note1", "Project Note", "Important content"]
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO tags (id, name) VALUES (?1, ?2)",
+            ["tag1", "project"]
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO note_tags (note_id, tag_id) VALUES (?1, ?2)",
+            ["note1", "tag1"]
+        ).unwrap();
+        
+        // Create note without 'project' tag
+        conn.execute(
+            "INSERT INTO notes (id, title, content) VALUES (?1, ?2, ?3)",
+            ["note2", "Regular Note", "Important content"]
+        ).unwrap();
+        
+        // Wait for FTS trigger
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        
+        // Search with manager role
+        let result = search_notes(&conn, "Important", Some("manager"), false).unwrap();
+        assert_eq!(result.results.len(), 2, "Should find both notes");
+        // Project-tagged note should come first due to ordering
+        assert_eq!(result.results[0].id, "note1", "Project-tagged note should be first");
+        assert!(result.role_filter_applied, "Manager role filter should be applied");
+        assert_eq!(result.role_filter_type, Some("manager".to_string()));
+    }
+
+    #[test]
+    fn test_search_notes_global_search_bypasses_role() {
+        let conn = setup_test_db();
+        
+        // Create note with 'work' tag
+        conn.execute(
+            "INSERT INTO notes (id, title, content) VALUES (?1, ?2, ?3)",
+            ["note1", "Work Note", "Content 1"]
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO tags (id, name) VALUES (?1, ?2)",
+            ["tag1", "work"]
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO note_tags (note_id, tag_id) VALUES (?1, ?2)",
+            ["note1", "tag1"]
+        ).unwrap();
+        
+        // Wait for FTS trigger
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        
+        // Search with learner role but global search enabled
+        let result = search_notes(&conn, "Work", Some("learner"), true).unwrap();
+        assert_eq!(result.results.len(), 1, "Should find work note with global search");
+        assert!(!result.role_filter_applied, "Role filter should NOT be applied");
+        assert!(result.global_search_active, "Global search should be active");
+        assert_eq!(result.role_filter_type, Some("learner".to_string()), "Role type should still be tracked");
     }
 }

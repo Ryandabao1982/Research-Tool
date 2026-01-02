@@ -40,8 +40,10 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         <div className="select-none">
             <div
                 className={cn(
-                    "group flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer transition-colors",
-                    isSelected ? "bg-white/10 text-white" : "text-text-secondary hover:bg-white/5 hover:text-white"
+                    "group flex items-center gap-2 px-3 py-1.5 border rounded-none cursor-pointer transition-colors",
+                    isSelected 
+                        ? "bg-neutral-100 text-neutral-900 border-neutral-300" 
+                        : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 border-neutral-200"
                 )}
                 style={{ paddingLeft: `${(depth * 12) + 12} px` }}
                 onClick={() => {
@@ -54,17 +56,17 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                         isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />
                     ) : null}
                 </span>
-                <FolderIcon className={cn("w-4 h-4", isSelected ? "text-brand-blue" : "text-zinc-500")} />
-                <span className="text-xs font-medium truncate">{folder.name}</span>
+                <FolderIcon className={cn("w-4 h-4", isSelected ? "text-primary" : "text-neutral-400")} />
+                <span className="font-sans text-xs font-medium truncate">{folder.name}</span>
 
                 <button
-                    className="ml-auto opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded transition-opacity"
+                    className="ml-auto opacity-0 group-hover:opacity-100 p-1 hover:bg-neutral-200 border rounded-none transition-opacity border-transparent"
                     onClick={(e) => {
                         e.stopPropagation();
                         onAddSubfolder(folder.id);
                     }}
                 >
-                    <Plus className="w-3 h-3 text-zinc-400" />
+                    <Plus className="w-3 h-3 text-neutral-500" />
                 </button>
             </div>
 
@@ -88,14 +90,16 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                         <div
                             key={note.id}
                             className={cn(
-                                "flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer transition-colors",
-                                selectedNoteId === note.id ? "text-white bg-white/5" : "text-text-muted hover:text-white hover:bg-white/5"
+                                "flex items-center gap-2 px-3 py-1.5 border rounded-none cursor-pointer transition-colors",
+                                selectedNoteId === note.id 
+                                    ? "bg-neutral-50 text-neutral-900 border-neutral-300" 
+                                    : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 border-neutral-200"
                             )}
                             style={{ paddingLeft: `${((depth + 1) * 12) + 28} px` }}
                             onClick={() => setSelectedNoteId(note.id)}
                         >
-                            <FileText className="w-3 h-3 text-zinc-600" />
-                            <span className="text-[11px] truncate tracking-tight">{note.title}</span>
+                            <FileText className="w-3 h-3 text-neutral-400" />
+                            <span className="font-mono text-[11px] truncate">{note.title}</span>
                         </div>
                     ))}
                 </div>
@@ -103,4 +107,3 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </div>
     );
 };
-

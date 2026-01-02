@@ -105,18 +105,35 @@ const notes = await invoke<Note[]>('get_notes_by_tag', { tag_name: 'research' })
 ```
 
 #### `search_notes`
-Searches across all notes using FTS5.
+Searches across all notes using FTS5 with optional role-based filtering.
 
 ```typescript
 // Usage
-const results = await invoke<SearchResult[]>('search_notes', { query: 'search term' });
+const result = await invoke<SearchResultWithMetadata>('search_notes', { 
+    query: 'search term',
+    role: 'learner',        // Optional: 'learner', 'manager', 'coach'
+    globalSearch: false     // Optional: bypass role filters
+});
 
 interface SearchResult {
     id: string;
     title: string;
     snippet: string;
 }
+
+interface SearchResultWithMetadata {
+    results: SearchResult[];
+    role_filter_applied: boolean;
+    role_filter_type: string | null;
+    global_search_active: boolean;
+}
 ```
+
+**Role-based filtering:**
+- **Learner**: Excludes notes tagged with `#work`
+- **Manager**: Prioritizes notes tagged with `#project` (shows them first)
+- **Coach**: Prioritizes notes tagged with `#coaching` or `#template`
+- **Global Search**: When `globalSearch: true`, all role filters are bypassed
 
 #### `get_recent_notes`
 Gets most recently updated notes.
@@ -257,18 +274,28 @@ await invoke('remove_tag_from_note', {
 ### 🔍 Search Commands (5 commands)
 
 #### `search_notes`
-Searches across all notes using FTS5.
+Searches across all notes using FTS5 with optional role-based filtering.
 
 ```typescript
 // Usage
-const results = await invoke<SearchResult[]>('search_notes', { query: 'search term' });
+const result = await invoke<SearchResultWithMetadata>('search_notes', { 
+    query: 'search term',
+    role: 'learner',        // Optional
+    globalSearch: false     // Optional
+});
 
 // Returns
 interface SearchResult {
-    note_id: string;
+    id: string;
     title: string;
-    content_snippet: string;
-    relevance_score: number;
+    snippet: string;
+}
+
+interface SearchResultWithMetadata {
+    results: SearchResult[];
+    role_filter_applied: boolean;
+    role_filter_type: string | null;
+    global_search_active: boolean;
 }
 ```
 
